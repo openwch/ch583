@@ -1,0 +1,13 @@
+
+Vendor=WCH
+Link=WCH-Link
+Toolchain=
+Series=
+Description=
+Mcu Type=CH58x
+Address=0x00000000
+Target Path=obj\wristband.hex
+Erase All=false
+Program=false
+Verify=false
+Reset=true
