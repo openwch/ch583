@@ -1,42 +1,40 @@
 # WCH Wristband
 
-> 基于CH582M芯片设计的智能手环Demo。
+EN | [中文](README_zh.md)
+
+> Smart Wristband Demo based on CH582M.
 >
-> 支持BLE 5.2，心率检测，血氧检测，姿态角检测，触摸按键以及WCH-Link调试。
+> BLE 5.2. Heart rate monitor, pulse-oxygen monitor, attitude angle detection, Touch-Key and WCH-Link debugger.
 >
-> 硬件提供原理图PCB参考设计，软件提供基本传感器外设驱动。
+> Schematic and PCB are available for hardware reference. In addition, the basic sensor peripheral driver is also available.
 
 ![封面](image/封面.png)
 
-### 项目文件说明
+### Description of files
 
 ------
 
-- Hardware：wristband为原理图和PCB文件，使用Altium Designer打开；pcblib为相关器件的原理图PCB库。
-- Firmware：CH582M芯片的固件，使用沁恒开发的IDE MounRiver Studio打开。
-- Doc：CH582M芯片的手册以及相关外设的手册。
-- Pic：图片生成工具以及工程使用图片。
+- Hardware： Schematic and PCB files can be found in the wristband packet, opened via Altium Designer. And the library of schematic and PCB can be found in the pcblib packet.
+- Firmware：CH582M firmware (IDE: MounRiver Studio).
+- Doc：CH582M datasheet and manual of other peripherals.
+- Pic：Picture generation tool and the inserted picture.
 
-### 硬件方案
-
+### Hardware
 ------
 
-- 主控芯片采用CH582M芯片，32位RISC-V架构MCU，自带BLE5.2
+- CH582M: master MCU, a 32-bit RISC-V MCU, with BLE5.2
+- ST7735 LCD: 0.96 inch HD IPS displayer, I2C DMA transfer
+- MPU9250: 9 DOF IMU Sensor, with functions of wrist lifting detection and step counting
+- MAX30102: an integrated pulse oxygen and heart-rate monitor module
+- DRV2605: motor driver module, to implement vibration
+- TTP223: Touchkey
 
-- LCD屏采用0.96寸高清IPS显示屏 ST7735，I2C DMA传输
-- 采用MUP9250九轴传感器，具备抬腕检测，步数计算等功能
-- 血氧心率检测模块MAX30102
-- DRV2605电机驱动模块，实现震动功能
-- TTP223触摸按键
-
-### 软件设计
-
+### Software
 ------
 
-- 基于沁恒MRS IDE开发
-
-- 提供SPI  I2C读写函数
-- 提供各个功能模块功能函数
+- IDE: MounRiver Studio
+- SPI I2C read/write functions
+- Functions of each functional module
 
 
 
