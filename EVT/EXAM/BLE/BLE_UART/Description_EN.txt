@@ -1,0 +1,21 @@
+﻿
+CH583 UART transmission:
+
+Features:
+1. Dual 128-bit UUIDs,
+2. The property of one UUID is Write Without Respone, and the property of the other UUID is Notify. They corresponds to UART reception and UART transmission, and they can be modified in the ble_uart_service/ble_uart_service.c project file.
+3. MTU can be set as any value from 20 to 247, adaptive to the current MTU.
+4. By default, debug on CH583, with UART3, TXD3@PA5, RXD3@PA4. The code should be modified when another UART is used.
+5. BLE name: ch583_ble_uart
+6. By default, enable serial port Notify success writeback, and the code (the BLE_UART_EVT_BLE_DATA_RECIEVED event in the on_bleuartServiceEvt callback functions) can be removed when not needed. 
+7.  By default, serial debugging is enabled, with serial port 1, PA9_TXD 115200. 
+
+
+Some parameters modified:
+
+See: config.h
+
+1. MTU size modified, 251 at max, at this time, the corresponding MTU is 247, but the actual MTU is based on the negotiated value when the central is connected.
+2. The maximum number of packets transmitted per connection modified.
+3. To set the global macro definition in the MounRiver Studio project, the recommended way is to first right-click BLE_UART, and select Properties, then double-click C/C++ General, and select Paths and Symbols, finally click Symbols.
+
