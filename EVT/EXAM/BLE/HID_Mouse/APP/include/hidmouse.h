@@ -1,17 +1,18 @@
 /********************************** (C) COPYRIGHT *******************************
-* File Name          : hidmouse.h
-* Author             : WCH
-* Version            : V1.0
-* Date               : 2018/12/10
-* Description        : 
-*******************************************************************************/
+ * File Name          : hidmouse.h
+ * Author             : WCH
+ * Version            : V1.0
+ * Date               : 2018/12/10
+ * Description        :
+ * Copyright (c) 2021 Nanjing Qinheng Microelectronics Co., Ltd.
+ * SPDX-License-Identifier: Apache-2.0
+ *******************************************************************************/
 
 #ifndef HIDMOUSE_H
 #define HIDMOUSE_H
 
 #ifdef __cplusplus
-extern "C"
-{
+extern "C" {
 #endif
 
 /*********************************************************************
@@ -23,10 +24,10 @@ extern "C"
  */
 
 // Task Events
-#define START_DEVICE_EVT                              0x0001
-#define START_REPORT_EVT                              0x0002
-#define START_PARAM_UPDATE_EVT                        0x0004
-#define START_PHY_UPDATE_EVT                          0x0008
+#define START_DEVICE_EVT          0x0001
+#define START_REPORT_EVT          0x0002
+#define START_PARAM_UPDATE_EVT    0x0004
+#define START_PHY_UPDATE_EVT      0x0008
 /*********************************************************************
  * MACROS
  */
@@ -34,7 +35,7 @@ extern "C"
 /*********************************************************************
  * FUNCTIONS
  */
-  
+
 /*********************************************************************
  * GLOBAL VARIABLES
  */
@@ -42,12 +43,12 @@ extern "C"
 /*
  * Task Initialization for the BLE Application
  */
-extern void HidEmu_Init( void );
+extern void HidEmu_Init(void);
 
 /*
  * Task Event Processor for the BLE Application
  */
-extern uint16 HidEmu_ProcessEvent( uint8 task_id, uint16 events );
+extern uint16_t HidEmu_ProcessEvent(uint8_t task_id, uint16_t events);
 
 /*********************************************************************
 *********************************************************************/
@@ -56,4 +57,4 @@ extern uint16 HidEmu_ProcessEvent( uint8 task_id, uint16 events );
 }
 #endif
 
-#endif 
+#endif

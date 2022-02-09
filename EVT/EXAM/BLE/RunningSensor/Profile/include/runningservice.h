@@ -1,18 +1,18 @@
 /********************************** (C) COPYRIGHT *******************************
-* File Name          : runningservice.h
-* Author             : WCH
-* Version            : V1.0
-* Date               : 2018/12/12
-* Description        : 
-            
-*******************************************************************************/
+ * File Name          : runningservice.h
+ * Author             : WCH
+ * Version            : V1.0
+ * Date               : 2018/12/12
+ * Description        :
+ * Copyright (c) 2021 Nanjing Qinheng Microelectronics Co., Ltd.
+ * SPDX-License-Identifier: Apache-2.0
+ *******************************************************************************/
 
 #ifndef RUNNINGSERVICE_H
 #define RUNNINGSERVICE_H
 
 #ifdef __cplusplus
-extern "C"
-{
+extern "C" {
 #endif
 
 /*********************************************************************
@@ -81,10 +81,9 @@ extern "C"
 #define RSC_FLAGS_DIST              0x02
 #define RSC_FLAGS_ALL               0x03
 
+#define DEFAULT_NOTI_INTERVAL       1000        // in milliseconds
 
-#define DEFAULT_NOTI_INTERVAL       1000  // in milliseconds
-
-#define VALUE_ROLL_OVER             64000 // in milliseconds
+#define VALUE_ROLL_OVER             64000       // in milliseconds
 
 // Callback events
 #define RSC_CMD_SET_CUMM_VAL        1
@@ -100,7 +99,7 @@ extern "C"
  */
 
 // RSC service callback function
-typedef bStatus_t (*runningServiceCB_t)(uint8 event, uint32 *pNewCummVal);
+typedef bStatus_t (*runningServiceCB_t)(uint8_t event, uint32_t *pNewCummVal);
 
 /*********************************************************************
  * MACROS
@@ -123,7 +122,7 @@ typedef bStatus_t (*runningServiceCB_t)(uint8 event, uint32 *pNewCummVal);
  *
  * @return  none
  */
-extern void RunningService_Init( uint8 task_id );
+extern void RunningService_Init(uint8_t task_id);
 
 /*********************************************************************
  * @fn      RunningService_ProcessEvent
@@ -136,7 +135,7 @@ extern void RunningService_Init( uint8 task_id );
  *
  * @return  none
  */
-extern uint16 RunningService_ProcessEvent( uint8 task_id, uint16 events );
+extern uint16_t RunningService_ProcessEvent(uint8_t task_id, uint16_t events);
 
 /*
  * @fn      Runninging_AddService
@@ -148,7 +147,7 @@ extern uint16 RunningService_ProcessEvent( uint8 task_id, uint16 events );
  *                     contain more than one service.
  * @return  status
  */
-extern bStatus_t Running_AddService( uint32 services );
+extern bStatus_t Running_AddService(uint32_t services);
 
 /*
  * @fn      Running_Register
@@ -160,7 +159,7 @@ extern bStatus_t Running_AddService( uint32 services );
  *
  * @return  none
  */
-extern void Running_Register( runningServiceCB_t pfnServiceCB );
+extern void Running_Register(runningServiceCB_t pfnServiceCB);
 
 /*
  * @fn      Running_SetParameter
@@ -171,12 +170,12 @@ extern void Running_Register( runningServiceCB_t pfnServiceCB );
  * @param   len - length of data to right
  * @param   value - pointer to data to write.  This is dependent on
  *          the parameter ID and WILL be cast to the appropriate
- *          data type (example: data type of uint16 will be cast to
- *          uint16 pointer).
+ *          data type (example: data type of uint16_t will be cast to
+ *          uint16_t pointer).
  *
  * @return  status
  */
-extern bStatus_t Running_SetParameter( uint8 param, uint8 len, void *value );
+extern bStatus_t Running_SetParameter(uint8_t param, uint8_t len, void *value);
 
 /*********************************************************************
  * @fn      Running_GetParameter
@@ -186,12 +185,12 @@ extern bStatus_t Running_SetParameter( uint8 param, uint8 len, void *value );
  * @param   param - Profile parameter ID
  * @param   value - pointer to data to get.  This is dependent on
  *          the parameter ID and WILL be cast to the appropriate
- *          data type (example: data type of uint16 will be cast to
- *          uint16 pointer).
+ *          data type (example: data type of uint16_t will be cast to
+ *          uint16_t pointer).
  *
  * @return  bStatus_t
  */
-bStatus_t Running_GetParameter( uint8 param, void *value );
+bStatus_t Running_GetParameter(uint8_t param, void *value);
 
 /*********************************************************************
  * @fn          Running_MeasNotify
@@ -204,7 +203,7 @@ bStatus_t Running_GetParameter( uint8 param, void *value );
  *
  * @return      Success or Failure
  */
-extern bStatus_t Running_MeasNotify( uint16 connHandle, attHandleValueNoti_t *pNoti );
+extern bStatus_t Running_MeasNotify(uint16_t connHandle, attHandleValueNoti_t *pNoti);
 
 /*********************************************************************
  * @fn          Running_HandleConnStatusCB
@@ -216,7 +215,7 @@ extern bStatus_t Running_MeasNotify( uint16 connHandle, attHandleValueNoti_t *pN
  *
  * @return      none
  */
-extern void Running_HandleConnStatusCB( uint16 connHandle, uint8 changeType );
+extern void Running_HandleConnStatusCB(uint16_t connHandle, uint8_t changeType);
 
 /*********************************************************************
 *********************************************************************/

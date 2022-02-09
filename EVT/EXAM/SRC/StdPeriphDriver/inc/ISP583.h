@@ -58,34 +58,133 @@
 #define ROM_CFG_MAC_ADDR	0x7F018			// address for MAC address information
 #define ROM_CFG_BOOT_INFO	0x7DFF8			// address for BOOT information
 
-extern UINT32 FLASH_EEPROM_CMD( UINT8 cmd, UINT32 StartAddr, PVOID Buffer, UINT32 Length );  // execute Flash/EEPROM command, caller from FlashROM or RAM
+/**
+ * @brief   execute Flash/EEPROM command, caller from FlashROM or RAM
+ *
+ * @param   cmd         - CMD_* for caller from FlashROM or RAM.
+ * @param   StartAddr   - Address of the data to be process.
+ * @param   Buffer      - Pointer to the buffer where data should be process, Must be aligned to 4 bytes.
+ * @param   Length      - Size of data to be process, in bytes.
+ *
+ * @return  0-SUCCESS  (!0)-FAILURE
+ */
+extern uint32_t FLASH_EEPROM_CMD( uint8_t cmd, uint32_t StartAddr, void *Buffer, uint32_t Length );
 
+/**
+ * @brief   start FlashROM I/O
+ *
+ * @return  0-SUCCESS  (!0)-FAILURE
+ */
+#define FLASH_ROM_START_IO( )                       FLASH_EEPROM_CMD( CMD_FLASH_ROM_START_IO, 0, NULL, 0 )
 
-#define FLASH_ROM_START_IO( )						FLASH_EEPROM_CMD( CMD_FLASH_ROM_START_IO, 0, NULL, 0 )  // start FlashROM I/O
+/**
+ * @brief   software reset FlashROM
+ *
+ * @return  0-SUCCESS  (!0)-FAILURE
+ */
+#define FLASH_ROM_SW_RESET( )                       FLASH_EEPROM_CMD( CMD_FLASH_ROM_SW_RESET, 0, NULL, 0 )
 
-#define FLASH_ROM_SW_RESET( )						FLASH_EEPROM_CMD( CMD_FLASH_ROM_SW_RESET, 0, NULL, 0 )  // software reset FlashROM
+/**
+ * @brief   get 6 bytes MAC address
+ *
+ * @param   Buffer      - Pointer to the buffer where data should be stored, Must be aligned to 4 bytes.
+ *
+ * @return  0-SUCCESS  (!0)-FAILURE
+ */
+#define GetMACAddress(Buffer)                       FLASH_EEPROM_CMD( CMD_GET_ROM_INFO, ROM_CFG_MAC_ADDR, Buffer, 0 )
 
-#define GetMACAddress(Buffer)						FLASH_EEPROM_CMD( CMD_GET_ROM_INFO, ROM_CFG_MAC_ADDR, Buffer, 0 )  // get 6 bytes MAC address
+/**
+ * @brief   get 8 bytes BOOT information
+ *
+ * @param   Buffer      - Pointer to the buffer where data should be stored, Must be aligned to 4 bytes.
+ *
+ * @return  0-SUCCESS  (!0)-FAILURE
+ */
+#define GET_BOOT_INFO(Buffer)                       FLASH_EEPROM_CMD( CMD_GET_ROM_INFO, ROM_CFG_BOOT_INFO, Buffer, 0 )
 
-#define GET_BOOT_INFO(Buffer)						FLASH_EEPROM_CMD( CMD_GET_ROM_INFO, ROM_CFG_BOOT_INFO, Buffer, 0 )  // get 8 bytes BOOT information
+/**
+ * @brief   get 64 bit unique ID
+ *
+ * @param   Buffer      - Pointer to the buffer where data should be stored, Must be aligned to 4 bytes.
+ *
+ * @return  0-SUCCESS  (!0)-FAILURE
+ */
+#define GET_UNIQUE_ID(Buffer)                       FLASH_EEPROM_CMD( CMD_GET_UNIQUE_ID, 0, Buffer, 0 )
 
-#define GET_UNIQUE_ID(Buffer)						FLASH_EEPROM_CMD( CMD_GET_UNIQUE_ID, 0, Buffer, 0 )  // get 64 bit unique ID
+/**
+ * @brief   power-down FlashROM
+ *
+ * @return  0-SUCCESS  (!0)-FAILURE
+ */
+#define FLASH_ROM_PWR_DOWN( )                       FLASH_EEPROM_CMD( CMD_FLASH_ROM_PWR_DOWN, 0, NULL, 0 )
 
-#define FLASH_ROM_PWR_DOWN( )						FLASH_EEPROM_CMD( CMD_FLASH_ROM_PWR_DOWN, 0, NULL, 0 )  // power-down FlashROM
+/**
+ * @brief   power-up FlashROM
+ *
+ * @return  0-SUCCESS  (!0)-FAILURE
+ */
+#define FLASH_ROM_PWR_UP( )                         FLASH_EEPROM_CMD( CMD_FLASH_ROM_PWR_UP, 0, NULL, 0 )
 
-#define FLASH_ROM_PWR_UP( )							FLASH_EEPROM_CMD( CMD_FLASH_ROM_PWR_UP, 0, NULL, 0 )  // power-up FlashROM
+/**
+ * @brief   read Data-Flash data block
+ *
+ * @param   StartAddr   - Address of the data to be read.
+ * @param   Buffer      - Pointer to the buffer where data should be stored, Must be aligned to 4 bytes.
+ * @param   Length      - Size of data to be read, in bytes.
+ *
+ * @return  0-SUCCESS  (!0)-FAILURE
+ */
+#define EEPROM_READ(StartAddr,Buffer,Length)        FLASH_EEPROM_CMD( CMD_EEPROM_READ, StartAddr, Buffer, Length )
 
-#define EEPROM_READ(StartAddr,Buffer,Length)		FLASH_EEPROM_CMD( CMD_EEPROM_READ, StartAddr, Buffer, Length )  // read Data-Flash data block
+/**
+ *
+ * @param   StartAddr   - Address of the data to be erased.
+ * @param   Length      - Size of data to be erased, in bytes.
+ *
+ * @return  0-SUCCESS  (!0)-FAILURE
+ */
+#define EEPROM_ERASE(StartAddr,Length)              FLASH_EEPROM_CMD( CMD_EEPROM_ERASE, StartAddr, NULL, Length )
 
-#define EEPROM_ERASE(StartAddr,Length)				FLASH_EEPROM_CMD( CMD_EEPROM_ERASE, StartAddr, NULL, Length )  // erase Data-Flash block, return 0 if success
+/**
+ * @brief   write Data-Flash data block
+ *
+ * @param   StartAddr   - Address of the data to be written.
+ * @param   Buffer      - Pointer to the source buffer, Must be aligned to 4 bytes.
+ * @param   Length      - Size of data to be written, in bytes.
+ *
+ * @return  0-SUCCESS  (!0)-FAILURE
+ */
+#define EEPROM_WRITE(StartAddr,Buffer,Length)       FLASH_EEPROM_CMD( CMD_EEPROM_WRITE, StartAddr, Buffer, Length )
 
-#define EEPROM_WRITE(StartAddr,Buffer,Length)		FLASH_EEPROM_CMD( CMD_EEPROM_WRITE, StartAddr, Buffer, Length )  // write Data-Flash data block, return 0 if success
+/**
+ * @brief   erase FlashROM block
+ *
+ * @param   StartAddr   - Address of the data to be erased.
+ * @param   Length      - Size of data to be erased, in bytes.
+ *
+ * @return  0-SUCCESS  (!0)-FAILURE
+ */
+#define FLASH_ROM_ERASE(StartAddr,Length)           FLASH_EEPROM_CMD( CMD_FLASH_ROM_ERASE, StartAddr, NULL, Length )
 
-#define FLASH_ROM_ERASE(StartAddr,Length)			FLASH_EEPROM_CMD( CMD_FLASH_ROM_ERASE, StartAddr, NULL, Length )  // erase FlashROM block, return 0 if success
+/**
+ * @brief   write FlashROM data block, minimal block is dword.
+ *
+ * @param   StartAddr   - Address of the data to be written.
+ * @param   Buffer      - Pointer to the source buffer, Must be aligned to 4 bytes.
+ * @param   Length      - Size of data to be written, in bytes.
+ *
+ * @return  0-SUCCESS  (!0)-FAILURE
+ */
+#define FLASH_ROM_WRITE(StartAddr,Buffer,Length)    FLASH_EEPROM_CMD( CMD_FLASH_ROM_WRITE, StartAddr, Buffer, Length )
 
-#define FLASH_ROM_WRITE(StartAddr,Buffer,Length)	FLASH_EEPROM_CMD( CMD_FLASH_ROM_WRITE, StartAddr, Buffer, Length )  // write FlashROM data block, minimal block is dword, return 0 if success
+/**
+ * @brief   verify FlashROM data block, minimal block is dword.
+ *
+ * @param   StartAddr   - Address of the data to verify.
+ * @param   Buffer      - Pointer to the source buffer, Must be aligned to 4 bytes.
+ * @param   Length      - Size of data to verify, in bytes.
+ *
+ * @return  0-SUCCESS  (!0)-FAILURE
+ */
+#define FLASH_ROM_VERIFY(StartAddr,Buffer,Length)   FLASH_EEPROM_CMD( CMD_FLASH_ROM_VERIFY, StartAddr, Buffer, Length )
 
-#define FLASH_ROM_VERIFY(StartAddr,Buffer,Length)	FLASH_EEPROM_CMD( CMD_FLASH_ROM_VERIFY, StartAddr, Buffer, Length )  // verify FlashROM data block, minimal block is dword, return 0 if success
-
-#define FLASH_ROM_LOCK(LockFlag)					FLASH_EEPROM_CMD( CMD_FLASH_ROM_LOCK, LockFlag, NULL, 0 )  // lock(protect)/unlock FlashROM data block, return 0 if success
-/* LockFlag: 0=unlock all, 1=lock inform area (default status), 2=lock boot code, 3=lock all code and data */

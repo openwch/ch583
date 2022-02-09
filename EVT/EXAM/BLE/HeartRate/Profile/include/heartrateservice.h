@@ -1,18 +1,18 @@
 /********************************** (C) COPYRIGHT *******************************
-* File Name          : heartrateservice.h
-* Author             : WCH
-* Version            : V1.0
-* Date               : 2018/12/11
-* Description        : 
-            
-*******************************************************************************/
+ * File Name          : heartrateservice.h
+ * Author             : WCH
+ * Version            : V1.0
+ * Date               : 2018/12/11
+ * Description        :
+ * Copyright (c) 2021 Nanjing Qinheng Microelectronics Co., Ltd.
+ * SPDX-License-Identifier: Apache-2.0
+ *******************************************************************************/
 
 #ifndef HEARTRATESERVICE_H
 #define HEARTRATESERVICE_H
 
 #ifdef __cplusplus
-extern "C"
-{
+extern "C" {
 #endif
 
 /*********************************************************************
@@ -23,54 +23,53 @@ extern "C"
  * CONSTANTS
  */
 
-
 // Heart Rate Service Parameters
-#define HEARTRATE_MEAS                      0
-#define HEARTRATE_MEAS_CHAR_CFG             1
-#define HEARTRATE_SENS_LOC                  2
-#define HEARTRATE_COMMAND                   3
+#define HEARTRATE_MEAS                     0
+#define HEARTRATE_MEAS_CHAR_CFG            1
+#define HEARTRATE_SENS_LOC                 2
+#define HEARTRATE_COMMAND                  3
 
 // Maximum length of heart rate measurement characteristic
-#define HEARTRATE_MEAS_MAX                  (ATT_MTU_SIZE -5)
+#define HEARTRATE_MEAS_MAX                 (ATT_MTU_SIZE - 5)
 
 // Values for flags
-#define HEARTRATE_FLAGS_FORMAT_UINT16       0x01
-#define HEARTRATE_FLAGS_CONTACT_NOT_SUP     0x00
-#define HEARTRATE_FLAGS_CONTACT_NOT_DET     0x04
-#define HEARTRATE_FLAGS_CONTACT_DET         0x06
-#define HEARTRATE_FLAGS_ENERGY_EXP          0x08
-#define HEARTRATE_FLAGS_RR                  0x10
+#define HEARTRATE_FLAGS_FORMAT_UINT16      0x01
+#define HEARTRATE_FLAGS_CONTACT_NOT_SUP    0x00
+#define HEARTRATE_FLAGS_CONTACT_NOT_DET    0x04
+#define HEARTRATE_FLAGS_CONTACT_DET        0x06
+#define HEARTRATE_FLAGS_ENERGY_EXP         0x08
+#define HEARTRATE_FLAGS_RR                 0x10
 
 // Values for sensor location
-#define HEARTRATE_SENS_LOC_OTHER            0x00
-#define HEARTRATE_SENS_LOC_CHEST            0x01
-#define HEARTRATE_SENS_LOC_WRIST            0x02
-#define HEARTRATE_SENS_LOC_FINGER           0x03
-#define HEARTRATE_SENS_LOC_HAND             0x04
-#define HEARTRATE_SENS_LOC_EARLOBE          0x05
-#define HEARTRATE_SENS_LOC_FOOT             0x06
+#define HEARTRATE_SENS_LOC_OTHER           0x00
+#define HEARTRATE_SENS_LOC_CHEST           0x01
+#define HEARTRATE_SENS_LOC_WRIST           0x02
+#define HEARTRATE_SENS_LOC_FINGER          0x03
+#define HEARTRATE_SENS_LOC_HAND            0x04
+#define HEARTRATE_SENS_LOC_EARLOBE         0x05
+#define HEARTRATE_SENS_LOC_FOOT            0x06
 
 // Value for command characteristic
-#define HEARTRATE_COMMAND_ENERGY_EXP        0x01
+#define HEARTRATE_COMMAND_ENERGY_EXP       0x01
 
 // ATT Error code
 // Control point value not supported
-#define HEARTRATE_ERR_NOT_SUP               0x80
+#define HEARTRATE_ERR_NOT_SUP              0x80
 
 // Heart Rate Service bit fields
-#define HEARTRATE_SERVICE                   0x00000001
+#define HEARTRATE_SERVICE                  0x00000001
 
 // Callback events
-#define HEARTRATE_MEAS_NOTI_ENABLED         1
-#define HEARTRATE_MEAS_NOTI_DISABLED        2
-#define HEARTRATE_COMMAND_SET               3
+#define HEARTRATE_MEAS_NOTI_ENABLED        1
+#define HEARTRATE_MEAS_NOTI_DISABLED       2
+#define HEARTRATE_COMMAND_SET              3
 
 /*********************************************************************
  * TYPEDEFS
  */
 
 // Heart Rate Service callback function
-typedef void (*heartRateServiceCB_t)(uint8 event);
+typedef void (*heartRateServiceCB_t)(uint8_t event);
 
 /*********************************************************************
  * MACROS
@@ -80,9 +79,8 @@ typedef void (*heartRateServiceCB_t)(uint8 event);
  * Profile Callbacks
  */
 
-
 /*********************************************************************
- * API FUNCTIONS 
+ * API FUNCTIONS
  */
 
 /*
@@ -93,7 +91,7 @@ typedef void (*heartRateServiceCB_t)(uint8 event);
  *                     contain more than one service.
  */
 
-extern bStatus_t HeartRate_AddService( uint32 services );
+extern bStatus_t HeartRate_AddService(uint32_t services);
 
 /*
  * HeartRate_Register - Register a callback function with the
@@ -102,7 +100,7 @@ extern bStatus_t HeartRate_AddService( uint32 services );
  * @param   pfnServiceCB - Callback function.
  */
 
-extern void HeartRate_Register( heartRateServiceCB_t pfnServiceCB );
+extern void HeartRate_Register(heartRateServiceCB_t pfnServiceCB);
 
 /*
  * HeartRate_SetParameter - Set a Heart Rate parameter.
@@ -110,22 +108,22 @@ extern void HeartRate_Register( heartRateServiceCB_t pfnServiceCB );
  *    param - Profile parameter ID
  *    len - length of data to right
  *    value - pointer to data to write.  This is dependent on
- *          the parameter ID and WILL be cast to the appropriate 
- *          data type (example: data type of uint16 will be cast to 
- *          uint16 pointer).
+ *          the parameter ID and WILL be cast to the appropriate
+ *          data type (example: data type of uint16_t will be cast to
+ *          uint16_t pointer).
  */
-extern bStatus_t HeartRate_SetParameter( uint8 param, uint8 len, void *value );
-  
+extern bStatus_t HeartRate_SetParameter(uint8_t param, uint8_t len, void *value);
+
 /*
  * HeartRate_GetParameter - Get a Heart Rate parameter.
  *
  *    param - Profile parameter ID
  *    value - pointer to data to write.  This is dependent on
- *          the parameter ID and WILL be cast to the appropriate 
- *          data type (example: data type of uint16 will be cast to 
- *          uint16 pointer).
+ *          the parameter ID and WILL be cast to the appropriate
+ *          data type (example: data type of uint16_t will be cast to
+ *          uint16_t pointer).
  */
-extern bStatus_t HeartRate_GetParameter( uint8 param, void *value );
+extern bStatus_t HeartRate_GetParameter(uint8_t param, void *value);
 
 /*********************************************************************
  * @fn          HeartRate_MeasNotify
@@ -138,7 +136,7 @@ extern bStatus_t HeartRate_GetParameter( uint8 param, void *value );
  *
  * @return      Success or Failure
  */
-extern bStatus_t HeartRate_MeasNotify( uint16 connHandle, attHandleValueNoti_t *pNoti );
+extern bStatus_t HeartRate_MeasNotify(uint16_t connHandle, attHandleValueNoti_t *pNoti);
 
 /*********************************************************************
  * @fn          HeartRate_HandleConnStatusCB
@@ -150,7 +148,7 @@ extern bStatus_t HeartRate_MeasNotify( uint16 connHandle, attHandleValueNoti_t *
  *
  * @return      none
  */
-extern void HeartRate_HandleConnStatusCB( uint16 connHandle, uint8 changeType );
+extern void HeartRate_HandleConnStatusCB(uint16_t connHandle, uint8_t changeType);
 
 /*********************************************************************
 *********************************************************************/

@@ -1,3 +1,12 @@
+/********************************** (C) COPYRIGHT *******************************
+ * File Name          : CH57x_common.h
+ * Author             : WCH
+ * Version            : V1.2
+ * Date               : 2021/11/17
+ * Description
+ * Copyright (c) 2021 Nanjing Qinheng Microelectronics Co., Ltd.
+ * SPDX-License-Identifier: Apache-2.0
+ *******************************************************************************/
 
 
 #ifndef __CH58x_COMM_H__
@@ -29,22 +38,25 @@
 #define Debug_UART1        1
 #define Debug_UART2        2
 #define Debug_UART3        3
- 
-#ifndef DEBUG
-#define DEBUG Debug_UART0
-#endif
+
 #ifdef DEBUG
 #include <stdio.h>
 #endif
-   
-#ifndef	 FREQ_SYS  
+
+/**
+ * @brief  系统主频时钟（Hz）
+ */
+#ifndef	 FREQ_SYS
 #define  FREQ_SYS		60000000
-#endif   
+#endif
 
 #ifndef  SAFEOPERATE
 #define  SAFEOPERATE   __nop();__nop()
 #endif
 
+/**
+ * @brief  32K时钟（Hz）
+ */
 #if ( CLK_OSC32K == 1 )
 #define CAB_LSIFQ     	32000
 #else
@@ -70,9 +82,9 @@
 #include "CH58x_usbhost.h"
 #include "ISP583.h"
 
-  
-#define DelayMs(x)      mDelaymS(x)	  
-#define DelayUs(x)      mDelayuS(x)	  
+
+#define DelayMs(x)      mDelaymS(x)
+#define DelayUs(x)      mDelayuS(x)
 
 
 #ifdef __cplusplus

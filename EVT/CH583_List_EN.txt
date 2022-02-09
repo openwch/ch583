@@ -1,5 +1,5 @@
 
-Nanjing Qinheng Microelectronics Co., Ltd. 2021.08
+Nanjing Qinheng Microelectronics Co., Ltd. 2022.01
 
 http://wch-ic.com
 
@@ -8,7 +8,7 @@ Directory
   |
   |-- CH583: Bluetooth Low Energy - 32-bit RISC-V MCU
   |      |-- CH583 Android OTA Update Tool V1.1: APP update tool and source of CH583 OTA related software routines
-  |      |-- EVT: CH573 related software routines
+  |      |-- EVT: CH583 related software routines
   |      |      |-- EXAM: 
   |      |      |      |-- SRC  
   |      |      |      |      |-- Ld: link file
@@ -26,9 +26,11 @@ Directory
   |      |      |      |-- USB
   |      |      |      |      |-- Device
   |      |      |      |      |      |-- VendorDefinedDev: simulate custom USB devices (CH372 device) routine, provide eight non-zero channels (upload + download), implement that data is first downloaded, and then the data content is reversed and uploaded
-  |      |      |      |      |      |-- CompoundDev: simulate keyboard/mouse routine, support part of class commands 
+  |      |      |      |      |      |-- CompoundDev: simulate keyboard/mouse routine, support HID class commands 
+  |      |      |      |      |      |-- CompoundU2Dev£ºUSB2 simulate keyboard/mouse routine, support HID class commands 
   |      |      |      |      |-- Host
   |      |      |      |      |      |-- HostEnum:  simple enumeration procedure routine for USB devices
+  |      |      |      |      |      |-- HostU2Enum£ºUSB2 simple enumeration procedure routine for USB devices
   |      |      |      |      |      |-- HostAOA: USB host application routine, support connect to Android devices and communicate with APP
   |      |      |      |      |      |-- U_DISK: U disk file system routine
   |      |      |      |      |      |      |-- EXAM1.C: C Programming Language exam, read/write file in bytes, including creating files, deleting files, modifying file attribute, and modifying file name  
@@ -57,11 +59,13 @@ Directory
   |      |      |      |      |      |-- adv_ali_light£ºTmall Genie light routine, devices can be found and provisioned network via Tmall Genie, to control the switch state. By default, only switch attribute can be controlled. If other attributes (brightness, power, temperature, etc.) are needed, add the corresponding processing function and status report function according to the attribute description of the Alibaba Cloud product configuration.
   |      |      |      |      |      |-- adv_ali_light_add_lightness£ºMESH general attribute adding routine. On the basis of the Tmall Genie light routine, the brightness attribute is added, which is used to compare the original Tmall Genie light routine to quickly become familiar with the method of adding other MESH general attributes.
   |      |      |      |      |      |-- adv_ali_light_add_windspeed£ºTmall definition attribute adding routine. On the basis of the Tmall Genie light routine, the wind speed attribute is added, which is used to compare the original Tmall Genie light routine to quickly become familiar with the method of adding other Tmall definition attributes.
+  |      |      |      |      |      |-- adv_ali_light_multi_element£ºMulti-element fan lamp, which is used to compare the original Tmall Genie light routine to quickly become familiar with the method of adding multi-element Tmall definition attributes.
   |      |      |      |      |      |-- adv_ali_light_with_peripheral£ºBased on the Tmall Genie light routine, it supports the connection control of BLE debugging tool on the mobile phone.
   |      |      |      |      |      |-- adv_proxy£ºproxy node routine, which can be used to provision network through the PV_GATT layer (BLE connection).
   |      |      |      |      |      |-- adv_vendor£ºvendor-defined model routine, used with self_provisioner_vendor, supports two communication attributes of response transmission and non-response transparent transmission, and develops the communication protocol by yourself.
   |      |      |      |      |      |-- adv_vendor_friend£ºbased on vendor-defined model routine, support friend node function
   |      |      |      |      |      |-- adv_vendor_low_power£ºOn the basis of the vendor custom model routine, support low-power node functions and should be used with friend nodes
+  |      |      |      |      |      |-- adv_vendor_self_provision£ºOn the basis of the vendor custom model routine,support local provision
   |      |      |      |      |      |-- self_provisioner_vendor£ºvendor-defined model self-provisioning network initiator routine, used with adv_vendor, automatically provision network to the surrounding devices without network, and add it to its own mesh network, support provision network to six devices by default . The default configuration device is bound with single APPKEY, which is used for response transmission and non-response transparent transmission, and the configuration device is bound with single subscription address, which is used for mass sending of unanswered messages
   |      |      |      |      |      |-- self_provisioner_vendor_with_peripheral£ºBased on the vendor-defined model self-provisioning network initiator routine, can be connected and controlled by BLE debugging tool on the mobile phone, transfer the communication between the mobile phone and the mesh network, and can draw up the communication protocol to implement that all devices in mesh network can be controlled the mobile phone.
   |      |      |      |      |      |-- MESH_LIB£ºMESH protocol stack library file and header file

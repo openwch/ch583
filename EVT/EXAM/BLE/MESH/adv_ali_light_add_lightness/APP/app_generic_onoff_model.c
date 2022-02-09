@@ -1,10 +1,12 @@
 /********************************** (C) COPYRIGHT *******************************
-* File Name          : app_generic_onoff_model.c
-* Author             : WCH
-* Version            : V1.0
-* Date               : 2021/03/24
-* Description        : 
-*******************************************************************************/
+ * File Name          : app_generic_onoff_model.c
+ * Author             : WCH
+ * Version            : V1.0
+ * Date               : 2021/03/24
+ * Description        :
+ * Copyright (c) 2021 Nanjing Qinheng Microelectronics Co., Ltd.
+ * SPDX-License-Identifier: Apache-2.0
+ *******************************************************************************/
 
 
 
@@ -12,7 +14,6 @@
 #include "CONFIG.h"
 #include "MESH_LIB.h"
 #include "app_mesh_config.h"
-#include "CH58x_common.h"
 #include "app_generic_onoff_model.h"
 #include "app_vendor_model.h"
 
@@ -23,49 +24,61 @@
 
 #define ALI_DEF_TTL	(10)
 
-/*******************************************************************************
-* Function Name  : read_led_state
-* Description    : 获取当前灯状态
-* Input          : None
-* Return         : None
-*******************************************************************************/
-BOOL read_led_state(u32_t led_pin)
+/*********************************************************************
+ * @fn      read_led_state
+ *
+ * @brief   获取当前灯状态.
+ *
+ * @param   led_pin - 引脚.
+ *
+ * @return  灯状态
+ */
+BOOL read_led_state(uint32_t led_pin)
 {
 	return (GPIOB_ReadPortPin(led_pin)>0) ? 0 : 1;
 }
 
-/*******************************************************************************
-* Function Name  : set_led_state
-* Description    : 设置当前灯状态
-* Input          : None
-* Return         : None
-*******************************************************************************/
-void set_led_state(u32_t led_pin, BOOL on)
+/*********************************************************************
+ * @fn      set_led_state
+ *
+ * @brief   设置当前灯状态.
+ *
+ * @param   led_pin - 引脚.
+ * @param   on      - 状态.
+ *
+ * @return  none
+ */
+void set_led_state( uint32_t led_pin, BOOL on )
 {
-  GPIOB_ModeCfg( led_pin, GPIO_ModeOut_PP_5mA );
-	on ? GPIOB_ResetBits(led_pin) : GPIOB_SetBits(led_pin);
+    GPIOB_ModeCfg( led_pin, GPIO_ModeOut_PP_5mA );
+    on ? GPIOB_ResetBits( led_pin ) : GPIOB_SetBits( led_pin );
 }
 
-/*******************************************************************************
-* Function Name  : toggle_led_state
-* Description    : 翻转当前灯状态
-* Input          : None
-* Return         : None
-*******************************************************************************/
-void toggle_led_state(u32_t led_pin)
+/*********************************************************************
+ * @fn      toggle_led_state
+ *
+ * @brief   翻转当前灯状态
+ *
+ * @param   led_pin - 引脚.
+ *
+ * @return  none
+ */
+void toggle_led_state( uint32_t led_pin )
 {
-  GPIOB_ModeCfg( led_pin, GPIO_ModeOut_PP_5mA );
-	GPIOB_InverseBits(led_pin);
+    GPIOB_ModeCfg( led_pin, GPIO_ModeOut_PP_5mA );
+    GPIOB_InverseBits( led_pin );
 }
 
-
-/*******************************************************************************
-* Function Name  : gen_onoff_status
-* Description    : 回复天猫精灵开关状态
-* Input          : model: 模型参数
-*										ctx：数据参数
-* Return         : None
-*******************************************************************************/
+/*********************************************************************
+ * @fn      gen_onoff_status
+ *
+ * @brief   回复天猫精灵开关状态
+ *
+ * @param   model   - 模型参数.
+ * @param   ctx     - 数据参数.
+ *
+ * @return  none
+ */
 static void gen_onoff_status(struct bt_mesh_model *model,
                              struct bt_mesh_msg_ctx *ctx)
 {
@@ -93,14 +106,17 @@ static void gen_onoff_status(struct bt_mesh_model *model,
 	}
 }
 
-/*******************************************************************************
-* Function Name  : gen_onoff_get
-* Description    : 天猫精灵下发的获取开关状态命令
-* Input          : model: 模型参数
-*										ctx：数据参数
-*										buf: 数据内容
-* Return         : None
-*******************************************************************************/
+/*********************************************************************
+ * @fn      gen_onoff_get
+ *
+ * @brief   天猫精灵下发的获取开关状态命令
+ *
+ * @param   model   - 模型参数.
+ * @param   ctx     - 数据参数.
+ * @param   buf     - 数据内容.
+ *
+ * @return  none
+ */
 static void gen_onoff_get(struct bt_mesh_model *model,
                           struct bt_mesh_msg_ctx *ctx,
                           struct net_buf_simple *buf)
@@ -111,15 +127,17 @@ static void gen_onoff_get(struct bt_mesh_model *model,
 }
 
 
-/*******************************************************************************
-* Function Name  : gen_onoff_set
-* Description    : 天猫精灵下发的设置开关状态命令
-										如果与当前状态不同,还需要发送ind给天猫
-* Input          : model: 模型参数
-*										ctx：数据参数
-*										buf: 数据内容
-* Return         : None
-*******************************************************************************/
+/*********************************************************************
+ * @fn      gen_onoff_set
+ *
+ * @brief   天猫精灵下发的设置开关状态命令，如果与当前状态不同,还需要发送ind给天猫
+ *
+ * @param   model   - 模型参数.
+ * @param   ctx     - 数据参数.
+ * @param   buf     - 数据内容.
+ *
+ * @return  none
+ */
 static void gen_onoff_set(struct bt_mesh_model *model,
                           struct bt_mesh_msg_ctx *ctx,
                           struct net_buf_simple *buf)
@@ -154,19 +172,22 @@ static void gen_onoff_set(struct bt_mesh_model *model,
 	gen_onoff_status(model, ctx);
 }
 
-/*******************************************************************************
-* Function Name  : gen_onoff_set_unack
-* Description    : 天猫精灵下发的设置开关状态命令(无应答)
-* Input          : model: 模型参数
-*										ctx：数据参数
-*										buf: 数据内容
-* Return         : None
-*******************************************************************************/
+/*********************************************************************
+ * @fn      gen_onoff_set_unack
+ *
+ * @brief   天猫精灵下发的设置开关状态命令(无应答)
+ *
+ * @param   model   - 模型参数.
+ * @param   ctx     - 数据参数.
+ * @param   buf     - 数据内容.
+ *
+ * @return  none
+ */
 static void gen_onoff_set_unack(struct bt_mesh_model *model,
                                 struct bt_mesh_msg_ctx *ctx,
                                 struct net_buf_simple *buf)
 {
-	u8_t status;
+    uint8_t status;
 
 	APP_DBG(" ");
 	

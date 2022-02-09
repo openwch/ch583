@@ -3,16 +3,15 @@
 * Author             : WCH
 * Version            : V1.0
 * Date               : 2018/12/12
-* Description        : 
-            
+* Description        :
+
 *******************************************************************************/
 
 #ifndef RUNNINGSENSOR_H
 #define RUNNINGSENSOR_H
 
 #ifdef __cplusplus
-extern "C"
-{
+extern "C" {
 #endif
 
 /*********************************************************************
@@ -24,10 +23,10 @@ extern "C"
  */
 
 // Running Sensor Task Events
-#define START_DEVICE_EVT                              0x0001
-#define RSC_PERIODIC_EVT                              0x0002
-#define RSC_CONN_PARAM_UPDATE_EVT                     0x0004
-#define RSC_NEGLECT_TIMEOUT_EVT                       0x0008
+#define START_DEVICE_EVT             0x0001
+#define RSC_PERIODIC_EVT             0x0002
+#define RSC_CONN_PARAM_UPDATE_EVT    0x0004
+#define RSC_NEGLECT_TIMEOUT_EVT      0x0008
 
 /*********************************************************************
  * MACROS
@@ -40,12 +39,12 @@ extern "C"
 /*
  * Task Initialization for the BLE Application
  */
-extern void RunningSensor_Init( void );
+extern void RunningSensor_Init(void);
 
 /*
  * Task Event Processor for the BLE Application
  */
-extern uint16 RunningSensor_ProcessEvent( uint8 task_id, uint16 events );
+extern uint16_t RunningSensor_ProcessEvent(uint8_t task_id, uint16_t events);
 
 /*********************************************************************
 *********************************************************************/

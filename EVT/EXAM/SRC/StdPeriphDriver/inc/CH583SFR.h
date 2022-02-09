@@ -355,7 +355,7 @@ extern "C" {
 #define  RB_PWR_DCDC_PRE    0x0400                    // RWA, DC/DC converter pre-enable
 #define  RB_PWR_PLAN_EN     0x8000                    // RWA/WZ, power plan enable, auto clear after sleep executed
 #define  RB_PWR_MUST_0010   0x1000                    // RWA, must write 0010
-#define R8_AUX_POWER_ADJ    (*((PUINT8V)0x40001022))  // RWA, aux power adjust control, SAM
+#define R16_AUX_POWER_ADJ   (*((PUINT8V)0x40001022))  // RWA, aux power adjust control, SAM
 #define  RB_ULPLDO_ADJ      0x0007                    // RWA, Ultra-Low-Power LDO voltage adjust
 #define  RB_DCDC_CHARGE     0x0080                    // RWA, DC/DC aux charge enable
 
