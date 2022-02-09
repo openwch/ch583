@@ -1,18 +1,18 @@
 /********************************** (C) COPYRIGHT *******************************
-* File Name          : hidtouchservice.h
-* Author             : WCH
-* Version            : V1.0
-* Date               : 2018/12/12
-* Description        : 
-            
-*******************************************************************************/
+ * File Name          : hidtouchservice.h
+ * Author             : WCH
+ * Version            : V1.0
+ * Date               : 2018/12/12
+ * Description        :
+ * Copyright (c) 2021 Nanjing Qinheng Microelectronics Co., Ltd.
+ * SPDX-License-Identifier: Apache-2.0
+ *******************************************************************************/
 
 #ifndef HIDTOUCHSERVICE_H
 #define HIDTOUCHSERVICE_H
 
 #ifdef __cplusplus
-extern "C"
-{
+extern "C" {
 #endif
 
 /*********************************************************************
@@ -24,14 +24,14 @@ extern "C"
  */
 
 // Number of HID reports defined in the service
-#define HID_NUM_REPORTS          3
+#define HID_NUM_REPORTS        3
 
 // HID Report IDs for the service
-#define HID_RPT_ID_TOUCH_IN      1  // Mouse input report ID
-#define HID_RPT_ID_FEATURE       0  // Feature report ID
+#define HID_RPT_ID_TOUCH_IN    1                      // Mouse input report ID
+#define HID_RPT_ID_FEATURE     0                      // Feature report ID
 
 // HID feature flags
-#define HID_FEATURE_FLAGS             HID_FLAGS_REMOTE_WAKE
+#define HID_FEATURE_FLAGS      HID_FLAGS_REMOTE_WAKE
 
 /*********************************************************************
  * TYPEDEFS
@@ -44,7 +44,6 @@ extern "C"
 /*********************************************************************
  * Profile Callbacks
  */
-
 
 /*********************************************************************
  * API FUNCTIONS
@@ -73,13 +72,13 @@ extern bStatus_t Hid_AddService(void);
  * @param   len    - length of data to right.
  * @param   pValue - pointer to data to write.  This is dependent on
  *          the input parameters and WILL be cast to the appropriate
- *          data type (example: data type of uint16 will be cast to
- *          uint16 pointer).
+ *          data type (example: data type of uint16_t will be cast to
+ *          uint16_t pointer).
  *
  * @return  GATT status code.
  */
-extern uint8 Hid_SetParameter(uint8 id, uint8 type, uint16 uuid, uint8 len, 
-                                 void *pValue);
+extern uint8_t Hid_SetParameter(uint8_t id, uint8_t type, uint16_t uuid, uint8_t len,
+                                void *pValue);
 
 /*********************************************************************
  * @fn      Hid_GetParameter
@@ -92,13 +91,12 @@ extern uint8 Hid_SetParameter(uint8 id, uint8 type, uint16 uuid, uint8 len,
  * @param   pLen   - length of data to be read.
  * @param   pValue - pointer to data to get.  This is dependent on
  *          the input parameters and WILL be cast to the appropriate
- *          data type (example: data type of uint16 will be cast to
- *          uint16 pointer).
+ *          data type (example: data type of uint16_t will be cast to
+ *          uint16_t pointer).
  *
  * @return  GATT status code.
  */
-extern uint8 Hid_GetParameter(uint8 id, uint8 type, uint16 uuid, uint16 *pLen, void *pValue);
-
+extern uint8_t Hid_GetParameter(uint8_t id, uint8_t type, uint16_t uuid, uint16_t *pLen, void *pValue);
 
 /*********************************************************************
 *********************************************************************/
@@ -107,4 +105,4 @@ extern uint8 Hid_GetParameter(uint8 id, uint8 type, uint16 uuid, uint16 *pLen, v
 }
 #endif
 
-#endif 
+#endif

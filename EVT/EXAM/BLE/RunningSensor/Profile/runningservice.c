@@ -1,17 +1,17 @@
 /********************************** (C) COPYRIGHT *******************************
-* File Name          : runningservice.c
-* Author             : WCH
-* Version            : V1.0
-* Date               : 2018/12/12
-* Description        : 跑步服务
-            
-*******************************************************************************/
+ * File Name          : runningservice.c
+ * Author             : WCH
+ * Version            : V1.0
+ * Date               : 2018/12/12
+ * Description        : 跑步服务
+ * Copyright (c) 2021 Nanjing Qinheng Microelectronics Co., Ltd.
+ * SPDX-License-Identifier: Apache-2.0
+ *******************************************************************************/
 
 /*********************************************************************
  * INCLUDES
  */
 #include "CONFIG.h"
-#include "CH58x_common.h"
 #include "battservice.h"
 #include "runningservice.h"
 /*********************************************************************
@@ -23,15 +23,15 @@
  */
 
 // Running Service Task Events
-#define RSC_CMD_IND_SEND_EVT   0x0001
+#define RSC_CMD_IND_SEND_EVT     0x0001
 
-#define RSC_MEAS_VALUE_POS     2
-#define RSC_MEAS_CFG_POS       3
-#define RSC_COMMAND_VALUE_POS  9
-#define RSC_COMMAND_CFG_POS    10
-#define COMMAND_IND_LENGTH     2
+#define RSC_MEAS_VALUE_POS       2
+#define RSC_MEAS_CFG_POS         3
+#define RSC_COMMAND_VALUE_POS    9
+#define RSC_COMMAND_CFG_POS      10
+#define COMMAND_IND_LENGTH       2
 
-#define RSC_CMD_LEN            (3 + RSC_MAX_SENSOR_LOCS)
+#define RSC_CMD_LEN              (3 + RSC_MAX_SENSOR_LOCS)
 
 /*********************************************************************
  * TYPEDEFS
@@ -42,34 +42,24 @@
  */
 
 // RSC service
-CONST uint8 runningServUUID[ATT_BT_UUID_SIZE] =
-{
-  LO_UINT16(RSC_SERV_UUID), HI_UINT16(RSC_SERV_UUID)
-};
+const uint8_t runningServUUID[ATT_BT_UUID_SIZE] = {
+    LO_UINT16(RSC_SERV_UUID), HI_UINT16(RSC_SERV_UUID)};
 
 // RSC measurement characteristic
-CONST uint8 runningMeasUUID[ATT_BT_UUID_SIZE] =
-{
-  LO_UINT16(RSC_MEAS_UUID), HI_UINT16(RSC_MEAS_UUID)
-};
+const uint8_t runningMeasUUID[ATT_BT_UUID_SIZE] = {
+    LO_UINT16(RSC_MEAS_UUID), HI_UINT16(RSC_MEAS_UUID)};
 
 // RSC feature characteristic
-CONST uint8 runningFeatureUUID[ATT_BT_UUID_SIZE] =
-{
-  LO_UINT16(RSC_FEATURE_UUID), HI_UINT16(RSC_FEATURE_UUID)
-};
+const uint8_t runningFeatureUUID[ATT_BT_UUID_SIZE] = {
+    LO_UINT16(RSC_FEATURE_UUID), HI_UINT16(RSC_FEATURE_UUID)};
 
 // RSC sensor location characteristic
-CONST uint8 runningSensLocUUID[ATT_BT_UUID_SIZE] =
-{
-  LO_UINT16(SENSOR_LOC_UUID), HI_UINT16(SENSOR_LOC_UUID)
-};
+const uint8_t runningSensLocUUID[ATT_BT_UUID_SIZE] = {
+    LO_UINT16(SENSOR_LOC_UUID), HI_UINT16(SENSOR_LOC_UUID)};
 
 // RSC command characteristic
-CONST uint8 runningCommandUUID[ATT_BT_UUID_SIZE] =
-{
-  LO_UINT16(SC_CTRL_PT_UUID), HI_UINT16(SC_CTRL_PT_UUID)
-};
+const uint8_t runningCommandUUID[ATT_BT_UUID_SIZE] = {
+    LO_UINT16(SC_CTRL_PT_UUID), HI_UINT16(SC_CTRL_PT_UUID)};
 
 /*********************************************************************
  * EXTERNAL VARIABLES
@@ -85,11 +75,11 @@ CONST uint8 runningCommandUUID[ATT_BT_UUID_SIZE] =
 
 static runningServiceCB_t runningServiceCB = NULL;
 
-static uint8 supportedSensors = 0;
-static BOOL scOpInProgress = FALSE;
+static uint8_t supportedSensors = 0;
+static BOOL    scOpInProgress = FALSE;
 
 // Variables used in RSC command processing
-static uint16 connectionHandle;
+static uint16_t            connectionHandle;
 static attHandleValueInd_t rscCmdInd;
 
 /*********************************************************************
@@ -97,154 +87,142 @@ static attHandleValueInd_t rscCmdInd;
  */
 
 // TaskID
-uint8 runningService_TaskID = 0;
+uint8_t runningService_TaskID = 0;
 
 // RSC Service attribute
-static CONST gattAttrType_t runningService = { ATT_BT_UUID_SIZE, runningServUUID };
+static const gattAttrType_t runningService = {ATT_BT_UUID_SIZE, runningServUUID};
 
 // Available sensor locations
-static uint8 supportedSensorLocations[RSC_MAX_SENSOR_LOCS] = { RSC_NO_SENSOR_LOC };
+static uint8_t supportedSensorLocations[RSC_MAX_SENSOR_LOCS] = {RSC_NO_SENSOR_LOC};
 
 // Running Measurement Characteristic
 // Note characteristic value is not stored here
-static uint8 runningMeasProps = GATT_PROP_NOTIFY;
-static uint8 runningMeas = 0;
+static uint8_t       runningMeasProps = GATT_PROP_NOTIFY;
+static uint8_t       runningMeas = 0;
 static gattCharCfg_t runningMeasClientCharCfg[GATT_MAX_NUM_CONN];
 
 // Feature Characteristic
-static uint8 runningFeatureProps = GATT_PROP_READ;
-static uint16 runningFeatures = RSC_NO_SUPPORT;
+static uint8_t  runningFeatureProps = GATT_PROP_READ;
+static uint16_t runningFeatures = RSC_NO_SUPPORT;
 
 // Sensor Location Characteristic
-static uint8 runningSensLocProps = GATT_PROP_READ;
-static uint8 runningSensLoc = RSC_NO_SENSOR_LOC;
+static uint8_t runningSensLocProps = GATT_PROP_READ;
+static uint8_t runningSensLoc = RSC_NO_SENSOR_LOC;
 
 // Command Characteristic
-static uint8 runningCommandProps = GATT_PROP_WRITE | GATT_PROP_INDICATE;
-static uint8 runningCommand = 0;
+static uint8_t       runningCommandProps = GATT_PROP_WRITE | GATT_PROP_INDICATE;
+static uint8_t       runningCommand = 0;
 static gattCharCfg_t runningCommandClientCharCfg[GATT_MAX_NUM_CONN];
 
 /*********************************************************************
  * Profile Attributes - Table
  */
 
-static gattAttribute_t runningAttrTbl[] =
-{
-  // RSC Service
-  {
-    { ATT_BT_UUID_SIZE, primaryServiceUUID }, /* type */
-    GATT_PERMIT_READ,                         /* permissions */
-    0,                                        /* handle */
-    (uint8 *)&runningService                  /* pValue */
-  },
+static gattAttribute_t runningAttrTbl[] = {
+    // RSC Service
+    {
+        {ATT_BT_UUID_SIZE, primaryServiceUUID}, /* type */
+        GATT_PERMIT_READ,                       /* permissions */
+        0,                                      /* handle */
+        (uint8_t *)&runningService              /* pValue */
+    },
 
     // RSC Measurement Declaration
     {
-      { ATT_BT_UUID_SIZE, characterUUID },
-      GATT_PERMIT_READ,
-      0,
-      &runningMeasProps
-    },
+        {ATT_BT_UUID_SIZE, characterUUID},
+        GATT_PERMIT_READ,
+        0,
+        &runningMeasProps},
 
-      // Measurement Value
-      {
-        { ATT_BT_UUID_SIZE, runningMeasUUID },
+    // Measurement Value
+    {
+        {ATT_BT_UUID_SIZE, runningMeasUUID},
         0,
         0,
-        &runningMeas
-      },
+        &runningMeas},
 
-      // Measurement Client Characteristic Configuration
-      {
-        { ATT_BT_UUID_SIZE, clientCharCfgUUID },
+    // Measurement Client Characteristic Configuration
+    {
+        {ATT_BT_UUID_SIZE, clientCharCfgUUID},
         GATT_PERMIT_READ | GATT_PERMIT_WRITE,
         0,
-        (uint8 *) &runningMeasClientCharCfg
-      },
+        (uint8_t *)&runningMeasClientCharCfg},
 
     // RSC Feature Declaration
     {
-      { ATT_BT_UUID_SIZE, characterUUID },
-      GATT_PERMIT_READ,
-      0,
-      &runningFeatureProps
-    },
-
-      // Feature Value
-      {
-        { ATT_BT_UUID_SIZE, runningFeatureUUID },
+        {ATT_BT_UUID_SIZE, characterUUID},
         GATT_PERMIT_READ,
         0,
-        (uint8 *)&runningFeatures
-      },
+        &runningFeatureProps},
+
+    // Feature Value
+    {
+        {ATT_BT_UUID_SIZE, runningFeatureUUID},
+        GATT_PERMIT_READ,
+        0,
+        (uint8_t *)&runningFeatures},
 
     // RSC Sensor Location Declaration
     {
-      { ATT_BT_UUID_SIZE, characterUUID },
-      GATT_PERMIT_READ,
-      0,
-      &runningSensLocProps
-    },
-
-      // Sensor Location Value
-      {
-        { ATT_BT_UUID_SIZE, runningSensLocUUID },
+        {ATT_BT_UUID_SIZE, characterUUID},
         GATT_PERMIT_READ,
         0,
-        &runningSensLoc
-      },
+        &runningSensLocProps},
+
+    // Sensor Location Value
+    {
+        {ATT_BT_UUID_SIZE, runningSensLocUUID},
+        GATT_PERMIT_READ,
+        0,
+        &runningSensLoc},
 
     // RSC Command Declaration
     {
-      { ATT_BT_UUID_SIZE, characterUUID },
-      GATT_PERMIT_READ,
-      0,
-      &runningCommandProps
-    },
+        {ATT_BT_UUID_SIZE, characterUUID},
+        GATT_PERMIT_READ,
+        0,
+        &runningCommandProps},
 
-      // Command Value
-      {
-        { ATT_BT_UUID_SIZE, runningCommandUUID },
+    // Command Value
+    {
+        {ATT_BT_UUID_SIZE, runningCommandUUID},
         GATT_PERMIT_WRITE,
         0,
-        &runningCommand
-      },
+        &runningCommand},
 
-      // Command Client Characteristic Configuration
-      {
-        { ATT_BT_UUID_SIZE, clientCharCfgUUID },
+    // Command Client Characteristic Configuration
+    {
+        {ATT_BT_UUID_SIZE, clientCharCfgUUID},
         GATT_PERMIT_READ | GATT_PERMIT_WRITE,
         0,
-        (uint8 *) &runningCommandClientCharCfg
-      }
+        (uint8_t *)&runningCommandClientCharCfg}
 };
 
 /*********************************************************************
  * LOCAL FUNCTIONS
  */
 
-static uint8 running_ReadAttrCB( uint16 connHandle, gattAttribute_t *pAttr,
-                                          uint8 *pValue, uint16 *pLen, uint16 offset,
-                                          uint16 maxLen, uint8 method );
-static bStatus_t running_WriteAttrCB( uint16 connHandle, gattAttribute_t *pAttr,
-                                           uint8 *pValue, uint16 len, uint16 offset,
-                                           uint8 method );
+static uint8_t   running_ReadAttrCB(uint16_t connHandle, gattAttribute_t *pAttr,
+                                    uint8_t *pValue, uint16_t *pLen, uint16_t offset,
+                                    uint16_t maxLen, uint8_t method);
+static bStatus_t running_WriteAttrCB(uint16_t connHandle, gattAttribute_t *pAttr,
+                                     uint8_t *pValue, uint16_t len, uint16_t offset,
+                                     uint8_t method);
 
-static void running_ProcessTMOSMsg( tmos_event_hdr_t *pMsg );
-static void running_ProcessGATTMsg( gattMsgEvent_t *pMsg );
-static BOOL running_SensorLocSupported( uint8 sensorLoc );
-static void running_ProcessRSCCmd( uint16 attrHandle, uint8 *pValue, uint8 len );
+static void running_ProcessTMOSMsg(tmos_event_hdr_t *pMsg);
+static void running_ProcessGATTMsg(gattMsgEvent_t *pMsg);
+static BOOL running_SensorLocSupported(uint8_t sensorLoc);
+static void running_ProcessRSCCmd(uint16_t attrHandle, uint8_t *pValue, uint8_t len);
 
 /*********************************************************************
  * PROFILE CALLBACKS
  */
 
 // RSC Service Callbacks
-gattServiceCBs_t runningCBs =
-{
-  running_ReadAttrCB,  // Read callback function pointer
-  running_WriteAttrCB, // Write callback function pointer
-  NULL                 // Authorization callback function pointer
+gattServiceCBs_t runningCBs = {
+    running_ReadAttrCB,  // Read callback function pointer
+    running_WriteAttrCB, // Write callback function pointer
+    NULL                 // Authorization callback function pointer
 };
 
 /*********************************************************************
@@ -260,10 +238,10 @@ gattServiceCBs_t runningCBs =
  *
  * @return  none
  */
-void RunningService_Init( uint8 task_id )
+void RunningService_Init(uint8_t task_id)
 {
-  // Only purpose is to obtain task ID
-  runningService_TaskID = task_id;
+    // Only purpose is to obtain task ID
+    runningService_TaskID = task_id;
 }
 
 /*********************************************************************
@@ -277,40 +255,38 @@ void RunningService_Init( uint8 task_id )
  *
  * @return  none
  */
-uint16 RunningService_ProcessEvent( uint8 task_id, uint16 events )
+uint16_t RunningService_ProcessEvent(uint8_t task_id, uint16_t events)
 {
-   task_id;
-
-  if ( events & SYS_EVENT_MSG )
-  {
-    uint8 *pMsg;
-
-    if ( (pMsg = tmos_msg_receive( runningService_TaskID )) != NULL )
+    if(events & SYS_EVENT_MSG)
     {
-      running_ProcessTMOSMsg( (tmos_event_hdr_t *)pMsg );
+        uint8_t *pMsg;
 
-      // Release the TMOS message
-       tmos_msg_deallocate( pMsg );
+        if((pMsg = tmos_msg_receive(runningService_TaskID)) != NULL)
+        {
+            running_ProcessTMOSMsg((tmos_event_hdr_t *)pMsg);
+
+            // Release the TMOS message
+            tmos_msg_deallocate(pMsg);
+        }
+
+        // return unprocessed events
+        return (events ^ SYS_EVENT_MSG);
     }
 
-    // return unprocessed events
-    return (events ^ SYS_EVENT_MSG);
-  }
+    if(events & RSC_CMD_IND_SEND_EVT)
+    {
+        // Send the indication.
+        if(GATT_Indication(connectionHandle, &rscCmdInd, FALSE, runningService_TaskID) != SUCCESS)
+        {
+            GATT_bm_free((gattMsg_t *)&rscCmdInd, ATT_HANDLE_VALUE_IND);
+        }
+        // Set Control Point Cfg done
+        scOpInProgress = FALSE;
 
-  if ( events & RSC_CMD_IND_SEND_EVT )
-  {
-		// Send the indication.
-		if ( GATT_Indication(connectionHandle, &rscCmdInd, FALSE, runningService_TaskID) != SUCCESS )
-		{
-			GATT_bm_free( (gattMsg_t *)&rscCmdInd, ATT_HANDLE_VALUE_IND );
-		}
-    // Set Control Point Cfg done
-    scOpInProgress = FALSE;
+        return (events ^ RSC_CMD_IND_SEND_EVT);
+    }
 
-    return ( events ^ RSC_CMD_IND_SEND_EVT );
-  }
-
-  return 0;
+    return 0;
 }
 
 /*********************************************************************
@@ -322,17 +298,17 @@ uint16 RunningService_ProcessEvent( uint8 task_id, uint16 events )
  *
  * @return  none
  */
-void running_ProcessTMOSMsg( tmos_event_hdr_t *pMsg )
+void running_ProcessTMOSMsg(tmos_event_hdr_t *pMsg)
 {
-  switch ( pMsg->event )
-  {
-    case GATT_MSG_EVENT:
-      running_ProcessGATTMsg( (gattMsgEvent_t *) pMsg );
-      break;
+    switch(pMsg->event)
+    {
+        case GATT_MSG_EVENT:
+            running_ProcessGATTMsg((gattMsgEvent_t *)pMsg);
+            break;
 
-    default: // do nothing
-      break;
-  }
+        default: // do nothing
+            break;
+    }
 }
 
 /*********************************************************************
@@ -344,13 +320,13 @@ void running_ProcessTMOSMsg( tmos_event_hdr_t *pMsg )
  *
  * @return  none
  */
-void running_ProcessGATTMsg( gattMsgEvent_t *pMsg )
+void running_ProcessGATTMsg(gattMsgEvent_t *pMsg)
 {
-  if ( pMsg->method == ATT_HANDLE_VALUE_CFM )
-  {
-    // Indication receipt was confirmed by the client.
-    // This is a placeholder for future.
-  }
+    if(pMsg->method == ATT_HANDLE_VALUE_CFM)
+    {
+        // Indication receipt was confirmed by the client.
+        // This is a placeholder for future.
+    }
 }
 
 /*********************************************************************
@@ -362,19 +338,19 @@ void running_ProcessGATTMsg( gattMsgEvent_t *pMsg )
  *
  * @return  TRUE if supported, FALSE otherwise
  */
-static BOOL running_SensorLocSupported( uint8 sensorLoc )
+static BOOL running_SensorLocSupported(uint8_t sensorLoc)
 {
-  uint8 i;
+    uint8_t i;
 
-  for (i = 0; i < supportedSensors; i++)
-  {
-    if (supportedSensorLocations[i] == sensorLoc)
+    for(i = 0; i < supportedSensors; i++)
     {
-      return TRUE;
+        if(supportedSensorLocations[i] == sensorLoc)
+        {
+            return TRUE;
+        }
     }
-  }
 
-  return FALSE;
+    return FALSE;
 }
 
 /*********************************************************************
@@ -388,24 +364,24 @@ static BOOL running_SensorLocSupported( uint8 sensorLoc )
  *
  * @return  Success or Failure
  */
-bStatus_t Running_AddService( uint32 services )
+bStatus_t Running_AddService(uint32_t services)
 {
-  uint8 status = SUCCESS;
+    uint8_t status = SUCCESS;
 
-  // Initialize Client Characteristic Configuration attributes
-  GATTServApp_InitCharCfg( INVALID_CONNHANDLE, runningMeasClientCharCfg );
-  GATTServApp_InitCharCfg( INVALID_CONNHANDLE, runningCommandClientCharCfg);
+    // Initialize Client Characteristic Configuration attributes
+    GATTServApp_InitCharCfg(INVALID_CONNHANDLE, runningMeasClientCharCfg);
+    GATTServApp_InitCharCfg(INVALID_CONNHANDLE, runningCommandClientCharCfg);
 
-  if ( services & RUNNING_SERVICE )
-  {
-    // Register GATT attribute list and CBs with GATT Server App
-    status = GATTServApp_RegisterService( runningAttrTbl,
-                                          GATT_NUM_ATTRS( runningAttrTbl ),
-																					GATT_MAX_ENCRYPT_KEY_SIZE,
-                                          &runningCBs );
-  }
+    if(services & RUNNING_SERVICE)
+    {
+        // Register GATT attribute list and CBs with GATT Server App
+        status = GATTServApp_RegisterService(runningAttrTbl,
+                                             GATT_NUM_ATTRS(runningAttrTbl),
+                                             GATT_MAX_ENCRYPT_KEY_SIZE,
+                                             &runningCBs);
+    }
 
-  return ( status );
+    return (status);
 }
 
 /*********************************************************************
@@ -417,9 +393,9 @@ bStatus_t Running_AddService( uint32 services )
  *
  * @return  None.
  */
-void Running_Register( runningServiceCB_t pfnServiceCB )
+void Running_Register(runningServiceCB_t pfnServiceCB)
 {
-  runningServiceCB = pfnServiceCB;
+    runningServiceCB = pfnServiceCB;
 }
 
 /*********************************************************************
@@ -431,42 +407,42 @@ void Running_Register( runningServiceCB_t pfnServiceCB )
  * @param   len - length of data to right
  * @param   value - pointer to data to write.  This is dependent on
  *          the parameter ID and WILL be cast to the appropriate
- *          data type (example: data type of uint16 will be cast to
- *          uint16 pointer).
+ *          data type (example: data type of uint16_t will be cast to
+ *          uint16_t pointer).
  *
  * @return  bStatus_t
  */
-bStatus_t Running_SetParameter( uint8 param, uint8 len, void *pValue )
+bStatus_t Running_SetParameter(uint8_t param, uint8_t len, void *pValue)
 {
-  bStatus_t ret = SUCCESS;
+    bStatus_t ret = SUCCESS;
 
-  switch ( param )
-  {
-    case RSC_SENS_LOC:
+    switch(param)
     {
-      runningSensLoc = *((uint8*)pValue);
+        case RSC_SENS_LOC:
+        {
+            runningSensLoc = *((uint8_t *)pValue);
+        }
+        break;
+
+        case RSC_FEATURE:
+        {
+            runningFeatures = *((uint16_t *)pValue);
+        }
+        break;
+
+        case RSC_AVAIL_SENS_LOCS:
+            if(supportedSensors < RSC_MAX_SENSOR_LOCS)
+            {
+                supportedSensorLocations[supportedSensors++] = *((uint8_t *)pValue);
+            }
+            break;
+
+        default:
+            ret = INVALIDPARAMETER;
+            break;
     }
-    break;
 
-    case RSC_FEATURE:
-    {
-      runningFeatures = *((uint16*)pValue);
-    }
-    break;
-
-    case RSC_AVAIL_SENS_LOCS:
-    if ( supportedSensors  < RSC_MAX_SENSOR_LOCS )
-    {
-      supportedSensorLocations[supportedSensors++] = *((uint8*)pValue);
-    }
-    break;
-
-    default:
-      ret = INVALIDPARAMETER;
-    break;
-  }
-
-  return ( ret );
+    return (ret);
 }
 
 /*********************************************************************
@@ -477,35 +453,35 @@ bStatus_t Running_SetParameter( uint8 param, uint8 len, void *pValue )
  * @param   param - Profile parameter ID
  * @param   value - pointer to data to get.  This is dependent on
  *          the parameter ID and WILL be cast to the appropriate
- *          data type (example: data type of uint16 will be cast to
- *          uint16 pointer).
+ *          data type (example: data type of uint16_t will be cast to
+ *          uint16_t pointer).
  *
  * @return  bStatus_t
  */
-bStatus_t Running_GetParameter( uint8 param, void *value )
+bStatus_t Running_GetParameter(uint8_t param, void *value)
 {
-  bStatus_t ret = SUCCESS;
+    bStatus_t ret = SUCCESS;
 
-  switch ( param )
-  {
-    case RSC_FEATURE:
-      *((uint16*)value) = runningFeatures;
-      break;
+    switch(param)
+    {
+        case RSC_FEATURE:
+            *((uint16_t *)value) = runningFeatures;
+            break;
 
-    case RSC_SENS_LOC:
-      *((uint8*)value) = runningSensLoc;
-      break;
+        case RSC_SENS_LOC:
+            *((uint8_t *)value) = runningSensLoc;
+            break;
 
-    case RSC_COMMAND:
-      *((uint8*)value) = runningCommand;
-      break;
+        case RSC_COMMAND:
+            *((uint8_t *)value) = runningCommand;
+            break;
 
-    default:
-      ret = INVALIDPARAMETER;
-      break;
-  }
+        default:
+            ret = INVALIDPARAMETER;
+            break;
+    }
 
-  return ( ret );
+    return (ret);
 }
 
 /*********************************************************************
@@ -519,21 +495,21 @@ bStatus_t Running_GetParameter( uint8 param, void *value )
  *
  * @return      Success or Failure
  */
-bStatus_t Running_MeasNotify( uint16 connHandle, attHandleValueNoti_t *pNoti )
+bStatus_t Running_MeasNotify(uint16_t connHandle, attHandleValueNoti_t *pNoti)
 {
-  uint16 value = GATTServApp_ReadCharCfg( connHandle, runningMeasClientCharCfg );
+    uint16_t value = GATTServApp_ReadCharCfg(connHandle, runningMeasClientCharCfg);
 
-  // If notifications enabled
-  if ( value & GATT_CLIENT_CFG_NOTIFY )
-  {
-    // Set the handle
-    pNoti->handle = runningAttrTbl[RSC_MEAS_VALUE_POS].handle;
+    // If notifications enabled
+    if(value & GATT_CLIENT_CFG_NOTIFY)
+    {
+        // Set the handle
+        pNoti->handle = runningAttrTbl[RSC_MEAS_VALUE_POS].handle;
 
-    // Send the notification
-    return GATT_Notification( connHandle, pNoti, FALSE );
-  }
+        // Send the notification
+        return GATT_Notification(connHandle, pNoti, FALSE);
+    }
 
-  return bleIncorrectMode;
+    return bleIncorrectMode;
 }
 
 /*********************************************************************
@@ -547,135 +523,135 @@ bStatus_t Running_MeasNotify( uint16 connHandle, attHandleValueNoti_t *pNoti )
  *
  * @return  none
  */
-static void running_ProcessRSCCmd( uint16 attrHandle, uint8 *pValue, uint8 len )
+static void running_ProcessRSCCmd(uint16_t attrHandle, uint8_t *pValue, uint8_t len)
 {
-  uint8 rscStatus = RSC_SUCCESS;
-  
-	// See if need to alloc payload for new indication.
-  if (rscCmdInd.pValue == NULL)
-  {
-    rscCmdInd.pValue = GATT_bm_alloc( connectionHandle, ATT_HANDLE_VALUE_IND, 
-                                     RSC_CMD_LEN, NULL, 0 );
-    if (rscCmdInd.pValue == NULL)
+    uint8_t rscStatus = RSC_SUCCESS;
+
+    // See if need to alloc payload for new indication.
+    if(rscCmdInd.pValue == NULL)
     {
-      return; // failed to alloc space!
+        rscCmdInd.pValue = GATT_bm_alloc(connectionHandle, ATT_HANDLE_VALUE_IND,
+                                         RSC_CMD_LEN, NULL, 0);
+        if(rscCmdInd.pValue == NULL)
+        {
+            return; // failed to alloc space!
+        }
     }
-  }
 
-  // Set Control Point Cfg in progress
-  scOpInProgress = TRUE;
+    // Set Control Point Cfg in progress
+    scOpInProgress = TRUE;
 
-  // Set indication info to be sent out
-  rscCmdInd.handle = attrHandle;
+    // Set indication info to be sent out
+    rscCmdInd.handle = attrHandle;
 
-  rscCmdInd.len = 3;
-  rscCmdInd.pValue[0] = RSC_COMMAND_RSP;
-  rscCmdInd.pValue[1] = pValue[0];
+    rscCmdInd.len = 3;
+    rscCmdInd.pValue[0] = RSC_COMMAND_RSP;
+    rscCmdInd.pValue[1] = pValue[0];
 
-  switch ( pValue[0] )
-  {
-    case RSC_SET_CUMM_VAL:
-      // If total distance is a feature
-      if ( ( len <= 5 ) && ( runningFeatures & RSC_TOTAL_DIST_SUPP ) )
-      {
-        uint32 totalDistance;
+    switch(pValue[0])
+    {
+        case RSC_SET_CUMM_VAL:
+            // If total distance is a feature
+            if((len <= 5) && (runningFeatures & RSC_TOTAL_DIST_SUPP))
+            {
+                uint32_t totalDistance;
 
-        // full 32 bits were specified.
-        if ( ( len - 1 ) == 4 )
-        {
-          totalDistance = BUILD_UINT32( pValue[1], pValue[2], pValue[3], pValue[4]);
-        }
-        else
-        {
-					int i;					
-          totalDistance = 0;
-					
-          // In case only lower bits were specified and upper bits remain zero.
-          for( i = 0; i < (len - 1); ++i )
-          {
-            totalDistance += pValue[i + 1] << (i*8);
-          }
-        }
+                // full 32 bits were specified.
+                if((len - 1) == 4)
+                {
+                    totalDistance = BUILD_UINT32(pValue[1], pValue[2], pValue[3], pValue[4]);
+                }
+                else
+                {
+                    int i;
+                    totalDistance = 0;
 
-        // Notify app
-        if ( runningServiceCB != NULL )
-        {
-           (*runningServiceCB)( RSC_CMD_SET_CUMM_VAL, &totalDistance );
-        }
-      }
-      else // characteristic not supported.
-      {
-        rscStatus = RSC_INVALID_PARAMETER;
-      }
-      break;
+                    // In case only lower bits were specified and upper bits remain zero.
+                    for(i = 0; i < (len - 1); ++i)
+                    {
+                        totalDistance += pValue[i + 1] << (i * 8);
+                    }
+                }
 
-    case RSC_START_SENS_CALIB:
-      // If sensor calibration is supported
-      if ( ( len == 1 ) && ( runningFeatures & RSC_SENSOR_CALIB_SUPP ) )
-      {
-        // Notify app
-        if ( runningServiceCB != NULL )
-        {
-          if ( (*runningServiceCB)( RSC_CMD_START_SENS_CALIB, NULL ) != SUCCESS )
-          {
-            // Calibration wasn't started
-            rscStatus = RSC_OPERATION_FAILED;
-          }
-        }
-      }
-      else  // characteristic not supported.
-      {
-        // Send an indication with the list.
-        rscStatus = RSC_INVALID_PARAMETER;
-      }
-      break;
+                // Notify app
+                if(runningServiceCB != NULL)
+                {
+                    (*runningServiceCB)(RSC_CMD_SET_CUMM_VAL, &totalDistance);
+                }
+            }
+            else // characteristic not supported.
+            {
+                rscStatus = RSC_INVALID_PARAMETER;
+            }
+            break;
 
-    case RSC_UPDATE_SENS_LOC:
-      // If multiple sensor locations is supported and that this is a valid location.
-      if ( ( len == 2 )                              &&
-           ( runningFeatures & RSC_MULTI_SENS_SUPP ) &&
-           ( running_SensorLocSupported( pValue[1] ) == TRUE ) )
-      {
-        // Update sensor location
-        runningSensLoc = pValue[1];
+        case RSC_START_SENS_CALIB:
+            // If sensor calibration is supported
+            if((len == 1) && (runningFeatures & RSC_SENSOR_CALIB_SUPP))
+            {
+                // Notify app
+                if(runningServiceCB != NULL)
+                {
+                    if((*runningServiceCB)(RSC_CMD_START_SENS_CALIB, NULL) != SUCCESS)
+                    {
+                        // Calibration wasn't started
+                        rscStatus = RSC_OPERATION_FAILED;
+                    }
+                }
+            }
+            else // characteristic not supported.
+            {
+                // Send an indication with the list.
+                rscStatus = RSC_INVALID_PARAMETER;
+            }
+            break;
 
-        // Notify app
-        if ( runningServiceCB != NULL )
-        {
-           (*runningServiceCB)( RSC_CMD_UPDATE_SENS_LOC, NULL );
-        }
-      }
-      else // characteristic not supported.
-      {
-        rscStatus = RSC_INVALID_PARAMETER;
-      }
-      break;
+        case RSC_UPDATE_SENS_LOC:
+            // If multiple sensor locations is supported and that this is a valid location.
+            if((len == 2) &&
+               (runningFeatures & RSC_MULTI_SENS_SUPP) &&
+               (running_SensorLocSupported(pValue[1]) == TRUE))
+            {
+                // Update sensor location
+                runningSensLoc = pValue[1];
 
-    case RSC_REQ_SUPP_SENS_LOC:
-      // If multiple sensor locations are supported and list requested
-      if ( ( len == 1 ) && ( runningFeatures & RSC_MULTI_SENS_SUPP ) )
-      {
-        rscCmdInd.len += supportedSensors;
-        tmos_memcpy( &(rscCmdInd.pValue[3]), supportedSensorLocations, supportedSensors );
-      }
-      else // characteristic not supported.
-      {
-        // Send an indication with the list.
-        rscStatus = RSC_INVALID_PARAMETER;
-      }
-      break;
+                // Notify app
+                if(runningServiceCB != NULL)
+                {
+                    (*runningServiceCB)(RSC_CMD_UPDATE_SENS_LOC, NULL);
+                }
+            }
+            else // characteristic not supported.
+            {
+                rscStatus = RSC_INVALID_PARAMETER;
+            }
+            break;
 
-     default:
-      // Send an indication with opcode not suported response
-      rscStatus = RSC_OPCODE_NOT_SUPPORTED;
-      break;
-  }
+        case RSC_REQ_SUPP_SENS_LOC:
+            // If multiple sensor locations are supported and list requested
+            if((len == 1) && (runningFeatures & RSC_MULTI_SENS_SUPP))
+            {
+                rscCmdInd.len += supportedSensors;
+                tmos_memcpy(&(rscCmdInd.pValue[3]), supportedSensorLocations, supportedSensors);
+            }
+            else // characteristic not supported.
+            {
+                // Send an indication with the list.
+                rscStatus = RSC_INVALID_PARAMETER;
+            }
+            break;
 
-  // Send indication of operation result
-  rscCmdInd.pValue[2] = rscStatus;
+        default:
+            // Send an indication with opcode not suported response
+            rscStatus = RSC_OPCODE_NOT_SUPPORTED;
+            break;
+    }
 
-  // Ask our task to send out indication
-  tmos_set_event( runningService_TaskID, RSC_CMD_IND_SEND_EVT );
+    // Send indication of operation result
+    rscCmdInd.pValue[2] = rscStatus;
+
+    // Ask our task to send out indication
+    tmos_set_event(runningService_TaskID, RSC_CMD_IND_SEND_EVT);
 }
 
 /*********************************************************************
@@ -688,20 +664,20 @@ static void running_ProcessRSCCmd( uint16 attrHandle, uint8 *pValue, uint8 len )
  *
  * @return      none
  */
-void Running_HandleConnStatusCB( uint16 connHandle, uint8 changeType )
+void Running_HandleConnStatusCB(uint16_t connHandle, uint8_t changeType)
 {
-  // Make sure this is not loopback connection
-  if ( connHandle != LOOPBACK_CONNHANDLE )
-  {
-    // Reset Client Char Config if connection has dropped
-    if ( ( changeType == LINKDB_STATUS_UPDATE_REMOVED )      ||
-         ( ( changeType == LINKDB_STATUS_UPDATE_STATEFLAGS ) &&
-           ( !linkDB_Up( connHandle ) ) ) )
+    // Make sure this is not loopback connection
+    if(connHandle != LOOPBACK_CONNHANDLE)
     {
-      GATTServApp_InitCharCfg( connHandle, runningMeasClientCharCfg );
-      GATTServApp_InitCharCfg( connHandle, runningCommandClientCharCfg );
+        // Reset Client Char Config if connection has dropped
+        if((changeType == LINKDB_STATUS_UPDATE_REMOVED) ||
+           ((changeType == LINKDB_STATUS_UPDATE_STATEFLAGS) &&
+            (!linkDB_Up(connHandle))))
+        {
+            GATTServApp_InitCharCfg(connHandle, runningMeasClientCharCfg);
+            GATTServApp_InitCharCfg(connHandle, runningCommandClientCharCfg);
+        }
     }
-  }
 }
 
 /*********************************************************************
@@ -718,52 +694,51 @@ void Running_HandleConnStatusCB( uint16 connHandle, uint8 changeType )
  *
  * @return      Success or Failure
  */
-static uint8 running_ReadAttrCB( uint16 connHandle, gattAttribute_t *pAttr,
-                                          uint8 *pValue, uint16 *pLen, uint16 offset,
-                                          uint16 maxLen, uint8 method )
+static uint8_t running_ReadAttrCB(uint16_t connHandle, gattAttribute_t *pAttr,
+                                  uint8_t *pValue, uint16_t *pLen, uint16_t offset,
+                                  uint16_t maxLen, uint8_t method)
 {
-  bStatus_t status = SUCCESS;
+    bStatus_t status = SUCCESS;
 
-  uint16 uuid = BUILD_UINT16( pAttr->type.uuid[0], pAttr->type.uuid[1]);
-	
-  // Make sure it's not a blob operation (no attributes in the profile are long)
-  if ( offset > 0 )
-  {
-    return ( ATT_ERR_ATTR_NOT_LONG );
-  }
+    uint16_t uuid = BUILD_UINT16(pAttr->type.uuid[0], pAttr->type.uuid[1]);
 
-
-  switch ( uuid )
-  {
-    // Read Sensor Location
-    case SENSOR_LOC_UUID:
+    // Make sure it's not a blob operation (no attributes in the profile are long)
+    if(offset > 0)
     {
-      *pLen = 1;
-      pValue[0] = *pAttr->pValue;
+        return (ATT_ERR_ATTR_NOT_LONG);
     }
-    break;
 
-    // Read Running Feature List
-    case RSC_FEATURE_UUID:
+    switch(uuid)
     {
-      *pLen = 2;
-      pValue[0] = LO_UINT16( runningFeatures );
-      pValue[1] = HI_UINT16( runningFeatures );
+        // Read Sensor Location
+        case SENSOR_LOC_UUID:
+        {
+            *pLen = 1;
+            pValue[0] = *pAttr->pValue;
+        }
+        break;
+
+        // Read Running Feature List
+        case RSC_FEATURE_UUID:
+        {
+            *pLen = 2;
+            pValue[0] = LO_UINT16(runningFeatures);
+            pValue[1] = HI_UINT16(runningFeatures);
+        }
+        break;
+
+        default:
+            status = ATT_ERR_ATTR_NOT_FOUND;
+            break;
     }
-    break;
 
-    default:
-      status = ATT_ERR_ATTR_NOT_FOUND;
-    break;
-  }
+    // Notify app
+    if(runningServiceCB != NULL)
+    {
+        (*runningServiceCB)(RSC_READ_ATTR, NULL);
+    }
 
-  // Notify app
-  if ( runningServiceCB != NULL )
-  {
-     (*runningServiceCB)( RSC_READ_ATTR, NULL );
-  }
-
-  return ( status );
+    return (status);
 }
 
 /*********************************************************************
@@ -779,76 +754,74 @@ static uint8 running_ReadAttrCB( uint16 connHandle, gattAttribute_t *pAttr,
  *
  * @return  Success or Failure
  */
-static bStatus_t running_WriteAttrCB( uint16 connHandle, gattAttribute_t *pAttr,
-                                           uint8 *pValue, uint16 len, uint16 offset,
-                                           uint8 method )
+static bStatus_t running_WriteAttrCB(uint16_t connHandle, gattAttribute_t *pAttr,
+                                     uint8_t *pValue, uint16_t len, uint16_t offset,
+                                     uint8_t method)
 {
-  bStatus_t status = SUCCESS;
-  uint16 uuid = BUILD_UINT16( pAttr->type.uuid[0], pAttr->type.uuid[1]);
+    bStatus_t status = SUCCESS;
+    uint16_t  uuid = BUILD_UINT16(pAttr->type.uuid[0], pAttr->type.uuid[1]);
 
-  if ( offset > 0 )
-  {
-    return (ATT_ERR_ATTR_NOT_LONG);
-  }
+    if(offset > 0)
+    {
+        return (ATT_ERR_ATTR_NOT_LONG);
+    }
 
-  switch ( uuid )
-  {
-    case SC_CTRL_PT_UUID:
-      // Make sure Control Point Cfg is not already in progress
-      if ( scOpInProgress == TRUE )
-      {
-        status = RSC_ERR_PROC_IN_PROGRESS;
-      }
-      // Make sure Control Point Cfg is configured for Indications
-      else if ( (runningCommandClientCharCfg[connHandle].value & GATT_CLIENT_CFG_INDICATE) == FALSE )
-      {
-         status = RSC_ERR_CCC_IMPROPER_CFG;
-      }
-      else
-      {
-        // Process RSC command
-        running_ProcessRSCCmd( pAttr->handle, pValue, len );
-        connectionHandle = connHandle;
-      }
-      break;
+    switch(uuid)
+    {
+        case SC_CTRL_PT_UUID:
+            // Make sure Control Point Cfg is not already in progress
+            if(scOpInProgress == TRUE)
+            {
+                status = RSC_ERR_PROC_IN_PROGRESS;
+            }
+            // Make sure Control Point Cfg is configured for Indications
+            else if((runningCommandClientCharCfg[connHandle].value & GATT_CLIENT_CFG_INDICATE) == FALSE)
+            {
+                status = RSC_ERR_CCC_IMPROPER_CFG;
+            }
+            else
+            {
+                // Process RSC command
+                running_ProcessRSCCmd(pAttr->handle, pValue, len);
+                connectionHandle = connHandle;
+            }
+            break;
 
-    // For Measure and Commands CCC
-    case GATT_CLIENT_CHAR_CFG_UUID:
-      if ( pAttr->handle == runningAttrTbl[RSC_COMMAND_CFG_POS].handle )
-      {
-        status = GATTServApp_ProcessCCCWriteReq( connHandle, pAttr, pValue, len,
-                                                 offset, GATT_CLIENT_CFG_INDICATE );
-        // Notify app
-        if ( runningServiceCB != NULL )
-        {
-           (*runningServiceCB)( RSC_WRITE_ATTR, NULL );
-        }
-      }
-      else if ( pAttr->handle == runningAttrTbl[RSC_MEAS_CFG_POS].handle )
-      {
-        status = GATTServApp_ProcessCCCWriteReq( connHandle, pAttr, pValue, len,
-                                                 offset, GATT_CLIENT_CFG_NOTIFY );
-        if ( status == SUCCESS )
-        {
-          // Notify app
-          if ( runningServiceCB != NULL )
-          {
-            uint16 charCfg = BUILD_UINT16( pValue[0], pValue[1] );
+        // For Measure and Commands CCC
+        case GATT_CLIENT_CHAR_CFG_UUID:
+            if(pAttr->handle == runningAttrTbl[RSC_COMMAND_CFG_POS].handle)
+            {
+                status = GATTServApp_ProcessCCCWriteReq(connHandle, pAttr, pValue, len,
+                                                        offset, GATT_CLIENT_CFG_INDICATE);
+                // Notify app
+                if(runningServiceCB != NULL)
+                {
+                    (*runningServiceCB)(RSC_WRITE_ATTR, NULL);
+                }
+            }
+            else if(pAttr->handle == runningAttrTbl[RSC_MEAS_CFG_POS].handle)
+            {
+                status = GATTServApp_ProcessCCCWriteReq(connHandle, pAttr, pValue, len,
+                                                        offset, GATT_CLIENT_CFG_NOTIFY);
+                if(status == SUCCESS)
+                {
+                    // Notify app
+                    if(runningServiceCB != NULL)
+                    {
+                        uint16_t charCfg = BUILD_UINT16(pValue[0], pValue[1]);
 
-             (*runningServiceCB)( ((charCfg == GATT_CFG_NO_OPERATION) ?
-                                        RSC_MEAS_NOTI_DISABLED :
-                                        RSC_MEAS_NOTI_ENABLED ), NULL );
-          }
-        }
-      }
-      break;
+                        (*runningServiceCB)(((charCfg == GATT_CFG_NO_OPERATION) ? RSC_MEAS_NOTI_DISABLED : RSC_MEAS_NOTI_ENABLED), NULL);
+                    }
+                }
+            }
+            break;
 
-    default:
-      status = ATT_ERR_ATTR_NOT_FOUND;
-      break;
-  }
+        default:
+            status = ATT_ERR_ATTR_NOT_FOUND;
+            break;
+    }
 
-  return ( status );
+    return (status);
 }
 
 /*********************************************************************

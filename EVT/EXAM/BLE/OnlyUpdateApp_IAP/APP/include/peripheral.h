@@ -3,16 +3,15 @@
 * Author             : WCH
 * Version            : V1.0
 * Date               : 2018/12/11
-* Description        : 
-            
+* Description        :
+
 *******************************************************************************/
 
 #ifndef PERIPHERAL_H
 #define PERIPHERAL_H
 
 #ifdef __cplusplus
-extern "C"
-{
+extern "C" {
 #endif
 
 /*********************************************************************
@@ -23,13 +22,10 @@ extern "C"
  * CONSTANTS
  */
 
-
 // Simple BLE Peripheral Task Events
-#define SBP_START_DEVICE_EVT                              0x0001
-#define SBP_PERIODIC_EVT                                  0x0002
-#define OTA_FLASH_ERASE_EVT                               0x0004	  //OTA Flash擦除任务	
-	
-	
+#define SBP_START_DEVICE_EVT    0x0001
+#define SBP_PERIODIC_EVT        0x0002
+#define OTA_FLASH_ERASE_EVT     0x0004  //OTA Flash擦除任务
 
 /*********************************************************************
  * MACROS
@@ -42,12 +38,12 @@ extern "C"
 /*
  * Task Initialization for the BLE Application
  */
-extern void Peripheral_Init( void );
+extern void Peripheral_Init(void);
 
 /*
  * Task Event Processor for the BLE Application
  */
-extern uint16 Peripheral_ProcessEvent( uint8 task_id, uint16 events );
+extern uint16_t Peripheral_ProcessEvent(uint8_t task_id, uint16_t events);
 
 /*********************************************************************
 *********************************************************************/
@@ -56,4 +52,4 @@ extern uint16 Peripheral_ProcessEvent( uint8 task_id, uint16 events );
 }
 #endif
 
-#endif 
+#endif

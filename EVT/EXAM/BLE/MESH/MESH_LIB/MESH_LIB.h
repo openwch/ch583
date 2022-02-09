@@ -1,9 +1,10 @@
 /********************************** (C) COPYRIGHT *******************************
  * File Name          : mesh_lib.h
  * Author             : WCH
- * Version            : V1.3
- * Date               : 2021/06/04
+ * Version            : V1.4
+ * Date               : 2022/01/18
  * Description        :
+ * Copyright (c) 2021 Nanjing Qinheng Microelectronics Co., Ltd.
  *******************************************************************************/
 
 #ifndef mesh_lib_H
@@ -117,37 +118,37 @@ typedef signed int ssize_t;
 #endif
 
 /******************************************************************************/
-#define  VER_MESH_FILE            "MESH_LIB_V1.3"
-extern const u8_t VER_MESH_LIB[];
+#define  VER_MESH_FILE            "MESH_LIB_V1.4"
+extern const uint8_t VER_MESH_LIB[];
 
 // Global_Error_Code
 #define MESH_ERROR_BASE_NUM      	(0x0)       ///< Global error base
 
-#define NOERR							(MESH_ERROR_BASE_NUM + 0)
-#define EINVAL						(MESH_ERROR_BASE_NUM + 1)
-#define EALREADY					(MESH_ERROR_BASE_NUM + 2)
-#define ESRCH							(MESH_ERROR_BASE_NUM + 3)
-#define EBUSY							(MESH_ERROR_BASE_NUM + 4)
-#define ENOTCONN					(MESH_ERROR_BASE_NUM + 5)
-#define EAGAIN						(MESH_ERROR_BASE_NUM + 6)
-#define ENOBUFS						(MESH_ERROR_BASE_NUM + 7)
-#define ENOENT						(MESH_ERROR_BASE_NUM + 8)
-#define ENOMEM						(MESH_ERROR_BASE_NUM + 9)
-#define EEXIST						(MESH_ERROR_BASE_NUM + 10)
-#define EIO								(MESH_ERROR_BASE_NUM + 11)
-#define EDEADLK						(MESH_ERROR_BASE_NUM + 12)
-#define ESPIPE						(MESH_ERROR_BASE_NUM + 13)
-#define EACCES						(MESH_ERROR_BASE_NUM + 14)
-#define ENXIO							(MESH_ERROR_BASE_NUM + 15)
-#define ENOSPC						(MESH_ERROR_BASE_NUM + 16)
-#define EBADMSG						(MESH_ERROR_BASE_NUM + 17)
-#define E2BIG							(MESH_ERROR_BASE_NUM + 18)
-#define ENOTSUP						(MESH_ERROR_BASE_NUM + 19)
-#define EADDRINUSE				(MESH_ERROR_BASE_NUM + 20)
-#define EMSGSIZE					(MESH_ERROR_BASE_NUM + 21)
-#define ECANCELED					(MESH_ERROR_BASE_NUM + 22)
-#define ETIMEDOUT					(MESH_ERROR_BASE_NUM + 23)
-#define EADDRNOTAVAIL			(MESH_ERROR_BASE_NUM + 24)
+#define NOERR                       (MESH_ERROR_BASE_NUM + 0)
+#define EINVAL                      (MESH_ERROR_BASE_NUM + 1)
+#define EALREADY                    (MESH_ERROR_BASE_NUM + 2)
+#define ESRCH                       (MESH_ERROR_BASE_NUM + 3)
+#define EBUSY                       (MESH_ERROR_BASE_NUM + 4)
+#define ENOTCONN                    (MESH_ERROR_BASE_NUM + 5)
+#define EAGAIN                      (MESH_ERROR_BASE_NUM + 6)
+#define ENOBUFS                     (MESH_ERROR_BASE_NUM + 7)
+#define ENOENT                      (MESH_ERROR_BASE_NUM + 8)
+#define ENOMEM                      (MESH_ERROR_BASE_NUM + 9)
+#define EEXIST                      (MESH_ERROR_BASE_NUM + 10)
+#define EIO                         (MESH_ERROR_BASE_NUM + 11)
+#define EDEADLK                     (MESH_ERROR_BASE_NUM + 12)
+#define ESPIPE                      (MESH_ERROR_BASE_NUM + 13)
+#define EACCES                      (MESH_ERROR_BASE_NUM + 14)
+#define ENXIO                       (MESH_ERROR_BASE_NUM + 15)
+#define ENOSPC                      (MESH_ERROR_BASE_NUM + 16)
+#define EBADMSG                     (MESH_ERROR_BASE_NUM + 17)
+#define E2BIG                       (MESH_ERROR_BASE_NUM + 18)
+#define ENOTSUP                     (MESH_ERROR_BASE_NUM + 19)
+#define EADDRINUSE                  (MESH_ERROR_BASE_NUM + 20)
+#define EMSGSIZE                    (MESH_ERROR_BASE_NUM + 21)
+#define ECANCELED                   (MESH_ERROR_BASE_NUM + 22)
+#define ETIMEDOUT                   (MESH_ERROR_BASE_NUM + 23)
+#define EADDRNOTAVAIL               (MESH_ERROR_BASE_NUM + 24)
 
 /* Primary Network Key index */
 #define BLE_MESH_NET_PRIMARY 0x000
@@ -182,10 +183,10 @@ extern const u8_t VER_MESH_LIB[];
                                  BLE_MESH_FEAT_FRIEND | \
                                  BLE_MESH_FEAT_LOW_POWER)
 
-#define BLE_MESH_SDU_UNSEG_MAX          11    // 不分包时用户默认可用最大发送长度为此数值减4，即7字节
+#define BLE_MESH_SDU_UNSEG_MAX          11    // The user's actual usable length is 7 bytes
 #define BLE_MESH_CTL_SEG_SDU_MAX        8
 #define BLE_MESH_APP_SEG_SDU_MAX        12
-#define BLE_MESH_TX_SDU_MAX            (32 * BLE_MESH_APP_SEG_SDU_MAX)    // 分包时用户可用数据总长度为此数值减8
+#define BLE_MESH_TX_SDU_MAX            (32 * BLE_MESH_APP_SEG_SDU_MAX)    // The user's actual usable length needs to be reduced by 8 bytes
 #define BLE_MESH_RX_SDU_MAX            (32 * BLE_MESH_APP_SEG_SDU_MAX)
 #define BLE_MESH_RX_CTL_MAX            (32 * BLE_MESH_CTL_SEG_SDU_MAX)
 
@@ -756,7 +757,7 @@ extern const u8_t VER_MESH_LIB[];
  *
  *  @return Transmission count (actual transmissions is N + 1).
  */
-#define BLE_MESH_TRANSMIT_COUNT(transmit) (((transmit) & (u8_t)BIT_MASK(3)))
+#define BLE_MESH_TRANSMIT_COUNT(transmit) (((transmit) & (uint8_t)BIT_MASK(3)))
 
 /** @def BLE_MESH_TRANSMIT_INT
  *
@@ -849,80 +850,80 @@ typedef struct tc_sha256_state_struct *TCSha256State_t;
 
 typedef struct
 {
-    u8_t * base_addr;
-    u32_t mem_len;
+    uint8_t * base_addr;
+    uint32_t mem_len;
 } mem_info_t;
 
 typedef struct
 {
-    u8_t adv_buf_count;
-    u8_t rpl_count;
-    u8_t ivu_divider;
-    u8_t allow_same_addr;
-    u8_t mod_key_count;
-    u8_t mod_group_count;
+    uint8_t adv_buf_count;
+    uint8_t rpl_count;
+    uint8_t ivu_divider;
+    uint8_t allow_same_addr;
+    uint8_t mod_key_count;
+    uint8_t mod_group_count;
 } ble_mesh_common_cfg_t;
 
 typedef struct
 {
-    u8_t pxyfilter_count;
+    uint8_t pxyfilter_count;
 } ble_mesh_proxy_cfg_t;
 
 typedef struct
 {
-    u8_t msgcache_count;
+    uint8_t msgcache_count;
 
-    u8_t subnet_count;
-    u8_t appkey_count;
+    uint8_t subnet_count;
+    uint8_t appkey_count;
 
-    u8_t unseg_length;
-    u8_t txseg_max;
-    u8_t txseg_count;
+    uint8_t unseg_length;
+    uint8_t txseg_max;
+    uint8_t txseg_count;
 
-    u8_t rxseg_count;
-    u16_t rxsdu_max;
+    uint8_t rxseg_count;
+    uint16_t rxsdu_max;
 
-    u8_t label_count;
+    uint8_t label_count;
 } ble_mesh_net_cfg_t;
 
 typedef struct
 {
-    u16_t seq_store_rate;
-    u16_t rpl_store_rate;
-    u16_t store_rate;
+    uint16_t seq_store_rate;
+    uint16_t rpl_store_rate;
+    uint16_t store_rate;
 } ble_mesh_store_cfg_t;
 
 typedef struct
 {
-    u8_t frndseg_rx;
-    u8_t frndsub_size;
-    u8_t frndlpn_count;
-    u8_t frndqueue_size;
-    u16_t frndrecv_win;
+    uint8_t frndseg_rx;
+    uint8_t frndsub_size;
+    uint8_t frndlpn_count;
+    uint8_t frndqueue_size;
+    uint16_t frndrecv_win;
 } ble_mesh_friend_cfg_t;
 
 typedef struct
 {
-    u8_t lpnmin_size;
-    u8_t lpnrssi_factor;
-    u8_t lpnrecv_factor;
-    u32_t lpnpoll_interval;
-    u32_t lpnpoll_timeout;
-    u16_t lpnrecv_delay;
-    u16_t lpnretry_timeout;
+    uint8_t lpnmin_size;
+    uint8_t lpnrssi_factor;
+    uint8_t lpnrecv_factor;
+    uint32_t lpnpoll_interval;
+    uint32_t lpnpoll_timeout;
+    uint16_t lpnrecv_delay;
+    uint16_t lpnretry_timeout;
 } ble_mesh_lpn_cfg_t;
 
 typedef struct
 {
-    u8_t node_count;
+    uint8_t node_count;
 } ble_mesh_prov_cfg_t;
 
 typedef struct
 {
-    const u32_t rf_accessAddress;
-    const u8_t rf_channel_37;
-    const u8_t rf_channel_38;
-    const u8_t rf_channel_39;
+    const uint32_t rf_accessAddress;
+    const uint8_t rf_channel_37;
+    const uint8_t rf_channel_38;
+    const uint8_t rf_channel_39;
 } ble_mesh_rf_cfg_t;
 
 typedef struct
@@ -975,7 +976,7 @@ typedef struct _dnode sys_dnode_t;
 struct _timeout
 {
     sys_dnode_t node;
-    s32_t dticks;
+    int32_t dticks;
 };
 
 struct k_delayed_work
@@ -990,13 +991,13 @@ struct k_delayed_work
 // APP key
 struct bt_mesh_app_key
 {
-    u16_t net_idx;
-    u16_t app_idx;
-    BOOL updated;
+    uint16_t net_idx;
+    uint16_t app_idx;
+    uint8_t updated;
     struct bt_mesh_app_keys
     {
-        u8_t id;
-        u8_t val[16];
+        uint8_t id;
+        uint8_t val[16];
     } keys[2];
 };
 
@@ -1010,19 +1011,19 @@ struct bt_mesh_model_pub
     /** The model the context belongs to. Initialized by the stack. */
     struct bt_mesh_model *mod;
 
-    u16_t addr; /**< Publish Address. */
-    u16_t key :12, /**< Publish AppKey Index. */
+    uint16_t addr; /**< Publish Address. */
+    uint16_t key :12, /**< Publish AppKey Index. */
           cred :1, /**< Friendship Credentials Flag. */
           send_rel :1; /**< Force reliable sending (segment acks) */
 
-    u8_t ttl; /**< Publish Time to Live. */
-    u8_t retransmit; /**< Retransmit Count & Interval Steps. */
-    u8_t period; /**< Publish Period. */
-    u16_t period_div :4, /**< Divisor for the Period. */
+    uint8_t ttl; /**< Publish Time to Live. */
+    uint8_t retransmit; /**< Retransmit Count & Interval Steps. */
+    uint8_t period; /**< Publish Period. */
+    uint16_t period_div :4, /**< Divisor for the Period. */
           fast_period :1, /**< Use FastPeriodDivisor */
           count :3; /**< Retransmissions left. */
 
-    u32_t period_start; /**< Start of the current period. */
+    uint32_t period_start; /**< Start of the current period. */
 
     /** @brief Publication buffer, containing the publication message.
      *
@@ -1055,34 +1056,34 @@ struct bt_mesh_model_pub
 struct bt_mesh_msg_ctx
 {
     /** NetKey Index of the subnet to send the message on. */
-    u16_t net_idx;
+    uint16_t net_idx;
 
     /** AppKey Index to encrypt the message with. */
-    u16_t app_idx;
+    uint16_t app_idx;
 
     /** Remote address. */
-    u16_t addr;
+    uint16_t addr;
 
     /** Destination address of a received message. Not used for sending. */
-    u16_t recv_dst;
+    uint16_t recv_dst;
 
     /** RSSI of received packet. Not used for sending. */
-    s8_t recv_rssi;
+    int8_t recv_rssi;
 
     /** Received TTL value. Not used for sending. */
-    u8_t recv_ttl :7;
+    uint8_t recv_ttl :7;
 
     /** Force sending reliably by using segment acknowledgement */
-    u8_t send_rel :1;
+    uint8_t send_rel :1;
 
     /** TTL, or BLE_MESH_TTL_DEFAULT for default TTL. */
-    u8_t send_ttl;
+    uint8_t send_ttl;
 };
 
 struct bt_mesh_model_op
 {
     /* OpCode encoded using the BLE_MESH_MODEL_OP_* macros */
-    const u32_t opcode;
+    const uint32_t opcode;
 
     /* Minimum required message length */
     const size_t min_len;
@@ -1125,7 +1126,7 @@ struct bt_mesh_model_cb
      *                    node is started. If false, provisioning data was
      *                    loaded from persistent storage.
      */
-    int (* const start)( struct bt_mesh_model *model, BOOL first_time );
+    int (* const start)( struct bt_mesh_model *model, uint8_t first_time );
 
     /** @brief Model init callback.
      *
@@ -1152,27 +1153,27 @@ struct bt_mesh_model
 {
     union
     {
-        const u16_t id;
+        const uint16_t id;
         struct
         {
-            u16_t id;
-            u16_t company;
+            uint16_t id;
+            uint16_t company;
         } vnd;
     };
 
     /* Internal information, mainly for persistent storage */
-    u8_t elem_idx; /* Belongs to Nth element */
-    u8_t model_idx; /* Is the Nth model in the element */
-    u16_t flags; /* Information about what has changed */
+    uint8_t elem_idx; /* Belongs to Nth element */
+    uint8_t model_idx; /* Is the Nth model in the element */
+    uint16_t flags; /* Information about what has changed */
 
     /* Model Publication */
     struct bt_mesh_model_pub * const pub;
 
     /* AppKey List */
-    u16_t *keys;
+    uint16_t *keys;
 
     /* Subscription List (group or virtual addresses) */
-    u16_t *groups;
+    uint16_t *groups;
 
     const struct bt_mesh_model_op * op;
 
@@ -1185,11 +1186,11 @@ struct bt_mesh_model
 
 struct bt_mesh_send_cb
 {
-    void (*start)( u16_t duration, int err, void *cb_data );
+    void (*start)( uint16_t duration, int err, void *cb_data );
     void (*end)( int err, void *cb_data );
 };
 
-typedef void (*elem_unkonw_op_cb_t)( u32_t opcode, struct bt_mesh_model *model,
+typedef void (*elem_unkonw_op_cb_t)( uint32_t opcode, struct bt_mesh_model *model,
     struct bt_mesh_msg_ctx *ctx, struct net_buf_simple *buf );
 
 /************************************elem******************************************/
@@ -1198,13 +1199,13 @@ typedef void (*elem_unkonw_op_cb_t)( u32_t opcode, struct bt_mesh_model *model,
 struct bt_mesh_elem
 {
     /* Unicast Address. Set at runtime during provisioning. */
-    u16_t addr;
+    uint16_t addr;
 
     /* Location Descriptor (GATT Bluetooth Namespace Descriptors) */
-    const u16_t loc;
+    const uint16_t loc;
 
-    const u8_t model_count;
-    const u8_t vnd_model_count;
+    const uint8_t model_count;
+    const uint8_t vnd_model_count;
 
     struct bt_mesh_model * const models;
     struct bt_mesh_model * const vnd_models;
@@ -1213,9 +1214,9 @@ struct bt_mesh_elem
 /** Node Composition */
 struct bt_mesh_comp
 {
-    u16_t cid;
-    u16_t pid;
-    u16_t vid;
+    uint16_t cid;
+    uint16_t pid;
+    uint16_t vid;
 
     size_t elem_count;
     struct bt_mesh_elem *elem;
@@ -1265,15 +1266,15 @@ typedef enum
 
 typedef struct
 {
-    u8_t type;
-    u8_t val[6];
+    uint8_t type;
+    uint8_t val[6];
 } bt_mesh_addr_t;
 
 typedef union
 {
     struct pb_adv
     {
-        const u32_t *uri_hash;
+        const uint32_t *uri_hash;
     } adv;
 
     struct pb_gatt
@@ -1285,8 +1286,7 @@ typedef union
 /** Provisioning properties & capabilities. */
 struct bt_mesh_prov
 {
-    /** The UUID that's used when advertising as unprovisioned */
-    const u8_t *uuid;
+    const uint8_t *uuid;                       /** The UUID that's used when advertising as unprovisioned */
 
     /** Optional URI. This will be advertised separately from the
      *  unprovisioned beacon, however the unprovisioned beacon will
@@ -1294,12 +1294,8 @@ struct bt_mesh_prov
      *  provisioner.
      */
     const char *uri;
-
-    /** Out of Band information field. */
-    bt_mesh_prov_oob_info_t oob_info;
-
-    /** Flag indicates whether unprovisioned devices support OOB public key */
-    BOOL oob_pub_key;
+    bt_mesh_prov_oob_info_t oob_info;       /** Out of Band information field. */
+    uint8_t oob_pub_key;                       /** Flag indicates whether unprovisioned devices support OOB public key */
 
     /** @brief Set device OOB public key.
      *
@@ -1307,21 +1303,12 @@ struct bt_mesh_prov
      *  set OOB public key & private key pair.
      */
     void (*oob_pub_key_cb)( void );
-
-    /** Static OOB value */
-    const u8_t *static_val;
-    /** Static OOB value length */
-    u8_t static_val_len;
-
-    /** Maximum size of Output OOB supported */
-    u8_t output_size;
-    /** Supported Output OOB Actions */
-    u16_t output_actions;
-
-    /* Maximum size of Input OOB supported */
-    u8_t input_size;
-    /** Supported Input OOB Actions */
-    u16_t input_actions;
+    const uint8_t *static_val;                 /** Static OOB value */
+    uint8_t static_val_len;                    /** Static OOB value length */
+    uint8_t output_size;                       /** Maximum size of Output OOB supported */
+    uint16_t output_actions;                   /** Supported Output OOB Actions */
+    uint8_t input_size;                        /** Maximum size of Input OOB supported */
+    uint16_t input_actions;                    /** Supported Input OOB Actions */
 
     /** @brief Output of a number is requested.
      *
@@ -1333,7 +1320,7 @@ struct bt_mesh_prov
      *
      *  @return Zero on success or negative error code otherwise
      */
-    int (*output_number)( bt_mesh_output_action_t act, u32_t num );
+    int (*output_number)( bt_mesh_output_action_t act, uint32_t num );
 
     /** @brief Output of a string is requested.
      *
@@ -1360,7 +1347,7 @@ struct bt_mesh_prov
      *
      *  @return Zero on success or negative error code otherwise
      */
-    int (*input)( bt_mesh_input_action_t act, u8_t size );
+    int (*input)( bt_mesh_input_action_t act, uint8_t size );
 
     /** @brief Unprovisioned beacon has been received.
      *
@@ -1373,7 +1360,7 @@ struct bt_mesh_prov
      *                 present in the beacon.
      */
     void (*unprovisioned_beacon)( bt_mesh_prov_bearer_t bearer,
-        const u8_t uuid[16], bt_mesh_prov_oob_info_t oob_info,
+        const uint8_t uuid[16], bt_mesh_prov_oob_info_t oob_info,
         const unprivison_info_t *info );
 
     void (*pear_oob_pub_key)( void );
@@ -1394,7 +1381,7 @@ struct bt_mesh_prov
      *
      *  @param bearer Provisioning bearer.
      */
-    void (*link_close)( bt_mesh_prov_bearer_t bearer, u8_t reason );
+    void (*link_close)( bt_mesh_prov_bearer_t bearer, uint8_t reason );
 
     /** @brief Provisioning is complete.
      *
@@ -1407,7 +1394,7 @@ struct bt_mesh_prov
      *  @param flags    Key Refresh & IV Update flags
      *  @param iv_index IV Index.
      */
-    void (*complete)( u16_t net_idx, u16_t addr, u8_t flags, u32_t iv_index );
+    void (*complete)( uint16_t net_idx, uint16_t addr, uint8_t flags, uint32_t iv_index );
 
     /** @brief A new node has been added to the provisioning database.
      *
@@ -1419,7 +1406,7 @@ struct bt_mesh_prov
      *  @param addr Primary element address.
      *  @param num_elem Number of elements that this node has.
      */
-    void (*node_added)( u16_t net_idx, u16_t addr, u8_t num_elem );
+    void (*node_added)( uint16_t net_idx, uint16_t addr, uint8_t num_elem );
 
     /** @brief Node has been reset.
      *
@@ -1434,7 +1421,7 @@ struct bt_mesh_prov
 
 struct bt_mesh_conn
 {
-    u16_t handle;
+    uint16_t handle;
     bt_mesh_atomic_t ref;
 };
 
@@ -1443,12 +1430,12 @@ struct bt_mesh_proxy_cli
 {
     void (*connected)( struct bt_mesh_conn *conn );
 
-    void (*disconnected)( struct bt_mesh_conn *conn, u8_t reason );
+    void (*disconnected)( struct bt_mesh_conn *conn, uint8_t reason );
 
-    void (*net_id_recv)( const bt_mesh_addr_t *addr, u16_t net_idx );
+    void (*net_id_recv)( const bt_mesh_addr_t *addr, uint16_t net_idx );
 
-    void (*node_id_recv)( const bt_mesh_addr_t *bt_addr, u16_t net_idx,
-        u16_t addr );
+    void (*node_id_recv)( const bt_mesh_addr_t *bt_addr, uint16_t net_idx,
+        uint16_t addr );
 };
 
 extern const struct bt_mesh_model_op bt_mesh_cfg_srv_op[];
@@ -1474,18 +1461,18 @@ extern const struct bt_mesh_model_cb bt_mesh_health_mod_srv_cb;
 struct net_buf_simple
 {
     /** Pointer to the start of data in the buffer. */
-    u8_t *data;
+    uint8_t *data;
 
     /** Length of the data behind the data pointer. */
-    u16_t len;
+    uint16_t len;
 
     /** Amount of data that this buffer can store. */
-    u16_t size;
+    uint16_t size;
 
     /** Start of the data storage. Not to be accessed directly
      *  (the data pointer should be used instead).
      */
-    u8_t *__buf;
+    uint8_t *__buf;
 };
 
 struct net_buf
@@ -1500,10 +1487,10 @@ struct net_buf
     };
 
     /** Reference count. */
-    u8_t ref;
+    uint8_t ref;
 
     /** Bit-field of buffer flags. */
-    u8_t flags;
+    uint8_t flags;
 
     /** Where the buffer should go when freed up. */
     struct net_buf_pool *pool;
@@ -1517,31 +1504,31 @@ struct net_buf
         struct
         {
             /** Pointer to the start of data in the buffer. */
-            u8_t *data;
+            uint8_t *data;
 
             /** Length of the data behind the data pointer. */
-            u16_t len;
+            uint16_t len;
 
             /** Amount of data that this buffer can store. */
-            u16_t size;
+            uint16_t size;
 
             /** Start of the data storage. Not to be accessed
              *  directly (the data pointer should be used
              *  instead).
              */
-            u8_t *__buf;
+            uint8_t *__buf;
         };
 
         struct net_buf_simple b;
     };
 
     /** System metadata for this buffer. */
-    u32_t user_data[BLE_MESH_NET_BUF_USER_DATA_SIZE];
+    uint32_t user_data[BLE_MESH_NET_BUF_USER_DATA_SIZE];
 };
 
 // Define a net_buf_simple stack variable.
 #define NET_BUF_SIMPLE_DEFINE(_name, _size) \
-    u8_t net_buf_data_##_name[_size];       \
+    uint8_t net_buf_data_##_name[_size];       \
     struct net_buf_simple _name = {         \
         .data  = net_buf_data_##_name,      \
         .len   = 0,                         \
@@ -1551,7 +1538,7 @@ struct net_buf
 
 // Define a static net_buf_simple variable.
 #define NET_BUF_SIMPLE_DEFINE_STATIC(_name, _size)  \
-    static u8_t net_buf_data_##_name[_size];        \
+    static uint8_t net_buf_data_##_name[_size];        \
     static struct net_buf_simple _name = {          \
         .data  = net_buf_data_##_name,              \
         .len   = 0,                                 \
@@ -1571,7 +1558,6 @@ struct net_buf
 #define BLE_MESH_HEALTH_PUB_DEFINE(_name, _max_faults) \
     BLE_MESH_MODEL_PUB_DEFINE(_name, NULL, (1 + 3 + (_max_faults)))
 
-// 返回上级结构体指针
 #define CONTAINER_OF(ptr, type, field) \
     ((type *)(((char *)(ptr)) - offsetof(type, field)))
 
@@ -1588,14 +1574,14 @@ typedef struct
 typedef int (*flash_api_read)( int offset, void *data, unsigned int len );
 typedef int (*flash_api_write)( int offset, const void *data, unsigned int len );
 typedef int (*flash_api_erase)( int offset, unsigned int len );
-typedef int (*flash_api_write_protection)( BOOL enable );
+typedef int (*flash_api_write_protection)( uint8_t enable );
 
 struct flash_config_info
 {
-    u8_t nvs_sector_cnt;
-    u8_t nvs_write_size;
-    u16_t nvs_sector_size;
-    u32_t nvs_store_baddr;
+    uint8_t nvs_sector_cnt;
+    uint8_t nvs_write_size;
+    uint16_t nvs_sector_size;
+    uint32_t nvs_store_baddr;
 };
 
 struct flash_driver_api
@@ -1618,19 +1604,19 @@ struct device
 struct bt_mesh_health_srv_cb
 {
     /* Fetch current faults */
-    int (*fault_get_cur)( struct bt_mesh_model *model, u8_t *test_id,
-        u16_t *company_id, u8_t *faults, u8_t *fault_count );
+    int (*fault_get_cur)( struct bt_mesh_model *model, uint8_t *test_id,
+        uint16_t *company_id, uint8_t *faults, uint8_t *fault_count );
 
     /* Fetch registered faults */
-    int (*fault_get_reg)( struct bt_mesh_model *model, u16_t company_id,
-        u8_t *test_id, u8_t *faults, u8_t *fault_count );
+    int (*fault_get_reg)( struct bt_mesh_model *model, uint16_t company_id,
+        uint8_t *test_id, uint8_t *faults, uint8_t *fault_count );
 
     /* Clear registered faults */
-    int (*fault_clear)( struct bt_mesh_model *model, u16_t company_id );
+    int (*fault_clear)( struct bt_mesh_model *model, uint16_t company_id );
 
     /* Run a specific test */
-    int (*fault_test)( struct bt_mesh_model *model, u8_t test_id,
-        u16_t company_id );
+    int (*fault_test)( struct bt_mesh_model *model, uint8_t test_id,
+        uint16_t company_id );
 
     /* Attention on */
     void (*attn_on)( struct bt_mesh_model *model );
@@ -1656,35 +1642,35 @@ struct bt_mesh_hb_pub
 {
     struct k_delayed_work timer;
 
-    u16_t dst;
-    u16_t count;
-    u8_t period;
-    u8_t ttl;
-    u16_t feat;
-    u16_t net_idx;
+    uint16_t dst;
+    uint16_t count;
+    uint8_t period;
+    uint8_t ttl;
+    uint16_t feat;
+    uint16_t net_idx;
 };
 
 /* Heartbeat Subscription */
 struct bt_mesh_hb_sub
 {
-    s64_t expiry;
+    int64_t expiry;
 
-    u16_t src;
-    u16_t dst;
-    u16_t count;
-    u8_t min_hops;
-    u8_t max_hops;
+    uint16_t src;
+    uint16_t dst;
+    uint16_t count;
+    uint8_t min_hops;
+    uint8_t max_hops;
 
     /* Optional subscription tracking function */
-    void (*func)( u8_t hops, u16_t feat );
+    void (*func)( uint8_t hops, uint16_t feat );
 };
 
 /*****************************************cfg_srv*************************************/
 
 struct cfgEventHdr
 {
-    u8_t status;
-    u32_t opcode;
+    uint8_t status;
+    uint32_t opcode;
 };
 
 typedef struct
@@ -1701,13 +1687,13 @@ struct bt_mesh_cfg_srv
 
     cfg_srv_rsp_handler_t handler;
 
-    u8_t net_transmit; /* Network Transmit state */
-    u8_t relay; /* Relay Mode state */
-    u8_t relay_retransmit; /* Relay Retransmit state */
-    u8_t beacon; /* Secure Network Beacon state */
-    u8_t gatt_proxy; /* GATT Proxy state */
-    u8_t frnd; /* Friend state */
-    u8_t default_ttl; /* Default TTL */
+    uint8_t net_transmit; /* Network Transmit state */
+    uint8_t relay; /* Relay Mode state */
+    uint8_t relay_retransmit; /* Relay Retransmit state */
+    uint8_t beacon; /* Secure Network Beacon state */
+    uint8_t gatt_proxy; /* GATT Proxy state */
+    uint8_t frnd; /* Friend state */
+    uint8_t default_ttl; /* Default TTL */
 
     struct bt_mesh_hb_pub hb_pub;
 
@@ -1723,95 +1709,95 @@ struct bt_mesh_cfg_comp_data
 
 struct bt_mesh_cfg_relay
 {
-    u8_t transmit;
+    uint8_t transmit;
 };
 
 struct bt_mesh_cfg_mod_pub
 {
-    u16_t addr;
-    u16_t app_idx;
-    BOOL cred_flag;
-    u8_t ttl;
-    u8_t period;
-    u8_t transmit;
+    uint16_t addr;
+    uint16_t app_idx;
+    uint8_t cred_flag;
+    uint8_t ttl;
+    uint8_t period;
+    uint8_t transmit;
 };
 
 struct bt_mesh_cfg_mod_pub_va
 {
-    u16_t addr[16];
-    u16_t app_idx;
-    BOOL cred_flag;
-    u8_t ttl;
-    u8_t period;
-    u8_t transmit;
+    uint16_t addr[16];
+    uint16_t app_idx;
+    uint8_t cred_flag;
+    uint8_t ttl;
+    uint8_t period;
+    uint8_t transmit;
 };
 
 struct bt_mesh_cfg_hb_sub
 {
-    u16_t src;
-    u16_t dst;
-    u8_t period;
-    u8_t count;
-    u8_t min;
-    u8_t max;
+    uint16_t src;
+    uint16_t dst;
+    uint8_t period;
+    uint8_t count;
+    uint8_t min;
+    uint8_t max;
 };
 
 struct bt_mesh_cfg_hb_pub
 {
-    u16_t dst;
-    u8_t count;
-    u8_t period;
-    u8_t ttl;
-    u16_t feat;
-    u16_t net_idx;
+    uint16_t dst;
+    uint8_t count;
+    uint8_t period;
+    uint8_t ttl;
+    uint16_t feat;
+    uint16_t net_idx;
 };
 
 struct bt_mesh_cfg_lpn_timeout
 {
-    u16_t addr;
-    u32_t polltimeout;
+    uint16_t addr;
+    uint32_t polltimeout;
 };
 
 struct bt_mesh_cfg_net_transmit
 {
-    u8_t transmit;
+    uint8_t transmit;
 };
 
 struct bt_mesh_node_id
 {
-    u8_t identity;
-    u16_t net_idx;
+    uint8_t identity;
+    uint16_t net_idx;
 };
 
 struct bt_mesh_krp
 {
-    u8_t phase;
-    u16_t net_idx;
+    uint8_t phase;
+    uint16_t net_idx;
 };
 
 struct bt_mesh_cfg_app_list
 {
-    u16_t elem_addr;
-    u16_t mod_id;
-    u16_t cid;
-    u16_t *app_lists;
-    u8_t app_count;
+    uint16_t elem_addr;
+    uint16_t mod_id;
+    uint16_t cid;
+    uint16_t *app_lists;
+    uint8_t app_count;
 };
 
 struct bt_mesh_app_key_list
 {
-    u16_t net_idx;
-    u16_t *app_key_lists;
-    u8_t app_key_count;
+    uint16_t net_idx;
+    uint16_t *app_key_lists;
+    uint8_t app_key_count;
 };
 
 struct bt_mesh_sub_list
 {
-    u16_t elem_addr;
-    u16_t cid;
-    u16_t mod_id;
-    u16_t *addr;
-    u8_t addr_count;
+    uint16_t elem_addr;
+    uint16_t cid;
+    uint16_t mod_id;
+    uint16_t *addr;
+    uint8_t addr_count;
 };
 
 union cfgEvent_t
@@ -1845,15 +1831,15 @@ struct bt_mesh_cfg_cli
 
     cfg_cli_rsp_handler_t handler;
 
-    u32_t op_req;
-    u32_t op_pending;
+    uint32_t op_req;
+    uint32_t op_pending;
 
     struct k_delayed_work op_sync;
 };
 
 /*****************************************adapt*************************************/
 typedef int (*gatts_notify_cb_t)( struct bt_mesh_conn *conn, const void *data,
-    u16_t len );
+    uint16_t len );
 
 /*****************************************proxy*************************************/
 
@@ -1867,7 +1853,7 @@ typedef int (*proxy_gatt_enable_cb_t)( void );
 #define FRIEND_FRIENDSHIP_TERMINATED        0x02
 
 typedef int (*friend_init_cb_t)( void );
-typedef void (*friend_state_cb_t)( u16_t lpn_addr, u8_t state );
+typedef void (*friend_state_cb_t)( uint16_t lpn_addr, uint8_t state );
 
 /*****************************************lpn*************************************/
 
@@ -1875,26 +1861,26 @@ typedef void (*friend_state_cb_t)( u16_t lpn_addr, u8_t state );
 #define LPN_FRIENDSHIP_TERMINATED       0x02
 
 typedef int (*lpn_init_cb_t)( void );
-typedef void (*lpn_state_cb_t)( u8_t state );
+typedef void (*lpn_state_cb_t)( uint8_t state );
 
 /*****************************************app_rf*************************************/
 
-typedef void (*pfnAppRFStatusCB_t)( u8 sta, u8 rsr, u8 *rxBuf );
+typedef void (*pfnAppRFStatusCB_t)( uint8_t sta, uint8_t rsr, uint8_t *rxBuf );
 // sta - current status@ref RF_ROLE_STATUS_TYPE
 // rsr - receive status: bit0- crc check result,bit1- type matching result
 // rxBuf - receive data buffer
 
 typedef struct app_tag_rf_config
 {
-    u8 LLEMode;                              // BIT0   0=LLE_MODE_BASIC
+    uint8_t LLEMode;                              // BIT0   0=LLE_MODE_BASIC
                                              // BIT6   0=data channel(0-39)
                                              //        1=rf frequency (2400000kHz-2483500kHz)
                                              // BIT7   0=the first byte of the receive buffer is rssi
                                              //        1=the first byte of the receive buffer is package type
-    u8 Channel;                              // rf channel(0-39)
-    u32 Frequency;                       // rf frequency (2400000kHz-2483500kHz)
-    u32 accessAddress;                       // access address,32bit PHY address
-    u32 CRCInit;                              // crc initial value
+    uint8_t Channel;                              // rf channel(0-39)
+    uint32_t Frequency;                           // rf frequency (2400000kHz-2483500kHz)
+    uint32_t accessAddress;                       // access address,32bit PHY address
+    uint32_t CRCInit;                             // crc initial value
     pfnAppRFStatusCB_t rfStatusCB;           // status call back
 } app_rfConfig_t;
 
@@ -1934,7 +1920,7 @@ void *net_buf_simple_add_mem( struct net_buf_simple *buf, const void *mem,
  *
  * @return Value to be added.
  */
-u8_t *net_buf_simple_add_u8( struct net_buf_simple *buf, u8_t val );
+uint8_t *net_buf_simple_add_u8( struct net_buf_simple *buf, uint8_t val );
 #define net_buf_add_u8(buf, val) net_buf_simple_add_u8(&(buf)->b, val)
 
 /**
@@ -1945,7 +1931,7 @@ u8_t *net_buf_simple_add_u8( struct net_buf_simple *buf, u8_t val );
  *
  * @return Null.
  */
-void net_buf_simple_add_le16( struct net_buf_simple *buf, u16_t val );
+void net_buf_simple_add_le16( struct net_buf_simple *buf, uint16_t val );
 #define net_buf_add_le16(buf, val) net_buf_simple_add_le16(&(buf)->b, val)
 
 /**
@@ -1956,7 +1942,7 @@ void net_buf_simple_add_le16( struct net_buf_simple *buf, u16_t val );
  *
  * @return Null.
  */
-void net_buf_simple_add_be16( struct net_buf_simple *buf, u16_t val );
+void net_buf_simple_add_be16( struct net_buf_simple *buf, uint16_t val );
 #define net_buf_add_be16(buf, val) net_buf_simple_add_be16(&(buf)->b, val)
 
 /**
@@ -1967,7 +1953,7 @@ void net_buf_simple_add_be16( struct net_buf_simple *buf, u16_t val );
  *
  * @return Null.
  */
-void net_buf_simple_add_le32( struct net_buf_simple *buf, u32_t val );
+void net_buf_simple_add_le32( struct net_buf_simple *buf, uint32_t val );
 #define net_buf_add_le32(buf, val) net_buf_simple_add_le32(&(buf)->b, val)
 
 /**
@@ -1978,7 +1964,7 @@ void net_buf_simple_add_le32( struct net_buf_simple *buf, u32_t val );
  *
  * @return Null.
  */
-void net_buf_simple_add_be32( struct net_buf_simple *buf, u32_t val );
+void net_buf_simple_add_be32( struct net_buf_simple *buf, uint32_t val );
 #define net_buf_add_be32(buf, val) net_buf_simple_add_be32(&(buf)->b, val)
 
 /**
@@ -2000,7 +1986,7 @@ void *net_buf_simple_push( struct net_buf_simple *buf, size_t len );
  *
  * @return Null.
  */
-void net_buf_simple_push_le16( struct net_buf_simple *buf, u16_t val );
+void net_buf_simple_push_le16( struct net_buf_simple *buf, uint16_t val );
 #define net_buf_push_le16(buf, val) net_buf_simple_push_le16(&(buf)->b, val)
 
 /**
@@ -2011,7 +1997,7 @@ void net_buf_simple_push_le16( struct net_buf_simple *buf, u16_t val );
  *
  * @return Null.
  */
-void net_buf_simple_push_be16( struct net_buf_simple *buf, u16_t val );
+void net_buf_simple_push_be16( struct net_buf_simple *buf, uint16_t val );
 #define net_buf_push_be16(buf, val) net_buf_simple_push_be16(&(buf)->b, val)
 
 /**
@@ -2022,7 +2008,7 @@ void net_buf_simple_push_be16( struct net_buf_simple *buf, u16_t val );
  *
  * @return Null.
  */
-void net_buf_simple_push_u8( struct net_buf_simple *buf, u8_t val );
+void net_buf_simple_push_u8( struct net_buf_simple *buf, uint8_t val );
 #define net_buf_push_u8(buf, val) net_buf_simple_push_u8(&(buf)->b, val)
 
 /**
@@ -2054,7 +2040,7 @@ void *net_buf_simple_pull_mem( struct net_buf_simple *buf, size_t len );
  *
  * @return The value be pulled.
  */
-u8_t net_buf_simple_pull_u8( struct net_buf_simple *buf );
+uint8_t net_buf_simple_pull_u8( struct net_buf_simple *buf );
 #define net_buf_pull_u8(buf) net_buf_simple_pull_u8(&(buf)->b)
 
 /**
@@ -2064,7 +2050,7 @@ u8_t net_buf_simple_pull_u8( struct net_buf_simple *buf );
  *
  * @return The value be pulled.
  */
-u16_t net_buf_simple_pull_le16( struct net_buf_simple *buf );
+uint16_t net_buf_simple_pull_le16( struct net_buf_simple *buf );
 #define net_buf_pull_le16(buf) net_buf_simple_pull_le16(&(buf)->b)
 
 /**
@@ -2074,7 +2060,7 @@ u16_t net_buf_simple_pull_le16( struct net_buf_simple *buf );
  *
  * @return The value be pulled.
  */
-u16_t net_buf_simple_pull_be16( struct net_buf_simple *buf );
+uint16_t net_buf_simple_pull_be16( struct net_buf_simple *buf );
 #define net_buf_pull_be16(buf) net_buf_simple_pull_be16(&(buf)->b)
 
 /**
@@ -2084,7 +2070,7 @@ u16_t net_buf_simple_pull_be16( struct net_buf_simple *buf );
  *
  * @return The value be pulled.
  */
-u32_t net_buf_simple_pull_le32( struct net_buf_simple *buf );
+uint32_t net_buf_simple_pull_le32( struct net_buf_simple *buf );
 #define net_buf_pull_le32(buf) net_buf_simple_pull_le32(&(buf)->b)
 
 /**
@@ -2094,7 +2080,7 @@ u32_t net_buf_simple_pull_le32( struct net_buf_simple *buf );
  *
  * @return The value be pulled.
  */
-u32_t net_buf_simple_pull_be32( struct net_buf_simple *buf );
+uint32_t net_buf_simple_pull_be32( struct net_buf_simple *buf );
 #define net_buf_pull_be32(buf) net_buf_simple_pull_be32(&(buf)->b)
 
 /**
@@ -2202,49 +2188,49 @@ void bt_mesh_relay_init( void );
  *
  * @return transmission count & interval steps.
  */
-u8_t bt_mesh_net_transmit_get( void );
+uint8_t bt_mesh_net_transmit_get( void );
 
 /**
  * @brief Is relay enable.
  *
  * @return @ref Function_State_Define.
  */
-u8_t bt_mesh_relay_get( void );
+uint8_t bt_mesh_relay_get( void );
 
 /**
  * @brief Is friend enable.
  *
  * @return @ref Function_State_Define.
  */
-u8_t bt_mesh_friend_get( void );
+uint8_t bt_mesh_friend_get( void );
 
 /**
  * @brief Get transmission count & interval steps of relay @ref BLE_MESH_TRANSMIT.
  *
  * @return transmission count & interval steps.
  */
-u8_t bt_mesh_relay_retransmit_get( void );
+uint8_t bt_mesh_relay_retransmit_get( void );
 
 /**
  * @brief Is beacon enable.
  *
  * @return @ref Function_State_Define.
  */
-u8_t bt_mesh_beacon_get( void );
+uint8_t bt_mesh_beacon_get( void );
 
 /**
  * @brief Is gatt proxy support.
  *
  * @return @ref Function_State_Define.
  */
-u8_t bt_mesh_gatt_proxy_get( void );
+uint8_t bt_mesh_gatt_proxy_get( void );
 
 /**
  * @brief Get default TTL.
  *
  * @return TTL of net.
  */
-u8_t bt_mesh_default_ttl_get( void );
+uint8_t bt_mesh_default_ttl_get( void );
 
 /**
  * @brief Get label uuid by address.
@@ -2253,7 +2239,7 @@ u8_t bt_mesh_default_ttl_get( void );
  *
  * @return 16 byte label uuid.
  */
-u8_t *bt_mesh_label_uuid_get( u16_t addr );
+uint8_t *bt_mesh_label_uuid_get( uint16_t addr );
 
 /*****************************************cfg_cli*************************************/
 
@@ -2271,7 +2257,7 @@ u8_t *bt_mesh_label_uuid_get( u16_t addr );
  *
  * @return @ref Global_Error_Code.
  */
-int bt_mesh_cfg_comp_data_get( u16_t net_idx, u16_t addr, u8_t page );
+int bt_mesh_cfg_comp_data_get( uint16_t net_idx, uint16_t addr, uint8_t page );
 
 /**
  * @brief Sends a secure network beacon state get request.
@@ -2281,7 +2267,7 @@ int bt_mesh_cfg_comp_data_get( u16_t net_idx, u16_t addr, u8_t page );
  *
  * @return @ref Global_Error_Code.
  */
-int bt_mesh_cfg_beacon_get( u16_t net_idx, u16_t addr );
+int bt_mesh_cfg_beacon_get( uint16_t net_idx, uint16_t addr );
 
 /**
  * @brief Sends a secure network beacon state set request.
@@ -2293,7 +2279,7 @@ int bt_mesh_cfg_beacon_get( u16_t net_idx, u16_t addr );
  *
  * @return @ref Global_Error_Code.
  */
-int bt_mesh_cfg_beacon_set( u16_t net_idx, u16_t addr, u8_t val );
+int bt_mesh_cfg_beacon_set( uint16_t net_idx, uint16_t addr, uint8_t val );
 
 /**
  * @brief Sends a default TTL get request.
@@ -2303,7 +2289,7 @@ int bt_mesh_cfg_beacon_set( u16_t net_idx, u16_t addr, u8_t val );
  *
  * @return @ref Global_Error_Code.
  */
-int bt_mesh_cfg_ttl_get( u16_t net_idx, u16_t addr );
+int bt_mesh_cfg_ttl_get( uint16_t net_idx, uint16_t addr );
 
 /**
  * @brief Sends a default TTL set request.
@@ -2315,7 +2301,7 @@ int bt_mesh_cfg_ttl_get( u16_t net_idx, u16_t addr );
  *
  * @return @ref Global_Error_Code.
  */
-int bt_mesh_cfg_ttl_set( u16_t net_idx, u16_t addr, u8_t val );
+int bt_mesh_cfg_ttl_set( uint16_t net_idx, uint16_t addr, uint8_t val );
 
 /**
  * @brief Sends a friend state get request.
@@ -2325,7 +2311,7 @@ int bt_mesh_cfg_ttl_set( u16_t net_idx, u16_t addr, u8_t val );
  *
  * @return @ref Global_Error_Code.
  */
-int bt_mesh_cfg_friend_get( u16_t net_idx, u16_t addr );
+int bt_mesh_cfg_friend_get( uint16_t net_idx, uint16_t addr );
 
 /**
  * @brief Sends a friend state set request.
@@ -2337,7 +2323,7 @@ int bt_mesh_cfg_friend_get( u16_t net_idx, u16_t addr );
  *
  * @return @ref Global_Error_Code.
  */
-int bt_mesh_cfg_friend_set( u16_t net_idx, u16_t addr, u8_t val );
+int bt_mesh_cfg_friend_set( uint16_t net_idx, uint16_t addr, uint8_t val );
 
 /**
  * @brief Sends a gatt proxy state get request.
@@ -2347,7 +2333,7 @@ int bt_mesh_cfg_friend_set( u16_t net_idx, u16_t addr, u8_t val );
  *
  * @return @ref Global_Error_Code.
  */
-int bt_mesh_cfg_gatt_proxy_get( u16_t net_idx, u16_t addr );
+int bt_mesh_cfg_gatt_proxy_get( uint16_t net_idx, uint16_t addr );
 
 /**
  * @brief Sends a gatt proxy state set request.
@@ -2359,7 +2345,7 @@ int bt_mesh_cfg_gatt_proxy_get( u16_t net_idx, u16_t addr );
  *
  * @return @ref Global_Error_Code.
  */
-int bt_mesh_cfg_gatt_proxy_set( u16_t net_idx, u16_t addr, u8_t val );
+int bt_mesh_cfg_gatt_proxy_set( uint16_t net_idx, uint16_t addr, uint8_t val );
 
 /**
  * @brief Sends a relay state get request.
@@ -2369,7 +2355,7 @@ int bt_mesh_cfg_gatt_proxy_set( u16_t net_idx, u16_t addr, u8_t val );
  *
  * @return @ref Global_Error_Code.
  */
-int bt_mesh_cfg_relay_get( u16_t net_idx, u16_t addr );
+int bt_mesh_cfg_relay_get( uint16_t net_idx, uint16_t addr );
 
 /**
  * @brief Sends a relay state set request.
@@ -2382,8 +2368,8 @@ int bt_mesh_cfg_relay_get( u16_t net_idx, u16_t addr );
  *
  * @return @ref Global_Error_Code.
  */
-int bt_mesh_cfg_relay_set( u16_t net_idx, u16_t addr, u8_t new_relay,
-    u8_t new_transmit );
+int bt_mesh_cfg_relay_set( uint16_t net_idx, uint16_t addr, uint8_t new_relay,
+    uint8_t new_transmit );
 
 /**
  * @brief Sends a network key(s) get request.
@@ -2393,7 +2379,7 @@ int bt_mesh_cfg_relay_set( u16_t net_idx, u16_t addr, u8_t new_relay,
  *
  * @return @ref Global_Error_Code.
  */
-int bt_mesh_cfg_net_key_get( u16_t net_idx, u16_t addr );
+int bt_mesh_cfg_net_key_get( uint16_t net_idx, uint16_t addr );
 
 /**
  * @brief Sends a network key add request.
@@ -2406,8 +2392,8 @@ int bt_mesh_cfg_net_key_get( u16_t net_idx, u16_t addr );
  *
  * @return @ref Global_Error_Code.
  */
-int bt_mesh_cfg_net_key_add( u16_t net_idx, u16_t addr, u16_t key_net_idx,
-    const u8_t net_key[16] );
+int bt_mesh_cfg_net_key_add( uint16_t net_idx, uint16_t addr, uint16_t key_net_idx,
+    const uint8_t net_key[16] );
 
 /**
  * @brief Sends a network key update request.
@@ -2420,8 +2406,8 @@ int bt_mesh_cfg_net_key_add( u16_t net_idx, u16_t addr, u16_t key_net_idx,
  *
  * @return @ref Global_Error_Code.
  */
-int bt_mesh_cfg_net_key_update( u16_t net_idx, u16_t addr, u16_t key_net_idx,
-    const u8_t net_key[16] );
+int bt_mesh_cfg_net_key_update( uint16_t net_idx, uint16_t addr, uint16_t key_net_idx,
+    const uint8_t net_key[16] );
 
 /**
  * @brief Sends a network key delete request.
@@ -2433,7 +2419,7 @@ int bt_mesh_cfg_net_key_update( u16_t net_idx, u16_t addr, u16_t key_net_idx,
  *
  * @return @ref Global_Error_Code.
  */
-int bt_mesh_cfg_net_key_delete( u16_t net_idx, u16_t addr, u16_t key_net_idx );
+int bt_mesh_cfg_net_key_delete( uint16_t net_idx, uint16_t addr, uint16_t key_net_idx );
 
 /**
  * @brief Sends an application key add request.
@@ -2447,8 +2433,8 @@ int bt_mesh_cfg_net_key_delete( u16_t net_idx, u16_t addr, u16_t key_net_idx );
  *
  * @return @ref Global_Error_Code.
  */
-int bt_mesh_cfg_app_key_add( u16_t net_idx, u16_t addr, u16_t key_net_idx,
-    u16_t key_app_idx, const u8_t app_key[16] );
+int bt_mesh_cfg_app_key_add( uint16_t net_idx, uint16_t addr, uint16_t key_net_idx,
+    uint16_t key_app_idx, const uint8_t app_key[16] );
 
 /**
  * @brief Sends an application key update request.
@@ -2462,8 +2448,8 @@ int bt_mesh_cfg_app_key_add( u16_t net_idx, u16_t addr, u16_t key_net_idx,
  *
  * @return @ref Global_Error_Code.
  */
-int bt_mesh_cfg_app_key_update( u16_t net_idx, u16_t addr, u16_t key_net_idx,
-    u16_t key_app_idx, const u8_t app_key[16] );
+int bt_mesh_cfg_app_key_update( uint16_t net_idx, uint16_t addr, uint16_t key_net_idx,
+    uint16_t key_app_idx, const uint8_t app_key[16] );
 
 /**
  * @brief Sends an application key delete request.
@@ -2476,8 +2462,8 @@ int bt_mesh_cfg_app_key_update( u16_t net_idx, u16_t addr, u16_t key_net_idx,
  *
  * @return @ref Global_Error_Code.
  */
-int bt_mesh_cfg_app_key_delete( u16_t net_idx, u16_t addr, u16_t key_net_idx,
-    u16_t key_app_idx );
+int bt_mesh_cfg_app_key_delete( uint16_t net_idx, uint16_t addr, uint16_t key_net_idx,
+    uint16_t key_app_idx );
 
 /**
  * @brief Sends an application bind request.
@@ -2491,8 +2477,8 @@ int bt_mesh_cfg_app_key_delete( u16_t net_idx, u16_t addr, u16_t key_net_idx,
  *
  * @return @ref Global_Error_Code.
  */
-int bt_mesh_cfg_mod_app_bind( u16_t net_idx, u16_t addr, u16_t elem_addr,
-    u16_t mod_app_idx, u16_t mod_id );
+int bt_mesh_cfg_mod_app_bind( uint16_t net_idx, uint16_t addr, uint16_t elem_addr,
+    uint16_t mod_app_idx, uint16_t mod_id );
 
 /**
  * @brief Sends an vendor application bind request.
@@ -2507,8 +2493,8 @@ int bt_mesh_cfg_mod_app_bind( u16_t net_idx, u16_t addr, u16_t elem_addr,
  *
  * @return @ref Global_Error_Code.
  */
-int bt_mesh_cfg_mod_app_bind_vnd( u16_t net_idx, u16_t addr, u16_t elem_addr,
-    u16_t mod_app_idx, u16_t mod_id, u16_t cid );
+int bt_mesh_cfg_mod_app_bind_vnd( uint16_t net_idx, uint16_t addr, uint16_t elem_addr,
+    uint16_t mod_app_idx, uint16_t mod_id, uint16_t cid );
 
 /**
  * @brief Sends an application unbind request.
@@ -2522,8 +2508,8 @@ int bt_mesh_cfg_mod_app_bind_vnd( u16_t net_idx, u16_t addr, u16_t elem_addr,
  *
  * @return @ref Global_Error_Code.
  */
-int bt_mesh_cfg_mod_app_unbind( u16_t net_idx, u16_t addr, u16_t elem_addr,
-    u16_t mod_app_idx, u16_t mod_id );
+int bt_mesh_cfg_mod_app_unbind( uint16_t net_idx, uint16_t addr, uint16_t elem_addr,
+    uint16_t mod_app_idx, uint16_t mod_id );
 
 /**
  * @brief Sends an vendor application unbind request.
@@ -2538,8 +2524,8 @@ int bt_mesh_cfg_mod_app_unbind( u16_t net_idx, u16_t addr, u16_t elem_addr,
  *
  * @return @ref Global_Error_Code.
  */
-int bt_mesh_cfg_mod_app_unbind_vnd( u16_t net_idx, u16_t addr, u16_t elem_addr,
-    u16_t mod_app_idx, u16_t mod_id, u16_t cid );
+int bt_mesh_cfg_mod_app_unbind_vnd( uint16_t net_idx, uint16_t addr, uint16_t elem_addr,
+    uint16_t mod_app_idx, uint16_t mod_id, uint16_t cid );
 
 /**
  * @brief Sends a publication get request.
@@ -2552,8 +2538,8 @@ int bt_mesh_cfg_mod_app_unbind_vnd( u16_t net_idx, u16_t addr, u16_t elem_addr,
  *
  * @return @ref Global_Error_Code.
  */
-int bt_mesh_cfg_mod_pub_get( u16_t net_idx, u16_t addr, u16_t elem_addr,
-    u16_t mod_id );
+int bt_mesh_cfg_mod_pub_get( uint16_t net_idx, uint16_t addr, uint16_t elem_addr,
+    uint16_t mod_id );
 
 /**
  * @brief Sends an vendor publication get request.
@@ -2567,8 +2553,8 @@ int bt_mesh_cfg_mod_pub_get( u16_t net_idx, u16_t addr, u16_t elem_addr,
  *
  * @return @ref Global_Error_Code.
  */
-int bt_mesh_cfg_mod_pub_get_vnd( u16_t net_idx, u16_t addr, u16_t elem_addr,
-    u16_t mod_id, u16_t cid );
+int bt_mesh_cfg_mod_pub_get_vnd( uint16_t net_idx, uint16_t addr, uint16_t elem_addr,
+    uint16_t mod_id, uint16_t cid );
 
 /**
  * @brief Sends a model publication set request.
@@ -2580,8 +2566,8 @@ int bt_mesh_cfg_mod_pub_get_vnd( u16_t net_idx, u16_t addr, u16_t elem_addr,
  *
  * @return @ref Global_Error_Code.
  */
-int bt_mesh_cfg_mod_pub_set( u16_t net_idx, u16_t addr, u16_t elem_addr,
-    u16_t mod_id, const struct bt_mesh_cfg_mod_pub *pub );
+int bt_mesh_cfg_mod_pub_set( uint16_t net_idx, uint16_t addr, uint16_t elem_addr,
+    uint16_t mod_id, const struct bt_mesh_cfg_mod_pub *pub );
 
 /**
  * @brief Sends an vendor model publication set request.
@@ -2594,8 +2580,8 @@ int bt_mesh_cfg_mod_pub_set( u16_t net_idx, u16_t addr, u16_t elem_addr,
  *
  * @return @ref Global_Error_Code.
  */
-int bt_mesh_cfg_mod_pub_set_vnd( u16_t net_idx, u16_t addr, u16_t elem_addr,
-    u16_t mod_id, u16_t cid, const struct bt_mesh_cfg_mod_pub *pub );
+int bt_mesh_cfg_mod_pub_set_vnd( uint16_t net_idx, uint16_t addr, uint16_t elem_addr,
+    uint16_t mod_id, uint16_t cid, const struct bt_mesh_cfg_mod_pub *pub );
 
 /**
  * @brief Sends a model virtual address publication set request.
@@ -2607,8 +2593,8 @@ int bt_mesh_cfg_mod_pub_set_vnd( u16_t net_idx, u16_t addr, u16_t elem_addr,
  *
  * @return @ref Global_Error_Code.
  */
-int bt_mesh_cfg_mod_pub_va_set( u16_t net_idx, u16_t addr, u16_t elem_addr,
-    u16_t mod_id, const struct bt_mesh_cfg_mod_pub_va *pub );
+int bt_mesh_cfg_mod_pub_va_set( uint16_t net_idx, uint16_t addr, uint16_t elem_addr,
+    uint16_t mod_id, const struct bt_mesh_cfg_mod_pub_va *pub );
 
 /**
  * @brief Sends an vendor model virtual address publication set request.
@@ -2621,8 +2607,8 @@ int bt_mesh_cfg_mod_pub_va_set( u16_t net_idx, u16_t addr, u16_t elem_addr,
  *
  * @return @ref Global_Error_Code.
  */
-int bt_mesh_cfg_mod_pub_va_set_vnd( u16_t net_idx, u16_t addr, u16_t elem_addr,
-    u16_t mod_id, u16_t cid, const struct bt_mesh_cfg_mod_pub_va *pub );
+int bt_mesh_cfg_mod_pub_va_set_vnd( uint16_t net_idx, uint16_t addr, uint16_t elem_addr,
+    uint16_t mod_id, uint16_t cid, const struct bt_mesh_cfg_mod_pub_va *pub );
 
 /**
  * @brief Sends a subscription add request.
@@ -2636,8 +2622,8 @@ int bt_mesh_cfg_mod_pub_va_set_vnd( u16_t net_idx, u16_t addr, u16_t elem_addr,
  *
  * @return @ref Global_Error_Code.
  */
-int bt_mesh_cfg_mod_sub_add( u16_t net_idx, u16_t addr, u16_t elem_addr,
-    u16_t sub_addr, u16_t mod_id );
+int bt_mesh_cfg_mod_sub_add( uint16_t net_idx, uint16_t addr, uint16_t elem_addr,
+    uint16_t sub_addr, uint16_t mod_id );
 
 /**
  * @brief Sends an vendor subscription add request.
@@ -2652,8 +2638,8 @@ int bt_mesh_cfg_mod_sub_add( u16_t net_idx, u16_t addr, u16_t elem_addr,
  *
  * @return @ref Global_Error_Code.
  */
-int bt_mesh_cfg_mod_sub_add_vnd( u16_t net_idx, u16_t addr, u16_t elem_addr,
-    u16_t sub_addr, u16_t mod_id, u16_t cid );
+int bt_mesh_cfg_mod_sub_add_vnd( uint16_t net_idx, uint16_t addr, uint16_t elem_addr,
+    uint16_t sub_addr, uint16_t mod_id, uint16_t cid );
 
 /**
  * @brief Sends a subscription delete request.
@@ -2667,8 +2653,8 @@ int bt_mesh_cfg_mod_sub_add_vnd( u16_t net_idx, u16_t addr, u16_t elem_addr,
  *
  * @return @ref Global_Error_Code.
  */
-int bt_mesh_cfg_mod_sub_del( u16_t net_idx, u16_t addr, u16_t elem_addr,
-    u16_t sub_addr, u16_t mod_id );
+int bt_mesh_cfg_mod_sub_del( uint16_t net_idx, uint16_t addr, uint16_t elem_addr,
+    uint16_t sub_addr, uint16_t mod_id );
 
 /**
  * @brief Sends an vendor subscription delete request.
@@ -2683,8 +2669,8 @@ int bt_mesh_cfg_mod_sub_del( u16_t net_idx, u16_t addr, u16_t elem_addr,
  *
  * @return @ref Global_Error_Code.
  */
-int bt_mesh_cfg_mod_sub_del_vnd( u16_t net_idx, u16_t addr, u16_t elem_addr,
-    u16_t sub_addr, u16_t mod_id, u16_t cid );
+int bt_mesh_cfg_mod_sub_del_vnd( uint16_t net_idx, uint16_t addr, uint16_t elem_addr,
+    uint16_t sub_addr, uint16_t mod_id, uint16_t cid );
 
 /**
  * @brief Sends a subscription delete all request.
@@ -2697,8 +2683,8 @@ int bt_mesh_cfg_mod_sub_del_vnd( u16_t net_idx, u16_t addr, u16_t elem_addr,
  *
  * @return @ref Global_Error_Code.
  */
-int bt_mesh_cfg_mod_sub_del_all( u16_t net_idx, u16_t addr, u16_t elem_addr,
-    u16_t mod_id );
+int bt_mesh_cfg_mod_sub_del_all( uint16_t net_idx, uint16_t addr, uint16_t elem_addr,
+    uint16_t mod_id );
 
 /**
  * @brief Sends an vendor subscription delete all request.
@@ -2712,8 +2698,8 @@ int bt_mesh_cfg_mod_sub_del_all( u16_t net_idx, u16_t addr, u16_t elem_addr,
  *
  * @return @ref Global_Error_Code.
  */
-int bt_mesh_cfg_mod_sub_delall_vnd( u16_t net_idx, u16_t addr, u16_t elem_addr,
-    u16_t mod_id, u16_t cid );
+int bt_mesh_cfg_mod_sub_delall_vnd( uint16_t net_idx, uint16_t addr, uint16_t elem_addr,
+    uint16_t mod_id, uint16_t cid );
 
 /**
  * @brief Sends a subscription overwrite request.
@@ -2729,8 +2715,8 @@ int bt_mesh_cfg_mod_sub_delall_vnd( u16_t net_idx, u16_t addr, u16_t elem_addr,
  *
  * @return @ref Global_Error_Code.
  */
-int bt_mesh_cfg_mod_sub_overwrite( u16_t net_idx, u16_t addr, u16_t elem_addr,
-    u16_t sub_addr, u16_t mod_id );
+int bt_mesh_cfg_mod_sub_overwrite( uint16_t net_idx, uint16_t addr, uint16_t elem_addr,
+    uint16_t sub_addr, uint16_t mod_id );
 
 /**
  * @brief Sends an vendor subscription overwrite request.
@@ -2747,8 +2733,8 @@ int bt_mesh_cfg_mod_sub_overwrite( u16_t net_idx, u16_t addr, u16_t elem_addr,
  *
  * @return @ref Global_Error_Code.
  */
-int bt_mesh_cfg_mod_sub_overwrite_vnd( u16_t net_idx, u16_t addr,
-    u16_t elem_addr, u16_t sub_addr, u16_t mod_id, u16_t cid );
+int bt_mesh_cfg_mod_sub_overwrite_vnd( uint16_t net_idx, uint16_t addr,
+    uint16_t elem_addr, uint16_t sub_addr, uint16_t mod_id, uint16_t cid );
 
 /**
  * @brief Sends an virtual address subscription add request.
@@ -2763,8 +2749,8 @@ int bt_mesh_cfg_mod_sub_overwrite_vnd( u16_t net_idx, u16_t addr,
  *
  * @return @ref Global_Error_Code.
  */
-int bt_mesh_cfg_mod_sub_va_add( u16_t net_idx, u16_t addr, u16_t elem_addr,
-    const u8_t label[16], u16_t mod_id, u16_t virt_addr );
+int bt_mesh_cfg_mod_sub_va_add( uint16_t net_idx, uint16_t addr, uint16_t elem_addr,
+    const uint8_t label[16], uint16_t mod_id, uint16_t virt_addr );
 
 /**
  * @brief Sends an vendor virtual address subscription add request.
@@ -2780,8 +2766,8 @@ int bt_mesh_cfg_mod_sub_va_add( u16_t net_idx, u16_t addr, u16_t elem_addr,
  *
  * @return @ref Global_Error_Code.
  */
-int bt_mesh_cfg_mod_sub_va_add_vnd( u16_t net_idx, u16_t addr, u16_t elem_addr,
-    const u8_t label[16], u16_t mod_id, u16_t cid, u16_t virt_addr );
+int bt_mesh_cfg_mod_sub_va_add_vnd( uint16_t net_idx, uint16_t addr, uint16_t elem_addr,
+    const uint8_t label[16], uint16_t mod_id, uint16_t cid, uint16_t virt_addr );
 
 /**
  * @brief Sends an virtual address subscription delete request.
@@ -2796,8 +2782,8 @@ int bt_mesh_cfg_mod_sub_va_add_vnd( u16_t net_idx, u16_t addr, u16_t elem_addr,
  *
  * @return @ref Global_Error_Code.
  */
-int bt_mesh_cfg_mod_sub_va_del( u16_t net_idx, u16_t addr, u16_t elem_addr,
-    const u8_t label[16], u16_t mod_id, u16_t virt_addr );
+int bt_mesh_cfg_mod_sub_va_del( uint16_t net_idx, uint16_t addr, uint16_t elem_addr,
+    const uint8_t label[16], uint16_t mod_id, uint16_t virt_addr );
 
 /**
  * @brief Sends an vendor virtual address subscription delete request.
@@ -2813,8 +2799,8 @@ int bt_mesh_cfg_mod_sub_va_del( u16_t net_idx, u16_t addr, u16_t elem_addr,
  *
  * @return @ref Global_Error_Code.
  */
-int bt_mesh_cfg_mod_sub_va_del_vnd( u16_t net_idx, u16_t addr, u16_t elem_addr,
-    const u8_t label[16], u16_t mod_id, u16_t cid, u16_t virt_addr );
+int bt_mesh_cfg_mod_sub_va_del_vnd( uint16_t net_idx, uint16_t addr, uint16_t elem_addr,
+    const uint8_t label[16], uint16_t mod_id, uint16_t cid, uint16_t virt_addr );
 
 /**
  * @brief Sends an virtual address subscription overwrite request.
@@ -2829,8 +2815,8 @@ int bt_mesh_cfg_mod_sub_va_del_vnd( u16_t net_idx, u16_t addr, u16_t elem_addr,
  *
  * @return @ref Global_Error_Code.
  */
-int bt_mesh_cfg_mod_sub_va_overwrite( u16_t net_idx, u16_t addr,
-    u16_t elem_addr, const u8_t label[16], u16_t mod_id, u16_t virt_addr );
+int bt_mesh_cfg_mod_sub_va_overwrite( uint16_t net_idx, uint16_t addr,
+    uint16_t elem_addr, const uint8_t label[16], uint16_t mod_id, uint16_t virt_addr );
 
 /**
  * @brief Sends an vendor virtual address subscription overwrite request.
@@ -2846,9 +2832,9 @@ int bt_mesh_cfg_mod_sub_va_overwrite( u16_t net_idx, u16_t addr,
  *
  * @return @ref Global_Error_Code.
  */
-int bt_mesh_cfg_mod_sub_va_overwrite_vnd( u16_t net_idx, u16_t addr,
-    u16_t elem_addr, const u8_t label[16], u16_t mod_id, u16_t cid,
-    u16_t virt_addr );
+int bt_mesh_cfg_mod_sub_va_overwrite_vnd( uint16_t net_idx, uint16_t addr,
+    uint16_t elem_addr, const uint8_t label[16], uint16_t mod_id, uint16_t cid,
+    uint16_t virt_addr );
 
 /**
  * @brief Sets the heartbeat publication state value of a node.
@@ -2860,7 +2846,7 @@ int bt_mesh_cfg_mod_sub_va_overwrite_vnd( u16_t net_idx, u16_t addr,
  *
  * @return @ref Global_Error_Code.
  */
-int bt_mesh_cfg_hb_pub_set( u16_t net_idx, u16_t addr,
+int bt_mesh_cfg_hb_pub_set( uint16_t net_idx, uint16_t addr,
     const struct bt_mesh_cfg_hb_pub *param );
 
 /**
@@ -2871,7 +2857,7 @@ int bt_mesh_cfg_hb_pub_set( u16_t net_idx, u16_t addr,
  *
  * @return @ref Global_Error_Code.
  */
-int bt_mesh_cfg_hb_pub_get( u16_t net_idx, u16_t addr );
+int bt_mesh_cfg_hb_pub_get( uint16_t net_idx, uint16_t addr );
 
 /**
  * @brief Gets the lpn poll timeout of a node.
@@ -2883,7 +2869,7 @@ int bt_mesh_cfg_hb_pub_get( u16_t net_idx, u16_t addr );
  *
  * @return @ref Global_Error_Code.
  */
-int bt_mesh_cfg_lpn_polltimeout_get( u16_t net_idx, u16_t addr, u16_t lpn_addr );
+int bt_mesh_cfg_lpn_polltimeout_get( uint16_t net_idx, uint16_t addr, uint16_t lpn_addr );
 
 /**
  * @brief Sends a network transmit get request.
@@ -2893,7 +2879,7 @@ int bt_mesh_cfg_lpn_polltimeout_get( u16_t net_idx, u16_t addr, u16_t lpn_addr )
  *
  * @return @ref Global_Error_Code.
  */
-int bt_mesh_cfg_net_transmit_get( u16_t net_idx, u16_t addr );
+int bt_mesh_cfg_net_transmit_get( uint16_t net_idx, uint16_t addr );
 
 /**
  * @brief Sends a network transmit set request.
@@ -2905,7 +2891,7 @@ int bt_mesh_cfg_net_transmit_get( u16_t net_idx, u16_t addr );
  *
  * @return @ref Global_Error_Code.
  */
-int bt_mesh_cfg_net_transmit_set( u16_t net_idx, u16_t addr, u8_t val );
+int bt_mesh_cfg_net_transmit_set( uint16_t net_idx, uint16_t addr, uint8_t val );
 
 /**
  * @brief Sends a node reset request.
@@ -2917,7 +2903,7 @@ int bt_mesh_cfg_net_transmit_set( u16_t net_idx, u16_t addr, u8_t val );
  *
  * @return @ref Global_Error_Code.
  */
-int bt_mesh_cfg_node_reset( u16_t net_idx, u16_t addr );
+int bt_mesh_cfg_node_reset( uint16_t net_idx, uint16_t addr );
 
 /**
  * @brief Sends a node identity get request.
@@ -2929,7 +2915,7 @@ int bt_mesh_cfg_node_reset( u16_t net_idx, u16_t addr );
  *
  * @return @ref Global_Error_Code.
  */
-int bt_mesh_cfg_node_id_get( u16_t net_idx, u16_t addr, u16_t id_net_idx );
+int bt_mesh_cfg_node_id_get( uint16_t net_idx, uint16_t addr, uint16_t id_net_idx );
 
 /**
  * @brief Sends a node identity set request.
@@ -2942,8 +2928,8 @@ int bt_mesh_cfg_node_id_get( u16_t net_idx, u16_t addr, u16_t id_net_idx );
  *
  * @return @ref Global_Error_Code.
  */
-int bt_mesh_cfg_node_id_set( u16_t net_idx, u16_t addr, u16_t id_net_idx,
-    u8_t val );
+int bt_mesh_cfg_node_id_set( uint16_t net_idx, uint16_t addr, uint16_t id_net_idx,
+    uint8_t val );
 
 /**
  * @brief Gets the current key refresh phase of a node.
@@ -2955,7 +2941,7 @@ int bt_mesh_cfg_node_id_set( u16_t net_idx, u16_t addr, u16_t id_net_idx,
  *
  * @return @ref Global_Error_Code.
  */
-int bt_mesh_cfg_krp_get( u16_t net_idx, u16_t addr, u16_t krp_net_idx );
+int bt_mesh_cfg_krp_get( uint16_t net_idx, uint16_t addr, uint16_t krp_net_idx );
 
 /**
  * @brief Sets the current key refresh phase of a node.
@@ -2968,8 +2954,8 @@ int bt_mesh_cfg_krp_get( u16_t net_idx, u16_t addr, u16_t krp_net_idx );
  *
  * @return @ref Global_Error_Code.
  */
-int bt_mesh_cfg_krp_set( u16_t net_idx, u16_t addr, u16_t krp_net_idx,
-    u8_t val );
+int bt_mesh_cfg_krp_set( uint16_t net_idx, uint16_t addr, uint16_t krp_net_idx,
+    uint8_t val );
 
 /**
  * @brief Sends a SIG models application get request.
@@ -2982,8 +2968,8 @@ int bt_mesh_cfg_krp_set( u16_t net_idx, u16_t addr, u16_t krp_net_idx,
  *
  * @return @ref Global_Error_Code.
  */
-int bt_mesh_cfg_mod_app_get_sig( u16_t net_idx, u16_t addr, u16_t elem_addr,
-    u16_t mod_id );
+int bt_mesh_cfg_mod_app_get_sig( uint16_t net_idx, uint16_t addr, uint16_t elem_addr,
+    uint16_t mod_id );
 
 /**
  * @brief Sends an vendor models application get request.
@@ -2997,8 +2983,8 @@ int bt_mesh_cfg_mod_app_get_sig( u16_t net_idx, u16_t addr, u16_t elem_addr,
  *
  * @return @ref Global_Error_Code.
  */
-int bt_mesh_cfg_mod_app_get_vnd( u16_t net_idx, u16_t addr, u16_t elem_addr,
-    u16_t mod_id, u16_t cid );
+int bt_mesh_cfg_mod_app_get_vnd( uint16_t net_idx, uint16_t addr, uint16_t elem_addr,
+    uint16_t mod_id, uint16_t cid );
 
 /**
  * @brief Sends an application key(s) get request.
@@ -3010,7 +2996,7 @@ int bt_mesh_cfg_mod_app_get_vnd( u16_t net_idx, u16_t addr, u16_t elem_addr,
  *
  * @return @ref Global_Error_Code.
  */
-int bt_mesh_cfg_app_key_get( u16_t net_idx, u16_t addr, u16_t key_net_idx );
+int bt_mesh_cfg_app_key_get( uint16_t net_idx, uint16_t addr, uint16_t key_net_idx );
 
 /**
  * @brief Sends a SIG models subscription get request.
@@ -3023,8 +3009,8 @@ int bt_mesh_cfg_app_key_get( u16_t net_idx, u16_t addr, u16_t key_net_idx );
  *
  * @return @ref Global_Error_Code.
  */
-int bt_mesh_cfg_mod_sub_get( u16_t net_idx, u16_t addr, u16_t elem_addr,
-    u16_t mod_id );
+int bt_mesh_cfg_mod_sub_get( uint16_t net_idx, uint16_t addr, uint16_t elem_addr,
+    uint16_t mod_id );
 
 /**
  * @brief Sends an vendor models subscription get request.
@@ -3038,22 +3024,22 @@ int bt_mesh_cfg_mod_sub_get( u16_t net_idx, u16_t addr, u16_t elem_addr,
  *
  * @return @ref Global_Error_Code.
  */
-int bt_mesh_cfg_mod_sub_get_vnd( u16_t net_idx, u16_t addr, u16_t elem_addr,
-    u16_t mod_id, u16_t cid );
+int bt_mesh_cfg_mod_sub_get_vnd( uint16_t net_idx, uint16_t addr, uint16_t elem_addr,
+    uint16_t mod_id, uint16_t cid );
 
 /**
  * @brief Get the client request timeout for waiting response.
  *
  * @return The client request timeout.
  */
-s32_t bt_mesh_cfg_cli_timeout_get( void );
+int32_t bt_mesh_cfg_cli_timeout_get( void );
 
 /**
  * @brief Set the client request timeout for waiting response.
  *
  * @param[in] timeout        The client request timeout.
  */
-void bt_mesh_cfg_cli_timeout_set( s32_t timeout );
+void bt_mesh_cfg_cli_timeout_set( int32_t timeout );
 
 /******************************************************************************/
 
@@ -3062,7 +3048,7 @@ void bt_mesh_cfg_cli_timeout_set( s32_t timeout );
  *
  * @return is mesh provisioned.
  */
-BOOL bt_mesh_is_provisioned( void );
+uint8_t bt_mesh_is_provisioned( void );
 
 /**
  * @brief Config the mesh.
@@ -3075,7 +3061,7 @@ BOOL bt_mesh_is_provisioned( void );
  * @return @ref Global_Error_Code.
  */
 int bt_mesh_cfg_set( ble_mesh_cfg_t const *p_cfg, void const *p_dev,
-    u8_t const * p_mac, mem_info_t *info );
+    uint8_t const * p_mac, mem_info_t *info );
 
 /**
  * @brief Provision the self.
@@ -3089,8 +3075,8 @@ int bt_mesh_cfg_set( ble_mesh_cfg_t const *p_cfg, void const *p_dev,
  *
  * @return @ref Global_Error_Code.
  */
-int bt_mesh_provision( const u8_t net_key[16], u16_t net_idx, u8_t flags,
-    u32_t iv_index, u16_t addr, const u8_t dev_key[16] );
+int bt_mesh_provision( const uint8_t net_key[16], uint16_t net_idx, uint8_t flags,
+    uint32_t iv_index, uint16_t addr, const uint8_t dev_key[16] );
 
 /**
  * @brief Provisions a device on ADV bearer.
@@ -3103,8 +3089,8 @@ int bt_mesh_provision( const u8_t net_key[16], u16_t net_idx, u8_t flags,
  *
  * @return @ref Global_Error_Code.
  */
-int bt_mesh_provision_adv( const u8_t uuid[16], u16_t net_idx, u16_t addr,
-    u8_t attention_duration );
+int bt_mesh_provision_adv( const uint8_t uuid[16], uint16_t net_idx, uint16_t addr,
+    uint8_t attention_duration );
 
 /*****************************************adapt*************************************/
 
@@ -3173,7 +3159,7 @@ void bt_mesh_proxy_beacon_init_register( void *cb );
  * @return @ref Global_Error_Code.
  */
 int bt_mesh_gatts_notify( struct bt_mesh_conn *conn, const void *data,
-    u16_t len );
+    uint16_t len );
 
 /**
  * @brief Register notify callback of GATT bearer.
@@ -3217,7 +3203,7 @@ void proxy_prov_enable_register( proxy_prov_enable_cb_t cb );
  *
  * @return @ref Global_Error_Code.
  */
-int bt_mesh_proxy_prov_disable( BOOL disconnect );
+int bt_mesh_proxy_prov_disable( uint8_t disconnect );
 
 /**
  * @brief Initialize proxy function.
@@ -3252,7 +3238,7 @@ int bt_mesh_provisioner_enable( bt_mesh_prov_bearer_t bearers );
  *
  * @return @ref Global_Error_Code.
  */
-int bt_mesh_provisioner_disable( bt_mesh_prov_bearer_t bearers, BOOL force );
+int bt_mesh_provisioner_disable( bt_mesh_prov_bearer_t bearers, uint8_t force );
 
 /**
  * @brief Initialize provision retransmit function.
@@ -3273,7 +3259,7 @@ int bt_mesh_prov_init( const struct bt_mesh_prov *prov_info );
  *
  * @param[in] addr         The address of primary element of the node.
  */
-void bt_mesh_node_del_by_addr( u16_t addr );
+void bt_mesh_node_del_by_addr( uint16_t addr );
 
 /**
  * @brief Delete all node.
@@ -3328,14 +3314,14 @@ void lpn_init_register( lpn_init_cb_t cb, lpn_state_cb_t state_cb );
  *
  * @return @ref Global_Error_Code.
  */
-int bt_mesh_lpn_set( BOOL enable );
+int bt_mesh_lpn_set( uint8_t enable );
 
 /**
  * @brief Add group address to LPN.
  *
  * @param[in] group           The address of group to be added.
  */
-void bt_mesh_lpn_group_add( u16_t group );
+void bt_mesh_lpn_group_add( uint16_t group );
 
 /**
  * @brief Delete group address to LPN.
@@ -3343,7 +3329,7 @@ void bt_mesh_lpn_group_add( u16_t group );
  * @param[in] groups          Pointer to the address of group to be Deleted.
  * @param[in] group_count     Number of the address of group to be Deleted.
  */
-void bt_mesh_lpn_group_del( u16_t *groups, size_t group_count );
+void bt_mesh_lpn_group_del( uint16_t *groups, size_t group_count );
 
 /*****************************************net*************************************/
 
@@ -3359,7 +3345,7 @@ void bt_mesh_net_init( void );
  *
  * @return Struct of app key @ref bt_mesh_app_key.
  */
-struct bt_mesh_app_key *bt_mesh_app_keys_get( u16_t net_idx );
+struct bt_mesh_app_key *bt_mesh_app_keys_get( uint16_t net_idx );
 
 /**
  * @brief Find app keys by app index.
@@ -3368,7 +3354,7 @@ struct bt_mesh_app_key *bt_mesh_app_keys_get( u16_t net_idx );
  *
  * @return Struct of app key @ref bt_mesh_app_key.
  */
-struct bt_mesh_app_key *bt_mesh_app_key_find( u16_t app_idx );
+struct bt_mesh_app_key *bt_mesh_app_key_find( uint16_t app_idx );
 
 /*****************************************NVS*************************************/
 
@@ -3407,14 +3393,14 @@ int bt_mesh_comp_register( const struct bt_mesh_comp *comp );
  *
  * @return Count of element.
  */
-u8_t bt_mesh_elem_count( void );
+uint8_t bt_mesh_elem_count( void );
 
 /**
  * @brief Get address of primary element.
  *
  * @return The address of primary element.
  */
-u16_t bt_mesh_primary_addr( void );
+uint16_t bt_mesh_primary_addr( void );
 
 /**
  * @brief Initialize the message to be send.
@@ -3422,7 +3408,7 @@ u16_t bt_mesh_primary_addr( void );
  * @param[in] msg               The message to initialize.
  * @param[in] opcode            The opcode of message.
  */
-void bt_mesh_model_msg_init( struct net_buf_simple *msg, u32_t opcode );
+void bt_mesh_model_msg_init( struct net_buf_simple *msg, uint32_t opcode );
 
 /**
  * @brief Send a message of model.
@@ -3484,7 +3470,7 @@ void app_rf_config( app_rfConfig_t *app_rfConfig );
  *
  * @return @ref Global_Error_Code.
  */
-int app_rf_tx( u8 *txBuf, u8 txLen, u8 pktTxType );
+int app_rf_tx( uint8_t *txBuf, uint8_t txLen, uint8_t pktTxType );
 
 /**
  * @brief Rx data.
@@ -3495,7 +3481,7 @@ int app_rf_tx( u8 *txBuf, u8 txLen, u8 pktTxType );
  *
  * @return @ref Global_Error_Code.
  */
-int app_rf_rx( u8 pktRxType );
+int app_rf_rx( uint8_t pktRxType );
 
 /**
  * @brief Stop tx/rx mode.

@@ -122,7 +122,7 @@
 								<option id="ilg.gnumcueclipse.managedbuild.cross.riscv.option.createlisting.demangle.67111865" name="Demangle names (--demangle|-C)" superClass="ilg.gnumcueclipse.managedbuild.cross.riscv.option.createlisting.demangle" useByScannerDiscovery="false" value="true" valueType="boolean"/>
 								<option id="ilg.gnumcueclipse.managedbuild.cross.riscv.option.createlisting.linenumbers.1549373929" name="Display line numbers (--line-numbers|-l)" superClass="ilg.gnumcueclipse.managedbuild.cross.riscv.option.createlisting.linenumbers" useByScannerDiscovery="false" value="true" valueType="boolean"/>
 								<option id="ilg.gnumcueclipse.managedbuild.cross.riscv.option.createlisting.wide.1298918921" name="Wide lines (--wide|-w)" superClass="ilg.gnumcueclipse.managedbuild.cross.riscv.option.createlisting.wide" useByScannerDiscovery="false" value="false" valueType="boolean"/>
-								<option id="ilg.gnumcueclipse.managedbuild.cross.riscv.option.createlisting.other.108640181" name="Other flags" superClass="ilg.gnumcueclipse.managedbuild.cross.riscv.option.createlisting.other" useByScannerDiscovery="false" value="-D" valueType="string"/>
+								<option id="ilg.gnumcueclipse.managedbuild.cross.riscv.option.createlisting.other.108640181" name="Other flags" superClass="ilg.gnumcueclipse.managedbuild.cross.riscv.option.createlisting.other" useByScannerDiscovery="false" value="" valueType="string"/>
 								<option id="ilg.gnumcueclipse.managedbuild.cross.riscv.option.createlisting.debugging.1148933762" name="Display debugging info (--debugging|-g)" superClass="ilg.gnumcueclipse.managedbuild.cross.riscv.option.createlisting.debugging" useByScannerDiscovery="false" value="true" valueType="boolean"/>
 							</tool>
 							<tool id="ilg.gnumcueclipse.managedbuild.cross.riscv.tool.printsize.712424314" name="GNU RISC-V Cross Print Size" superClass="ilg.gnumcueclipse.managedbuild.cross.riscv.tool.printsize">
@@ -130,9 +130,6 @@
 							</tool>
 						</toolChain>
 					</folderInfo>
-					<fileInfo id="ilg.gnumcueclipse.managedbuild.cross.riscv.config.elf.release.1008047074.248907756" name="LED.c" rcbsApplicability="disable" resourcePath="HAL/LED.c" toolsToInvoke="ilg.gnumcueclipse.managedbuild.cross.riscv.tool.c.compiler.1731377187.1220786896">
-						<tool id="ilg.gnumcueclipse.managedbuild.cross.riscv.tool.c.compiler.1731377187.1220786896" name="GNU RISC-V Cross C Compiler" superClass="ilg.gnumcueclipse.managedbuild.cross.riscv.tool.c.compiler.1731377187"/>
-					</fileInfo>
 					<sourceEntries>
 						<entry flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="sourcePath" name="APP"/>
 						<entry excluding="Profile" flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="sourcePath" name="HAL"/>

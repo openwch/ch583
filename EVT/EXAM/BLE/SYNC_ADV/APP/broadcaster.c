@@ -4,14 +4,14 @@
  * Version            : V1.0
  * Date               : 2020/08/06
  * Description        : 广播应用程序，初始化广播连接参数，然后处于广播态一直广播
-
+ * Copyright (c) 2021 Nanjing Qinheng Microelectronics Co., Ltd.
+ * SPDX-License-Identifier: Apache-2.0
  *******************************************************************************/
 
 /*********************************************************************
  * INCLUDES
  */
 #include "CONFIG.h"
-#include "CH58x_common.h"
 #include "devinfoservice.h"
 #include "broadcaster.h"
 
@@ -24,13 +24,13 @@
  */
 
 // What is the advertising interval when device is discoverable (units of 625us, min is 160=100ms)
-#define DEFAULT_ADVERTISING_INTERVAL          160
+#define DEFAULT_ADVERTISING_INTERVAL    160
 
-// Company Identifier: WCH 
-#define WCH_COMPANY_ID                        0x07D7
+// Company Identifier: WCH
+#define WCH_COMPANY_ID                  0x07D7
 
 // Length of bd addr as a string
-#define B_ADDR_STR_LEN                        15
+#define B_ADDR_STR_LEN                  15
 
 /*********************************************************************
  * TYPEDEFS
@@ -51,74 +51,74 @@
 /*********************************************************************
  * LOCAL VARIABLES
  */
-static uint8 Broadcaster_TaskID;    // Task ID for internal task/event processing
+static uint8 Broadcaster_TaskID; // Task ID for internal task/event processing
 
 // GAP - SCAN RSP data (max size = 31 bytes)
 static uint8 scanRspData[] = {
-// complete name
-    0x0c,// length of this data
-    GAP_ADTYPE_LOCAL_NAME_COMPLETE, 0x42,    // 'B'
-    0x72,    // 'r'
-    0x6f,    // 'o'
-    0x61,    // 'a'
-    0x64,    // 'd'
-    0x63,    // 'c'
-    0x61,    // 'a'
-    0x73,    // 's'
-    0x74,    // 't'
-    0x65,    // 'e'
-    0x72,    // 'r'
+    // complete name
+    0x0c,                                 // length of this data
+    GAP_ADTYPE_LOCAL_NAME_COMPLETE, 0x42, // 'B'
+    0x72,                                 // 'r'
+    0x6f,                                 // 'o'
+    0x61,                                 // 'a'
+    0x64,                                 // 'd'
+    0x63,                                 // 'c'
+    0x61,                                 // 'a'
+    0x73,                                 // 's'
+    0x74,                                 // 't'
+    0x65,                                 // 'e'
+    0x72,                                 // 'r'
 
     // Tx power level
-    0x02,// length of this data
-    GAP_ADTYPE_POWER_LEVEL, 0       // 0dBm
-    };
+    0x02,                     // length of this data
+    GAP_ADTYPE_POWER_LEVEL, 0 // 0dBm
+};
 
 // GAP - Advertisement data (max size = 31 bytes, though this is
 // best kept short to conserve power while advertisting)
 static uint8 advertData[] = {
-// Flags; this sets the device to use limited discoverable
-// mode (advertises for 30 seconds at a time) instead of general
-// discoverable mode (advertises indefinitely)
-    0x02,// length of this data
+    // Flags; this sets the device to use limited discoverable
+    // mode (advertises for 30 seconds at a time) instead of general
+    // discoverable mode (advertises indefinitely)
+    0x02, // length of this data
     GAP_ADTYPE_FLAGS,
     GAP_ADTYPE_FLAGS_BREDR_NOT_SUPPORTED,
 
     // Broadcast of the data
-    0x04,// length of this data including the data type byte
-    GAP_ADTYPE_MANUFACTURER_SPECIFIC,    // manufacturer specific advertisement data type
+    0x04,                             // length of this data including the data type byte
+    GAP_ADTYPE_MANUFACTURER_SPECIFIC, // manufacturer specific advertisement data type
     'b', 'l', 'e', 0x04,
     GAP_ADTYPE_LOCAL_NAME_SHORT,
-    'a', 'b', 'c' };
+    'a', 'b', 'c'
+};
 
 // GAP - Advertisement data (max size = 252 bytes, though this is
 // best kept short to conserve power while advertisting)
 static uint8 periodicAdvertData[] = {
     // Broadcast of the data
-    44,// length of this data including the data type byte
-    GAP_ADTYPE_MANUFACTURER_SPECIFIC,    // manufacturer specific advertisement data type
+    44,                               // length of this data including the data type byte
+    GAP_ADTYPE_MANUFACTURER_SPECIFIC, // manufacturer specific advertisement data type
     'b', 'l', 'e',
-    1,2,3,4,5,6,7,8,9,10,
-    1,2,3,4,5,6,7,8,9,10,
-    1,2,3,4,5,6,7,8,9,10,
-    1,2,3,4,5,6,7,8,9,10
+    1, 2, 3, 4, 5, 6, 7, 8, 9, 10,
+    1, 2, 3, 4, 5, 6, 7, 8, 9, 10,
+    1, 2, 3, 4, 5, 6, 7, 8, 9, 10,
+    1, 2, 3, 4, 5, 6, 7, 8, 9, 10
 };
 
 /*********************************************************************
  * LOCAL FUNCTIONS
  */
-static void Broadcaster_ProcessTMOSMsg( tmos_event_hdr_t *pMsg );
-static void Broadcaster_StateNotificationCB( gapRole_States_t newState );
+static void Broadcaster_ProcessTMOSMsg(tmos_event_hdr_t *pMsg);
+static void Broadcaster_StateNotificationCB(gapRole_States_t newState);
 
 /*********************************************************************
  * PROFILE CALLBACKS
  */
 
 // GAP Role Callbacks
-static gapRolesBroadcasterCBs_t Broadcaster_BroadcasterCBs =
-{
-  Broadcaster_StateNotificationCB,    // Profile State Change Callbacks
-  NULL
+static gapRolesBroadcasterCBs_t Broadcaster_BroadcasterCBs = {
+    Broadcaster_StateNotificationCB, // Profile State Change Callbacks
+    NULL
 };
 
 /*********************************************************************
@@ -141,43 +141,43 @@ static gapRolesBroadcasterCBs_t Broadcaster_BroadcasterCBs =
  */
 void Broadcaster_Init()
 {
-  Broadcaster_TaskID = TMOS_ProcessEventRegister( Broadcaster_ProcessEvent );
+    Broadcaster_TaskID = TMOS_ProcessEventRegister(Broadcaster_ProcessEvent);
 
-  // Setup the GAP Broadcaster Role Profile
-  {
-    // Device starts advertising upon initialization
-    uint8 initial_advertising_enable = TRUE;
-    uint8 initial_adv_event_type = GAP_ADTYPE_EXT_NONCONN_NONSCAN_UNDIRECT;
-    // Set the GAP Role Parameters
-    GAPRole_SetParameter( GAPROLE_ADVERT_ENABLED, sizeof(uint8), &initial_advertising_enable );
-    GAPRole_SetParameter( GAPROLE_ADV_EVENT_TYPE, sizeof(uint8), &initial_adv_event_type );
-    GAPRole_SetParameter( GAPROLE_SCAN_RSP_DATA, sizeof( scanRspData ), scanRspData );
-    GAPRole_SetParameter( GAPROLE_ADVERT_DATA, sizeof( advertData ), advertData );
-    GAPRole_SetParameter( GAPROLE_PERIODIC_ADVERT_DATA, sizeof( periodicAdvertData ), periodicAdvertData );
-    GAPRole_SetParameter( GAPROLE_PERIODIC_ADVERT_ENABLED, sizeof( uint8 ), &initial_advertising_enable );
-  }
+    // Setup the GAP Broadcaster Role Profile
+    {
+        // Device starts advertising upon initialization
+        uint8 initial_advertising_enable = TRUE;
+        uint8 initial_adv_event_type = GAP_ADTYPE_EXT_NONCONN_NONSCAN_UNDIRECT;
+        // Set the GAP Role Parameters
+        GAPRole_SetParameter(GAPROLE_ADVERT_ENABLED, sizeof(uint8), &initial_advertising_enable);
+        GAPRole_SetParameter(GAPROLE_ADV_EVENT_TYPE, sizeof(uint8), &initial_adv_event_type);
+        GAPRole_SetParameter(GAPROLE_SCAN_RSP_DATA, sizeof(scanRspData), scanRspData);
+        GAPRole_SetParameter(GAPROLE_ADVERT_DATA, sizeof(advertData), advertData);
+        GAPRole_SetParameter(GAPROLE_PERIODIC_ADVERT_DATA, sizeof(periodicAdvertData), periodicAdvertData);
+        GAPRole_SetParameter(GAPROLE_PERIODIC_ADVERT_ENABLED, sizeof(uint8), &initial_advertising_enable);
+    }
 
-  {
-    uint16 advInt = DEFAULT_ADVERTISING_INTERVAL;
+    {
+        uint16 advInt = DEFAULT_ADVERTISING_INTERVAL;
 
-    // Set advertising interval
-    GAP_SetParamValue( TGAP_DISC_ADV_INT_MIN, advInt );
-    GAP_SetParamValue( TGAP_DISC_ADV_INT_MAX, advInt );
+        // Set advertising interval
+        GAP_SetParamValue(TGAP_DISC_ADV_INT_MIN, advInt);
+        GAP_SetParamValue(TGAP_DISC_ADV_INT_MAX, advInt);
 
-    // Set periodic advertising interval (n * 1.25 mSec) (80 = 100ms)
-    GAP_SetParamValue( TGAP_PERIODIC_ADV_INT_MIN, 80 );
-    GAP_SetParamValue( TGAP_PERIODIC_ADV_INT_MAX, 80 );
-    GAP_SetParamValue( TGAP_PERIODIC_ADV_PROPERTIES, GAP_PERI_PROPERTIES_INCLUDE_TXPOWER);
-    GAP_SetParamValue( TGAP_ADV_SECONDARY_PHY, GAP_PHY_VAL_LE_1M );
-    GAP_SetParamValue( TGAP_ADV_SECONDARY_MAX_SKIP, 0 );
-    GAP_SetParamValue( TGAP_ADV_ADVERTISING_SID, 15 );
+        // Set periodic advertising interval (n * 1.25 mSec) (80 = 100ms)
+        GAP_SetParamValue(TGAP_PERIODIC_ADV_INT_MIN, 80);
+        GAP_SetParamValue(TGAP_PERIODIC_ADV_INT_MAX, 80);
+        GAP_SetParamValue(TGAP_PERIODIC_ADV_PROPERTIES, GAP_PERI_PROPERTIES_INCLUDE_TXPOWER);
+        GAP_SetParamValue(TGAP_ADV_SECONDARY_PHY, GAP_PHY_VAL_LE_1M);
+        GAP_SetParamValue(TGAP_ADV_SECONDARY_MAX_SKIP, 0);
+        GAP_SetParamValue(TGAP_ADV_ADVERTISING_SID, 15);
 
-    // Enable scan req notify
-    GAP_SetParamValue( TGAP_ADV_SCAN_REQ_NOTIFY, ENABLE );
-  }
-  
-  // Setup a delayed profile startup
-  tmos_set_event( Broadcaster_TaskID, SBP_START_DEVICE_EVT );
+        // Enable scan req notify
+        GAP_SetParamValue(TGAP_ADV_SCAN_REQ_NOTIFY, ENABLE);
+    }
+
+    // Setup a delayed profile startup
+    tmos_set_event(Broadcaster_TaskID, SBP_START_DEVICE_EVT);
 }
 
 /*********************************************************************
@@ -193,44 +193,43 @@ void Broadcaster_Init()
  *
  * @return  events not processed
  */
-uint16 Broadcaster_ProcessEvent( uint8 task_id, uint16 events )
+uint16 Broadcaster_ProcessEvent(uint8 task_id, uint16 events)
 {
-  
-  if ( events & SYS_EVENT_MSG )
-  {
-    uint8 *pMsg;
-
-    if ( ( pMsg = tmos_msg_receive( Broadcaster_TaskID ) ) != NULL )
+    if(events & SYS_EVENT_MSG)
     {
-      Broadcaster_ProcessTMOSMsg( ( tmos_event_hdr_t * ) pMsg );
+        uint8 *pMsg;
 
-      // Release the TMOS message
-      tmos_msg_deallocate( pMsg );
+        if((pMsg = tmos_msg_receive(Broadcaster_TaskID)) != NULL)
+        {
+            Broadcaster_ProcessTMOSMsg((tmos_event_hdr_t *)pMsg);
+
+            // Release the TMOS message
+            tmos_msg_deallocate(pMsg);
+        }
+
+        // return unprocessed events
+        return (events ^ SYS_EVENT_MSG);
     }
 
-    // return unprocessed events
-    return ( events ^ SYS_EVENT_MSG );
-  }
+    if(events & SBP_START_DEVICE_EVT)
+    {
+        // Start the Device
+        GAPRole_BroadcasterStartDevice(&Broadcaster_BroadcasterCBs);
 
-  if ( events & SBP_START_DEVICE_EVT )
-  {
-    // Start the Device
-    GAPRole_BroadcasterStartDevice( &Broadcaster_BroadcasterCBs );
-    
-    return ( events ^ SBP_START_DEVICE_EVT );
-  }
-  
-  if ( events & SBP_PERIODIC_EVT )
-  {
-    // Change periodic adv data
-    periodicAdvertData[5]++;
-    GAPRole_SetParameter( GAPROLE_PERIODIC_ADVERT_DATA, sizeof( periodicAdvertData ), periodicAdvertData );
-    tmos_start_task( Broadcaster_TaskID, SBP_PERIODIC_EVT, 160 );
-    return ( events ^ SBP_PERIODIC_EVT );
-  }
+        return (events ^ SBP_START_DEVICE_EVT);
+    }
 
-  // Discard unknown events
-  return 0;
+    if(events & SBP_PERIODIC_EVT)
+    {
+        // Change periodic adv data
+        periodicAdvertData[5]++;
+        GAPRole_SetParameter(GAPROLE_PERIODIC_ADVERT_DATA, sizeof(periodicAdvertData), periodicAdvertData);
+        tmos_start_task(Broadcaster_TaskID, SBP_PERIODIC_EVT, 160);
+        return (events ^ SBP_PERIODIC_EVT);
+    }
+
+    // Discard unknown events
+    return 0;
 }
 
 /*********************************************************************
@@ -242,19 +241,19 @@ uint16 Broadcaster_ProcessEvent( uint8 task_id, uint16 events )
  *
  * @return  none
  */
-static void Broadcaster_ProcessGAPMsg( gapRoleEvent_t *pEvent )
+static void Broadcaster_ProcessGAPMsg(gapRoleEvent_t *pEvent)
 {
-  switch ( pEvent->gap.opcode )
-  {
-    case GAP_SCAN_REQUEST_EVENT:
+    switch(pEvent->gap.opcode)
     {
-      PRINT("scanReqEvt.advHandle %x\n",pEvent->scanReqEvt.advHandle );
-      break;
-    }
+        case GAP_SCAN_REQUEST_EVENT:
+        {
+            PRINT("scanReqEvt.advHandle %x\n", pEvent->scanReqEvt.advHandle);
+            break;
+        }
 
-    default :
-      break;
-  }
+        default:
+            break;
+    }
 }
 
 /*********************************************************************
@@ -266,19 +265,19 @@ static void Broadcaster_ProcessGAPMsg( gapRoleEvent_t *pEvent )
  *
  * @return  none
  */
-static void Broadcaster_ProcessTMOSMsg( tmos_event_hdr_t *pMsg )
+static void Broadcaster_ProcessTMOSMsg(tmos_event_hdr_t *pMsg)
 {
-  switch ( pMsg->event )
-  {
-    case GAP_MSG_EVENT:
+    switch(pMsg->event)
     {
-      Broadcaster_ProcessGAPMsg( (gapRoleEvent_t*)pMsg );
-      break;
-    }
+        case GAP_MSG_EVENT:
+        {
+            Broadcaster_ProcessGAPMsg((gapRoleEvent_t *)pMsg);
+            break;
+        }
 
-    default :
-      break;
-  }
+        default:
+            break;
+    }
 }
 
 /*********************************************************************
@@ -290,57 +289,57 @@ static void Broadcaster_ProcessTMOSMsg( tmos_event_hdr_t *pMsg )
  *
  * @return  none
  */
-static void Broadcaster_StateNotificationCB( gapRole_States_t newState )
+static void Broadcaster_StateNotificationCB(gapRole_States_t newState)
 {
-  if( newState&GAPROLE_PERIODIC_STATE_VALID)
-  {
-    switch ( newState&GAPROLE_STATE_PERIODIC_MASK )
+    if(newState & GAPROLE_PERIODIC_STATE_VALID)
     {
-      case GAPROLE_PERIODIC_INVALID :
-        PRINT( "periodic invalid..\n" );
-        break;
+        switch(newState & GAPROLE_STATE_PERIODIC_MASK)
+        {
+            case GAPROLE_PERIODIC_INVALID:
+                PRINT("periodic invalid..\n");
+                break;
 
-      case GAPROLE_PERIODIC_ENABLE :
-        PRINT( "periodic enable..\n" );
-        tmos_start_task( Broadcaster_TaskID, SBP_PERIODIC_EVT, 160 );
-        break;
+            case GAPROLE_PERIODIC_ENABLE:
+                PRINT("periodic enable..\n");
+                tmos_start_task(Broadcaster_TaskID, SBP_PERIODIC_EVT, 160);
+                break;
 
-      case GAPROLE_PERIODIC_WAIT :
-        PRINT( "periodic wait..\n" );
-        break;
+            case GAPROLE_PERIODIC_WAIT:
+                PRINT("periodic wait..\n");
+                break;
 
-      case GAPROLE_PERIODIC_ERROR :
-        PRINT( "periodic error..\n" );
-        break;
+            case GAPROLE_PERIODIC_ERROR:
+                PRINT("periodic error..\n");
+                break;
 
-      default :
-        break;
+            default:
+                break;
+        }
     }
-  }
-  else
-  {
-    switch ( newState&GAPROLE_STATE_ADV_MASK )
+    else
     {
-      case GAPROLE_STARTED :
-        PRINT( "Initialized..\n" );
-        break;
+        switch(newState & GAPROLE_STATE_ADV_MASK)
+        {
+            case GAPROLE_STARTED:
+                PRINT("Initialized..\n");
+                break;
 
-      case GAPROLE_ADVERTISING :
-        PRINT( "Advertising..\n" );
-        break;
+            case GAPROLE_ADVERTISING:
+                PRINT("Advertising..\n");
+                break;
 
-      case GAPROLE_WAITING :
-        PRINT( "Waiting for advertising..\n" );
-        break;
+            case GAPROLE_WAITING:
+                PRINT("Waiting for advertising..\n");
+                break;
 
-      case GAPROLE_ERROR :
-        PRINT( "Error..\n" );
-        break;
+            case GAPROLE_ERROR:
+                PRINT("Error..\n");
+                break;
 
-      default :
-        break;
+            default:
+                break;
+        }
     }
-  }
 }
 /*********************************************************************
  *********************************************************************/

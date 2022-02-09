@@ -1,175 +1,232 @@
 /********************************** (C) COPYRIGHT *******************************
-* File Name          : CH58x_adc.c
-* Author             : WCH
-* Version            : V1.1
-* Date               : 2020/04/01
-* Description 
-*******************************************************************************/
+ * File Name          : CH58x_adc.c
+ * Author             : WCH
+ * Version            : V1.2
+ * Date               : 2021/11/17
+ * Description
+ * Copyright (c) 2021 Nanjing Qinheng Microelectronics Co., Ltd.
+ * SPDX-License-Identifier: Apache-2.0
+ *******************************************************************************/
 
 #include "CH58x_common.h"
 
-
-/*******************************************************************************
-* Function Name  : ADC_DataCalib_Rough
-* Description    : 采样数据粗调,获取偏差值
-* Input          : None
-* Return         : 偏差值
-*******************************************************************************/
-signed short ADC_DataCalib_Rough( void )        // 采样数据粗调,获取偏差值
+/*********************************************************************
+ * @fn      ADC_DataCalib_Rough
+ *
+ * @brief   采样数据粗调,获取偏差值,必须先配置ADC后调用此函数获取校准值
+ *
+ * @param   none
+ *
+ * @return  偏差
+ */
+signed short ADC_DataCalib_Rough(void) // 采样数据粗调,获取偏差值
 {
-    UINT16  i;
-    UINT32  sum=0;
-    UINT8  ch=0;        // 备份通道
-    UINT8   ctrl=0;     // 备份控制寄存器
-    
+    uint16_t i;
+    uint32_t sum = 0;
+    uint8_t  ch = 0;   // 备份通道
+    uint8_t  ctrl = 0; // 备份控制寄存器
+
     ch = R8_ADC_CHANNEL;
     ctrl = R8_ADC_CFG;
     R8_ADC_CFG = 0;
-    
-    ADC_ChannelCfg( 1 );		// ADC校准通道请选择通道1
-    R8_ADC_CFG |= RB_ADC_OFS_TEST|RB_ADC_POWER_ON|(2<<4);      // 进入测试模式
+
+    ADC_ChannelCfg(1);                                          // ADC校准通道请选择通道1
+    R8_ADC_CFG |= RB_ADC_OFS_TEST | RB_ADC_POWER_ON | (2 << 4); // 进入测试模式
     R8_ADC_CONVERT = RB_ADC_START;
-    while( R8_ADC_CONVERT & RB_ADC_START );
-    for(i=0; i<16; i++)
+    while(R8_ADC_CONVERT & RB_ADC_START);
+    for(i = 0; i < 16; i++)
     {
         R8_ADC_CONVERT = RB_ADC_START;
-        while( R8_ADC_CONVERT & RB_ADC_START );
-        sum += (~R16_ADC_DATA)&RB_ADC_DATA;
-    }    
-    sum = (sum+8)>>4;
-    R8_ADC_CFG &= ~RB_ADC_OFS_TEST;      // 关闭测试模式
-    
+        while(R8_ADC_CONVERT & RB_ADC_START);
+        sum += (~R16_ADC_DATA) & RB_ADC_DATA;
+    }
+    sum = (sum + 8) >> 4;
+    R8_ADC_CFG &= ~RB_ADC_OFS_TEST; // 关闭测试模式
+
     R8_ADC_CHANNEL = ch;
     R8_ADC_CFG = ctrl;
-    return (2048 - sum); 
+    return (2048 - sum);
 }
 
-/*******************************************************************************
-* Function Name  : ADC_ExtSingleChSampInit
-* Description    : 外部信号单通道采样初始化
-* Input          : sp:
-					refer to ADC_SampClkTypeDef
-				   ga:
-					refer to ADC_SignalPGATypeDef
-* Return         : None
-*******************************************************************************/
-void ADC_ExtSingleChSampInit( ADC_SampClkTypeDef sp, ADC_SignalPGATypeDef ga )
+/*********************************************************************
+ * @fn      ADC_ExtSingleChSampInit
+ *
+ * @brief   外部信号单通道采样初始化
+ *
+ * @param   sp  - refer to ADC_SampClkTypeDef
+ * @param   ga  - refer to ADC_SignalPGATypeDef
+ *
+ * @return  none
+ */
+void ADC_ExtSingleChSampInit(ADC_SampClkTypeDef sp, ADC_SignalPGATypeDef ga)
 {
-	R8_TKEY_CFG &= ~RB_TKEY_PWR_ON;
-    R8_ADC_CFG = RB_ADC_POWER_ON			\
-                |RB_ADC_BUF_EN				\
-                |( sp<<6 )					\
-                |( ga<<4 )	;               
+    R8_TKEY_CFG &= ~RB_TKEY_PWR_ON;
+    R8_ADC_CFG = RB_ADC_POWER_ON | RB_ADC_BUF_EN | (sp << 6) | (ga << 4);
 }
 
-/*******************************************************************************
-* Function Name  : ADC_ExtDiffChSampInit
-* Description    : 外部信号差分通道采样初始化
-* Input          : sp:
-					refer to ADC_SampClkTypeDef
-				   ga:
-					refer to ADC_SignalPGATypeDef
-* Return         : None
-*******************************************************************************/
-void ADC_ExtDiffChSampInit( ADC_SampClkTypeDef sp, ADC_SignalPGATypeDef ga )
+/*********************************************************************
+ * @fn      ADC_ExtDiffChSampInit
+ *
+ * @brief   外部信号差分通道采样初始化
+ *
+ * @param   sp  - refer to ADC_SampClkTypeDef
+ * @param   ga  - refer to ADC_SignalPGATypeDef
+ *
+ * @return  none
+ */
+void ADC_ExtDiffChSampInit(ADC_SampClkTypeDef sp, ADC_SignalPGATypeDef ga)
 {
-	R8_TKEY_CFG &= ~RB_TKEY_PWR_ON;
-    R8_ADC_CFG = RB_ADC_POWER_ON			\
-                |RB_ADC_DIFF_EN             \
-                |( sp<<6 )					\
-                |( ga<<4 )	;
+    R8_TKEY_CFG &= ~RB_TKEY_PWR_ON;
+    R8_ADC_CFG = RB_ADC_POWER_ON | RB_ADC_DIFF_EN | (sp << 6) | (ga << 4);
 }
 
-/*******************************************************************************
-* Function Name  : ADC_InterTSSampInit
-* Description    : 内置温度传感器采样初始化
-* Input          : None
-* Return         : None
-*******************************************************************************/
-void ADC_InterTSSampInit( void )
+/*********************************************************************
+ * @fn      ADC_InterTSSampInit
+ *
+ * @brief   内置温度传感器采样初始化
+ *
+ * @param   none
+ *
+ * @return  none
+ */
+void ADC_InterTSSampInit(void)
 {
-	R8_TKEY_CFG &= ~RB_TKEY_PWR_ON;
+    R8_TKEY_CFG &= ~RB_TKEY_PWR_ON;
     R8_TEM_SENSOR = RB_TEM_SEN_PWR_ON;
     R8_ADC_CHANNEL = CH_INTE_VTEMP;
-    R8_ADC_CFG = RB_ADC_POWER_ON			\
-                |RB_ADC_DIFF_EN             \
-                |( 3<<4 )	;
+    R8_ADC_CFG = RB_ADC_BUF_EN | RB_ADC_POWER_ON | RB_ADC_DIFF_EN | (3 << 4);
 }
 
-/*******************************************************************************
-* Function Name  : ADC_InterBATSampInit
-* Description    : 内置电池电压采样初始化
-* Input          : None
-* Return         : None
-*******************************************************************************/
-void ADC_InterBATSampInit( void )
+/*********************************************************************
+ * @fn      ADC_InterBATSampInit
+ *
+ * @brief   内置电池电压采样初始化
+ *
+ * @param   none
+ *
+ * @return  none
+ */
+void ADC_InterBATSampInit(void)
 {
-	R8_TKEY_CFG &= ~RB_TKEY_PWR_ON;
+    R8_TKEY_CFG &= ~RB_TKEY_PWR_ON;
     R8_ADC_CHANNEL = CH_INTE_VBAT;
-    R8_ADC_CFG = RB_ADC_POWER_ON			\
-                |RB_ADC_BUF_EN				\
-                |( 0<<4 )	;       // 使用-12dB模式，
+    R8_ADC_CFG = RB_ADC_POWER_ON | RB_ADC_BUF_EN | (0 << 4); // 使用-12dB模式，
 }
 
-
-/*******************************************************************************
-* Function Name  : TouchKey_ChSampInit
-* Description    : 触摸按键通道采样初始化
-* Input          : None
-* Return         : None
-*******************************************************************************/
-void TouchKey_ChSampInit( void )
+/*********************************************************************
+ * @fn      TouchKey_ChSampInit
+ *
+ * @brief   触摸按键通道采样初始化
+ *
+ * @param   none
+ *
+ * @return  none
+ */
+void TouchKey_ChSampInit(void)
 {
-    R8_ADC_CFG = RB_ADC_POWER_ON | RB_ADC_BUF_EN | ( 2<<4 );
+    R8_ADC_CFG = RB_ADC_POWER_ON | RB_ADC_BUF_EN | (2 << 4);
     R8_TKEY_CFG |= RB_TKEY_PWR_ON;
 }
 
-/*******************************************************************************
-* Function Name  : ADC_ExcutSingleConver
-* Description    : ADC执行单次转换
-* Input          : None
-* Return         : ADC转换后的数据
-*******************************************************************************/
-UINT16 ADC_ExcutSingleConver( void )
+/*********************************************************************
+ * @fn      ADC_ExcutSingleConver
+ *
+ * @brief   ADC执行单次转换
+ *
+ * @param   none
+ *
+ * @return  ADC转换后的数据
+ */
+uint16_t ADC_ExcutSingleConver(void)
 {
     R8_ADC_CONVERT = RB_ADC_START;
-    while( R8_ADC_CONVERT & RB_ADC_START );
+    while(R8_ADC_CONVERT & RB_ADC_START);
 
-    return ( R16_ADC_DATA&RB_ADC_DATA );
+    return (R16_ADC_DATA & RB_ADC_DATA);
 }
 
-/*******************************************************************************
-* Function Name  : TouchKey_ExcutSingleConver
-* Description    : TouchKey转换后数据
-* Input          : charg:  Touchkey充电时间,5bits有效, t=charg*Tadc
-*                  disch：    Touchkey放电时间,3bits有效, t=disch*Tadc
-* Return         : 当前TouchKey等效数据
-*******************************************************************************/
-UINT16 TouchKey_ExcutSingleConver( UINT8 charg, UINT8 disch )
+/*********************************************************************
+ * @fn      TouchKey_ExcutSingleConver
+ *
+ * @brief   TouchKey转换后数据
+ *
+ * @param   charg   - Touchkey充电时间,5bits有效, t=charg*Tadc
+ * @param   disch   - Touchkey放电时间,3bits有效, t=disch*Tadc
+ *
+ * @return  当前TouchKey等效数据
+ */
+uint16_t TouchKey_ExcutSingleConver(uint8_t charg, uint8_t disch)
 {
-	R8_TKEY_COUNT = (disch<<5)|(charg&0x1f);
-	R8_TKEY_CONVERT = RB_TKEY_START;
-	while( R8_TKEY_CONVERT &  RB_TKEY_START );
-    return ( R16_ADC_DATA&RB_ADC_DATA );
+    R8_TKEY_COUNT = (disch << 5) | (charg & 0x1f);
+    R8_TKEY_CONVERT = RB_TKEY_START;
+    while(R8_TKEY_CONVERT & RB_TKEY_START);
+    return (R16_ADC_DATA & RB_ADC_DATA);
 }
 
-
-/*******************************************************************************
-* Function Name  : ADC_GetCurrentTS
-* Description    : 获取当前采样的温度值（℃）
-* Input          : ts_v：当前温度传感器采样输出
-* Return         : 转换后的温度值（℃）
-*******************************************************************************/
-int ADC_GetCurrentTS( UINT16 ts_v )
+/*********************************************************************
+ * @fn      ADC_AutoConverCycle
+ *
+ * @brief   设置连续 ADC的周期
+ *
+ * @param   cycle   - 采样周期计算方法为(256-cycle)*16*Tsys
+ *
+ * @return  none
+ */
+void ADC_AutoConverCycle(uint8_t cycle)
 {
-  int  C25;
-  int  cal;
-
-  C25 = (*((PUINT32)ROM_CFG_TMP_25C));
-  cal = ( ( (ts_v * 1050) + 2048 ) >> 12 ) + ( 1050 >> 1 );
-  cal = 25 + ((cal - C25)*10/14);
-  return (  cal );
+    R8_ADC_AUTO_CYCLE = cycle;
 }
 
+/*********************************************************************
+ * @fn      ADC_DMACfg
+ *
+ * @brief   配置DMA功能
+ *
+ * @param   s           - 是否打开DMA功能
+ * @param   startAddr   - DMA 起始地址
+ * @param   endAddr     - DMA 结束地址
+ * @param   m           - 配置DMA模式
+ *
+ * @return  none
+ */
+void ADC_DMACfg(uint8_t s, uint16_t startAddr, uint16_t endAddr, ADC_DMAModeTypeDef m)
+{
+    if(s == DISABLE)
+    {
+        R8_ADC_CTRL_DMA &= ~RB_ADC_DMA_ENABLE;
+    }
+    else
+    {
+        R16_ADC_DMA_BEG = startAddr;
+        R16_ADC_DMA_END = endAddr;
+        if(m)
+        {
+            R8_ADC_CTRL_DMA |= RB_ADC_DMA_LOOP | RB_ADC_IE_DMA_END | RB_ADC_DMA_ENABLE;
+        }
+        else
+        {
+            R8_ADC_CTRL_DMA &= ~RB_ADC_DMA_LOOP;
+            R8_ADC_CTRL_DMA |= RB_ADC_IE_DMA_END | RB_ADC_DMA_ENABLE;
+        }
+    }
+}
 
+/*********************************************************************
+ * @fn      ADC_GetCurrentTS
+ *
+ * @brief   获取当前采样的温度值（℃）
+ *
+ * @param   ts_v    - 当前温度传感器采样输出
+ *
+ * @return  转换后的温度值（℃）
+ */
+int ADC_GetCurrentTS(uint16_t ts_v)
+{
+    uint32_t C25;
+    int cal;
 
+    C25 = (*((PUINT32)ROM_CFG_TMP_25C));
+    cal = (ts_v * 2100) >> 12;
+    cal = (((C25 >> 16) & 0xFFFF) ? ((C25 >> 16) & 0xFFFF) : 25) + ((cal - ((int)(C25 & 0xFFFF) - 1050 / 2) * 2) * 10 / 14);
+    return (cal);
+}

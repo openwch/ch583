@@ -1,18 +1,18 @@
 /********************************** (C) COPYRIGHT *******************************
-* File Name          : scanparamservice.c
-* Author             : WCH
-* Version            : V1.0
-* Date               : 2018/12/10
-* Description        : 扫描参数服务
-            
-*******************************************************************************/
+ * File Name          : scanparamservice.c
+ * Author             : WCH
+ * Version            : V1.0
+ * Date               : 2018/12/10
+ * Description        : 扫描参数服务
+ * Copyright (c) 2021 Nanjing Qinheng Microelectronics Co., Ltd.
+ * SPDX-License-Identifier: Apache-2.0
+ *******************************************************************************/
 
 /*********************************************************************
  * INCLUDES
  */
 #include "CONFIG.h"
 #include "scanparamservice.h"
-
 
 /*********************************************************************
  * MACROS
@@ -30,23 +30,16 @@
  * GLOBAL VARIABLES
  */
 // Scan parameters service
-CONST uint8 scanParamServUUID[ATT_BT_UUID_SIZE] =
-{
-  LO_UINT16(SCAN_PARAM_SERV_UUID), HI_UINT16(SCAN_PARAM_SERV_UUID)
-};
+const uint8_t scanParamServUUID[ATT_BT_UUID_SIZE] = {
+    LO_UINT16(SCAN_PARAM_SERV_UUID), HI_UINT16(SCAN_PARAM_SERV_UUID)};
 
 // Scan interval window characteristic
-CONST uint8 scanIntervalWindowUUID[ATT_BT_UUID_SIZE] =
-{
-  LO_UINT16(SCAN_INTERVAL_WINDOW_UUID), HI_UINT16(SCAN_INTERVAL_WINDOW_UUID)
-};
+const uint8_t scanIntervalWindowUUID[ATT_BT_UUID_SIZE] = {
+    LO_UINT16(SCAN_INTERVAL_WINDOW_UUID), HI_UINT16(SCAN_INTERVAL_WINDOW_UUID)};
 
 // Scan parameter refresh characteristic
-CONST uint8 scanParamRefreshUUID[ATT_BT_UUID_SIZE] =
-{
-  LO_UINT16(SCAN_REFRESH_UUID), HI_UINT16(SCAN_REFRESH_UUID)
-};
-
+const uint8_t scanParamRefreshUUID[ATT_BT_UUID_SIZE] = {
+    LO_UINT16(SCAN_REFRESH_UUID), HI_UINT16(SCAN_REFRESH_UUID)};
 
 /*********************************************************************
  * EXTERNAL VARIABLES
@@ -68,103 +61,94 @@ static scanParamServiceCB_t scanParamServiceCB;
  */
 
 // Scan Parameters Service attribute
-static CONST gattAttrType_t scanParamService = { ATT_BT_UUID_SIZE, scanParamServUUID };
+static const gattAttrType_t scanParamService = {ATT_BT_UUID_SIZE, scanParamServUUID};
 
 // Scan Interval Window characteristic
-static uint8 scanIntervalWindowProps = GATT_PROP_WRITE_NO_RSP;
-static uint8 scanIntervalWindow[SCAN_INTERVAL_WINDOW_CHAR_LEN];
+static uint8_t scanIntervalWindowProps = GATT_PROP_WRITE_NO_RSP;
+static uint8_t scanIntervalWindow[SCAN_INTERVAL_WINDOW_CHAR_LEN];
 
 // Scan Parameter Refresh characteristic
-static uint8 scanParamRefreshProps = GATT_PROP_NOTIFY;
-static uint8 scanParamRefresh[SCAN_PARAM_REFRESH_LEN];
+static uint8_t       scanParamRefreshProps = GATT_PROP_NOTIFY;
+static uint8_t       scanParamRefresh[SCAN_PARAM_REFRESH_LEN];
 static gattCharCfg_t scanParamRefreshClientCharCfg[GATT_MAX_NUM_CONN];
 
 /*********************************************************************
  * Profile Attributes - Table
  */
 
-static gattAttribute_t scanParamAttrTbl[] =
-{
-  // Scan Parameters Service attribute
-  {
-    { ATT_BT_UUID_SIZE, primaryServiceUUID }, /* type */
-    GATT_PERMIT_READ,                         /* permissions */
-    0,                                        /* handle */
-    (uint8 *)&scanParamService                /* pValue */
-  },
+static gattAttribute_t scanParamAttrTbl[] = {
+    // Scan Parameters Service attribute
+    {
+        {ATT_BT_UUID_SIZE, primaryServiceUUID}, /* type */
+        GATT_PERMIT_READ,                       /* permissions */
+        0,                                      /* handle */
+        (uint8_t *)&scanParamService            /* pValue */
+    },
 
     // Scan Interval Window declaration
     {
-      { ATT_BT_UUID_SIZE, characterUUID },
-      GATT_PERMIT_READ,
-      0,
-      &scanIntervalWindowProps
-    },
+        {ATT_BT_UUID_SIZE, characterUUID},
+        GATT_PERMIT_READ,
+        0,
+        &scanIntervalWindowProps},
 
-      // Scan Interval Window characteristic
-      {
-        { ATT_BT_UUID_SIZE, scanIntervalWindowUUID },
+    // Scan Interval Window characteristic
+    {
+        {ATT_BT_UUID_SIZE, scanIntervalWindowUUID},
         GATT_PERMIT_ENCRYPT_WRITE,
         0,
-        scanIntervalWindow
-      },
+        scanIntervalWindow},
 
     // Scan Parameter Refresh declaration
     {
-      { ATT_BT_UUID_SIZE, characterUUID },
-      GATT_PERMIT_READ,
-      0,
-      &scanParamRefreshProps
-    },
+        {ATT_BT_UUID_SIZE, characterUUID},
+        GATT_PERMIT_READ,
+        0,
+        &scanParamRefreshProps},
 
     // Scan Parameter Refresh characteristic
-      {
-        { ATT_BT_UUID_SIZE, scanParamRefreshUUID },
+    {
+        {ATT_BT_UUID_SIZE, scanParamRefreshUUID},
         0,
         0,
-        scanParamRefresh
-      },
+        scanParamRefresh},
 
-      // Scan Parameter Refresh characteristic client characteristic configuration
-      {
-        { ATT_BT_UUID_SIZE, clientCharCfgUUID },
+    // Scan Parameter Refresh characteristic client characteristic configuration
+    {
+        {ATT_BT_UUID_SIZE, clientCharCfgUUID},
         GATT_PERMIT_READ | GATT_PERMIT_ENCRYPT_WRITE,
         0,
-        (uint8 *) &scanParamRefreshClientCharCfg
-      }
+        (uint8_t *)&scanParamRefreshClientCharCfg}
 };
 
 // Attribute index enumeration-- these indexes match array elements above
 enum
 {
-  SCAN_PARAM_SERVICE_IDX,           // Scan Parameters Service
-  SCAN_PARAM_INTERVAL_DECL_IDX,     // Scan Interval Window declaration
-  SCAN_PARAM_INTERVAL_IDX,          // Scan Interval Window characteristic
-  SCAN_PARAM_REFRESH_DECL_IDX,      // Scan Parameter Refresh declaration
-  SCAN_PARAM_REFRESH_IDX,           // Scan Parameter Refresh characteristic
-  SCAN_PARAM_REFRESH_CCCD_IDX       // Scan Parameter Refresh characteristic client characteristic configuration
+    SCAN_PARAM_SERVICE_IDX,       // Scan Parameters Service
+    SCAN_PARAM_INTERVAL_DECL_IDX, // Scan Interval Window declaration
+    SCAN_PARAM_INTERVAL_IDX,      // Scan Interval Window characteristic
+    SCAN_PARAM_REFRESH_DECL_IDX,  // Scan Parameter Refresh declaration
+    SCAN_PARAM_REFRESH_IDX,       // Scan Parameter Refresh characteristic
+    SCAN_PARAM_REFRESH_CCCD_IDX   // Scan Parameter Refresh characteristic client characteristic configuration
 };
-
 
 /*********************************************************************
  * LOCAL FUNCTIONS
  */
-static bStatus_t scanParamWriteAttrCB( uint16 connHandle, gattAttribute_t *pAttr,
-                                       uint8 *pValue, uint16 len, uint16 offset,uint8 method );
-static bStatus_t scanParamReadAttrCB( uint16 connHandle, gattAttribute_t *pAttr,
-                                  uint8 *pValue, uint16 *pLen, uint16 offset, uint16 maxLen,uint8 method );
-
+static bStatus_t scanParamWriteAttrCB(uint16_t connHandle, gattAttribute_t *pAttr,
+                                      uint8_t *pValue, uint16_t len, uint16_t offset, uint8_t method);
+static bStatus_t scanParamReadAttrCB(uint16_t connHandle, gattAttribute_t *pAttr,
+                                     uint8_t *pValue, uint16_t *pLen, uint16_t offset, uint16_t maxLen, uint8_t method);
 
 /*********************************************************************
  * PROFILE CALLBACKS
  */
 
 // Service Callbacks
-gattServiceCBs_t scanParamCBs =
-{
-  scanParamReadAttrCB,  // Read callback function pointer
-  scanParamWriteAttrCB, // Write callback function pointer
-  NULL                  // Authorization callback function pointer
+gattServiceCBs_t scanParamCBs = {
+    scanParamReadAttrCB,  // Read callback function pointer
+    scanParamWriteAttrCB, // Write callback function pointer
+    NULL                  // Authorization callback function pointer
 };
 
 /*********************************************************************
@@ -179,18 +163,18 @@ gattServiceCBs_t scanParamCBs =
  *
  * @return  Success or Failure
  */
-bStatus_t ScanParam_AddService( void )
+bStatus_t ScanParam_AddService(void)
 {
-  uint8 status = SUCCESS;
+    uint8_t status = SUCCESS;
 
-  // Initialize Client Characteristic Configuration attributes
-  GATTServApp_InitCharCfg( INVALID_CONNHANDLE, scanParamRefreshClientCharCfg );
+    // Initialize Client Characteristic Configuration attributes
+    GATTServApp_InitCharCfg(INVALID_CONNHANDLE, scanParamRefreshClientCharCfg);
 
-  // Register GATT attribute list and CBs with GATT Server App
-  status = GATTServApp_RegisterService( scanParamAttrTbl, GATT_NUM_ATTRS( scanParamAttrTbl ),GATT_MAX_ENCRYPT_KEY_SIZE,
-                                        &scanParamCBs );
+    // Register GATT attribute list and CBs with GATT Server App
+    status = GATTServApp_RegisterService(scanParamAttrTbl, GATT_NUM_ATTRS(scanParamAttrTbl), GATT_MAX_ENCRYPT_KEY_SIZE,
+                                         &scanParamCBs);
 
-  return ( status );
+    return (status);
 }
 
 /*********************************************************************
@@ -202,9 +186,9 @@ bStatus_t ScanParam_AddService( void )
  *
  * @return  None.
  */
-extern void ScanParam_Register( scanParamServiceCB_t pfnServiceCB )
+extern void ScanParam_Register(scanParamServiceCB_t pfnServiceCB)
 {
-  scanParamServiceCB = pfnServiceCB;
+    scanParamServiceCB = pfnServiceCB;
 }
 
 /*********************************************************************
@@ -216,23 +200,23 @@ extern void ScanParam_Register( scanParamServiceCB_t pfnServiceCB )
  * @param   len - length of data to right
  * @param   value - pointer to data to write.  This is dependent on
  *          the parameter ID and WILL be cast to the appropriate
- *          data type (example: data type of uint16 will be cast to
- *          uint16 pointer).
+ *          data type (example: data type of uint16_t will be cast to
+ *          uint16_t pointer).
  *
  * @return  bStatus_t
  */
-bStatus_t ScanParam_SetParameter( uint8 param, uint8 len, void *value )
+bStatus_t ScanParam_SetParameter(uint8_t param, uint8_t len, void *value)
 {
-  bStatus_t ret = SUCCESS;
+    bStatus_t ret = SUCCESS;
 
-  switch ( param )
-  {
-    default:
-      ret = INVALIDPARAMETER;
-      break;
-  }
+    switch(param)
+    {
+        default:
+            ret = INVALIDPARAMETER;
+            break;
+    }
 
-  return ( ret );
+    return (ret);
 }
 
 /*********************************************************************
@@ -243,32 +227,32 @@ bStatus_t ScanParam_SetParameter( uint8 param, uint8 len, void *value )
  * @param   param - Profile parameter ID
  * @param   value - pointer to data to get.  This is dependent on
  *          the parameter ID and WILL be cast to the appropriate
- *          data type (example: data type of uint16 will be cast to
- *          uint16 pointer).
+ *          data type (example: data type of uint16_t will be cast to
+ *          uint16_t pointer).
  *
  * @return  bStatus_t
  */
-bStatus_t ScanParam_GetParameter( uint8 param, void *value )
+bStatus_t ScanParam_GetParameter(uint8_t param, void *value)
 {
-  bStatus_t ret = SUCCESS;
-  switch ( param )
-  {
-    case SCAN_PARAM_PARAM_INTERVAL:
-      *((uint16*)value) = BUILD_UINT16(scanIntervalWindow[0],
-                                       scanIntervalWindow[1]);
-      break;
+    bStatus_t ret = SUCCESS;
+    switch(param)
+    {
+        case SCAN_PARAM_PARAM_INTERVAL:
+            *((uint16_t *)value) = BUILD_UINT16(scanIntervalWindow[0],
+                                                scanIntervalWindow[1]);
+            break;
 
-    case SCAN_PARAM_PARAM_WINDOW:
-      *((uint16*)value) = BUILD_UINT16(scanIntervalWindow[2],
-                                       scanIntervalWindow[3]);
-      break;
+        case SCAN_PARAM_PARAM_WINDOW:
+            *((uint16_t *)value) = BUILD_UINT16(scanIntervalWindow[2],
+                                                scanIntervalWindow[3]);
+            break;
 
-    default:
-      ret = INVALIDPARAMETER;
-      break;
-  }
+        default:
+            ret = INVALIDPARAMETER;
+            break;
+    }
 
-  return ( ret );
+    return (ret);
 }
 
 /*********************************************************************
@@ -280,31 +264,30 @@ bStatus_t ScanParam_GetParameter( uint8 param, void *value )
  *
  * @return  None
  */
-void ScanParam_RefreshNotify( uint16 connHandle )
+void ScanParam_RefreshNotify(uint16_t connHandle)
 {
-    uint16 value;
+    uint16_t value;
 
-  value  = GATTServApp_ReadCharCfg(connHandle, scanParamRefreshClientCharCfg);
-  if (value & GATT_CLIENT_CFG_NOTIFY)
-  {
-    attHandleValueNoti_t noti;
-    
-    noti.pValue = GATT_bm_alloc(connHandle, ATT_HANDLE_VALUE_NOTI, 
-                                SCAN_PARAM_REFRESH_LEN, NULL, 0);
-    if (noti.pValue != NULL)
+    value = GATTServApp_ReadCharCfg(connHandle, scanParamRefreshClientCharCfg);
+    if(value & GATT_CLIENT_CFG_NOTIFY)
     {
-      // send notification
-      noti.handle = scanParamAttrTbl[SCAN_PARAM_REFRESH_CCCD_IDX].handle;
-      noti.len = SCAN_PARAM_REFRESH_LEN;
-      noti.pValue[0] = SCAN_PARAM_REFRESH_REQ;
-    
-      if (GATT_Notification(connHandle, &noti, FALSE) != SUCCESS)
-      {
-        GATT_bm_free((gattMsg_t *)&noti, ATT_HANDLE_VALUE_NOTI);
-      }
-    }
-  }
+        attHandleValueNoti_t noti;
 
+        noti.pValue = GATT_bm_alloc(connHandle, ATT_HANDLE_VALUE_NOTI,
+                                    SCAN_PARAM_REFRESH_LEN, NULL, 0);
+        if(noti.pValue != NULL)
+        {
+            // send notification
+            noti.handle = scanParamAttrTbl[SCAN_PARAM_REFRESH_CCCD_IDX].handle;
+            noti.len = SCAN_PARAM_REFRESH_LEN;
+            noti.pValue[0] = SCAN_PARAM_REFRESH_REQ;
+
+            if(GATT_Notification(connHandle, &noti, FALSE) != SUCCESS)
+            {
+                GATT_bm_free((gattMsg_t *)&noti, ATT_HANDLE_VALUE_NOTI);
+            }
+        }
+    }
 }
 
 /*********************************************************************
@@ -321,12 +304,12 @@ void ScanParam_RefreshNotify( uint16 connHandle )
  *
  * @return      Success or Failure
  */
-static bStatus_t scanParamReadAttrCB( uint16 connHandle, gattAttribute_t *pAttr,
-                                  uint8 *pValue, uint16 *pLen, uint16 offset, uint16 maxLen,uint8 method )
+static bStatus_t scanParamReadAttrCB(uint16_t connHandle, gattAttribute_t *pAttr,
+                                     uint8_t *pValue, uint16_t *pLen, uint16_t offset, uint16_t maxLen, uint8_t method)
 {
-  bStatus_t   status = SUCCESS;
+    bStatus_t status = SUCCESS;
 
-  return ( status );
+    return (status);
 }
 
 /*********************************************************************
@@ -342,56 +325,56 @@ static bStatus_t scanParamReadAttrCB( uint16 connHandle, gattAttribute_t *pAttr,
  *
  * @return  Success or Failure
  */
-static bStatus_t scanParamWriteAttrCB( uint16 connHandle, gattAttribute_t *pAttr,
-                                  uint8 *pValue, uint16 len, uint16 offset,uint8 method )
+static bStatus_t scanParamWriteAttrCB(uint16_t connHandle, gattAttribute_t *pAttr,
+                                      uint8_t *pValue, uint16_t len, uint16_t offset, uint8_t method)
 {
-  uint16 uuid;
-  bStatus_t status = SUCCESS;
+    uint16_t  uuid;
+    bStatus_t status = SUCCESS;
 
-  // Make sure it's not a blob operation (no attributes in the profile are long)
-  if ( offset > 0 )
-  {
-    return ( ATT_ERR_ATTR_NOT_LONG );
-  }
-
-  uuid = BUILD_UINT16( pAttr->type.uuid[0], pAttr->type.uuid[1]);
-
-  // Only one writeable attribute
-  if ( uuid == SCAN_INTERVAL_WINDOW_UUID )
-  {
-    if ( len == SCAN_INTERVAL_WINDOW_CHAR_LEN )
+    // Make sure it's not a blob operation (no attributes in the profile are long)
+    if(offset > 0)
     {
-      uint16 interval = BUILD_UINT16( pValue[0], pValue[1] );
-      uint16 window = BUILD_UINT16( pValue[0], pValue[1] );
+        return (ATT_ERR_ATTR_NOT_LONG);
+    }
 
-      // Validate values
-      if ( window <= interval )
-      {
-        tmos_memcpy( pAttr->pValue, pValue, len );
+    uuid = BUILD_UINT16(pAttr->type.uuid[0], pAttr->type.uuid[1]);
 
-        (*scanParamServiceCB)( SCAN_INTERVAL_WINDOW_SET );
-      }
-      else
-      {
-        status = ATT_ERR_INVALID_VALUE;
-      }
+    // Only one writeable attribute
+    if(uuid == SCAN_INTERVAL_WINDOW_UUID)
+    {
+        if(len == SCAN_INTERVAL_WINDOW_CHAR_LEN)
+        {
+            uint16_t interval = BUILD_UINT16(pValue[0], pValue[1]);
+            uint16_t window = BUILD_UINT16(pValue[0], pValue[1]);
+
+            // Validate values
+            if(window <= interval)
+            {
+                tmos_memcpy(pAttr->pValue, pValue, len);
+
+                (*scanParamServiceCB)(SCAN_INTERVAL_WINDOW_SET);
+            }
+            else
+            {
+                status = ATT_ERR_INVALID_VALUE;
+            }
+        }
+        else
+        {
+            status = ATT_ERR_INVALID_VALUE_SIZE;
+        }
+    }
+    else if(uuid == GATT_CLIENT_CHAR_CFG_UUID)
+    {
+        status = GATTServApp_ProcessCCCWriteReq(connHandle, pAttr, pValue, len,
+                                                offset, GATT_CLIENT_CFG_NOTIFY);
     }
     else
     {
-      status = ATT_ERR_INVALID_VALUE_SIZE;
+        status = ATT_ERR_ATTR_NOT_FOUND;
     }
-  }
-  else if ( uuid == GATT_CLIENT_CHAR_CFG_UUID )
-  {
-    status = GATTServApp_ProcessCCCWriteReq( connHandle, pAttr, pValue, len,
-                                             offset, GATT_CLIENT_CFG_NOTIFY );
-  }
-  else
-  {
-    status = ATT_ERR_ATTR_NOT_FOUND;
-  }
 
-  return ( status );
+    return (status);
 }
 
 /*********************************************************************
@@ -404,18 +387,17 @@ static bStatus_t scanParamWriteAttrCB( uint16 connHandle, gattAttribute_t *pAttr
  *
  * @return      none
  */
-void ScanParam_HandleConnStatusCB( uint16 connHandle, uint8 changeType )
+void ScanParam_HandleConnStatusCB(uint16_t connHandle, uint8_t changeType)
 {
-  // Make sure this is not loopback connection
-  if ( connHandle != LOOPBACK_CONNHANDLE )
-  {
-    // Reset Client Char Config if connection has dropped
-    if ( ( changeType == LINKDB_STATUS_UPDATE_REMOVED )      ||
-         ( ( changeType == LINKDB_STATUS_UPDATE_STATEFLAGS ) &&
-           ( !linkDB_Up( connHandle ) ) ) )
+    // Make sure this is not loopback connection
+    if(connHandle != LOOPBACK_CONNHANDLE)
     {
-      GATTServApp_InitCharCfg( connHandle, scanParamRefreshClientCharCfg );
+        // Reset Client Char Config if connection has dropped
+        if((changeType == LINKDB_STATUS_UPDATE_REMOVED) ||
+           ((changeType == LINKDB_STATUS_UPDATE_STATEFLAGS) &&
+            (!linkDB_Up(connHandle))))
+        {
+            GATTServApp_InitCharCfg(connHandle, scanParamRefreshClientCharCfg);
+        }
     }
-  }
 }
-

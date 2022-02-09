@@ -24,11 +24,11 @@ extern "C"
  */
 
 // Profile Parameters
-#define SIMPLEPROFILE_CHAR1                   0  // RW uint8 - Profile Characteristic 1 value 
-#define SIMPLEPROFILE_CHAR2                   1  // RW uint8 - Profile Characteristic 2 value
-#define SIMPLEPROFILE_CHAR3                   2  // RW uint8 - Profile Characteristic 3 value
-#define SIMPLEPROFILE_CHAR4                   3  // RW uint8 - Profile Characteristic 4 value
-#define SIMPLEPROFILE_CHAR5                   4  // RW uint8 - Profile Characteristic 4 value
+#define SIMPLEPROFILE_CHAR1                   0  // RW uint8_t - Profile Characteristic 1 value
+#define SIMPLEPROFILE_CHAR2                   1  // RW uint8_t - Profile Characteristic 2 value
+#define SIMPLEPROFILE_CHAR3                   2  // RW uint8_t - Profile Characteristic 3 value
+#define SIMPLEPROFILE_CHAR4                   3  // RW uint8_t - Profile Characteristic 4 value
+#define SIMPLEPROFILE_CHAR5                   4  // RW uint8_t - Profile Characteristic 4 value
   
 // Simple Profile Service UUID
 #define SIMPLEPROFILE_SERV_UUID               0xFFE0
@@ -64,7 +64,7 @@ extern "C"
  */
 
 // Callback when a characteristic value has changed
-typedef void (*simpleProfileChange_t)( uint8 paramID, uint8 *pValue, uint16 len );
+typedef void (*simpleProfileChange_t)( uint8_t paramID, uint8_t *pValue, uint16_t len );
 
 typedef struct
 {
@@ -86,7 +86,7 @@ typedef struct
  *                     contain more than one service.
  */
 
-extern bStatus_t SimpleProfile_AddService( uint32 services );
+extern bStatus_t SimpleProfile_AddService( uint32_t services );
 
 /*
  * SimpleProfile_RegisterAppCBs - Registers the application callback function.
@@ -103,10 +103,10 @@ extern bStatus_t SimpleProfile_RegisterAppCBs( simpleProfileCBs_t *appCallbacks 
  *    len - length of data to right
  *    value - pointer to data to write.  This is dependent on
  *          the parameter ID and WILL be cast to the appropriate 
- *          data type (example: data type of uint16 will be cast to 
- *          uint16 pointer).
+ *          data type (example: data type of uint16_t will be cast to
+ *          uint16_t pointer).
  */
-extern bStatus_t SimpleProfile_SetParameter( uint8 param, uint8 len, void *value );
+extern bStatus_t SimpleProfile_SetParameter( uint8_t param, uint8_t len, void *value );
   
 /*
  * SimpleProfile_GetParameter - Get a Simple GATT Profile parameter.
@@ -114,10 +114,10 @@ extern bStatus_t SimpleProfile_SetParameter( uint8 param, uint8 len, void *value
  *    param - Profile parameter ID
  *    value - pointer to data to write.  This is dependent on
  *          the parameter ID and WILL be cast to the appropriate 
- *          data type (example: data type of uint16 will be cast to 
- *          uint16 pointer).
+ *          data type (example: data type of uint16_t will be cast to
+ *          uint16_t pointer).
  */
-extern bStatus_t SimpleProfile_GetParameter( uint8 param, void *value );
+extern bStatus_t SimpleProfile_GetParameter( uint8_t param, void *value );
 
 /*
  * simpleProfile_Notify - Send notification.
@@ -125,7 +125,7 @@ extern bStatus_t SimpleProfile_GetParameter( uint8 param, void *value );
  *    connHandle - connect handle
  *    pNoti - pointer to structure to notify.  
  */
-extern bStatus_t simpleProfile_Notify( uint16 connHandle, attHandleValueNoti_t *pNoti );
+extern bStatus_t simpleProfile_Notify( uint16_t connHandle, attHandleValueNoti_t *pNoti );
 
 /*********************************************************************
 *********************************************************************/
