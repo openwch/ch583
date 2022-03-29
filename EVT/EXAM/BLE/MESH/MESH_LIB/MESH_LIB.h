@@ -77,7 +77,7 @@ typedef signed char s8_t;
 typedef signed short s16_t;
 #endif
 #ifndef s32_t
-typedef int s32_t;
+typedef signed long s32_t;
 #endif
 #ifndef s64_t
 typedef signed long long s64_t;
@@ -89,7 +89,7 @@ typedef unsigned char u8_t;
 typedef unsigned short u16_t;
 #endif
 #ifndef u32_t
-typedef unsigned int u32_t;
+typedef unsigned long u32_t;
 #endif
 #ifndef u64_t
 typedef unsigned long long u64_t;
@@ -118,7 +118,7 @@ typedef signed int ssize_t;
 #endif
 
 /******************************************************************************/
-#define  VER_MESH_FILE            "MESH_LIB_V1.4"
+#define  VER_MESH_FILE            "MESH_LIB_V1.5"
 extern const uint8_t VER_MESH_LIB[];
 
 // Global_Error_Code
@@ -570,6 +570,7 @@ extern const uint8_t VER_MESH_LIB[];
 #define BLE_MESH_MODEL_OP_LIGHT_LC_PROPERTY_SET_UNACK            BLE_MESH_MODEL_OP_1(0x63)
 #define BLE_MESH_MODEL_OP_LIGHT_LC_PROPERTY_STATUS               BLE_MESH_MODEL_OP_1(0x64)
 
+/* Statue_Error_Code */
 #define STATUS_SUCCESS                     0x00
 #define STATUS_INVALID_ADDRESS             0x01
 #define STATUS_INVALID_MODEL               0x02
@@ -858,6 +859,7 @@ typedef struct
 {
     uint8_t adv_buf_count;
     uint8_t rpl_count;
+    uint8_t allow_rpl_cycle;
     uint8_t ivu_divider;
     uint8_t allow_same_addr;
     uint8_t mod_key_count;
@@ -2241,6 +2243,29 @@ uint8_t bt_mesh_default_ttl_get( void );
  */
 uint8_t *bt_mesh_label_uuid_get( uint16_t addr );
 
+/**
+ * @brief Set application key.
+ *
+ * @param[in] net_idx       Pointer to 16 byte network key.
+ * @param[in] app_idx       Pointer to 16 byte application key.
+ * @param[in] val           16 byte application key.
+ * @param[in] update        Whether it is in the process of key update.
+ *
+ * @return @ref Statue_Error_Code.
+ */
+uint8_t bt_mesh_app_key_set(uint16_t net_idx, uint16_t app_idx, const uint8_t val[16],
+        uint8_t update);
+
+/**
+ * @brief Deletes stored info by address.
+ *
+ * @param[in] addr          Address of replay item.
+ * @param[in] num_elem      Numble of node element.
+ *
+ * @return none.
+ */
+void bt_mesh_delete_node_info(uint16_t addr, uint8_t num_elem);
+
 /*****************************************cfg_cli*************************************/
 
 /**
@@ -3091,6 +3116,11 @@ int bt_mesh_provision( const uint8_t net_key[16], uint16_t net_idx, uint8_t flag
  */
 int bt_mesh_provision_adv( const uint8_t uuid[16], uint16_t net_idx, uint16_t addr,
     uint8_t attention_duration );
+
+/**
+ * @brief Cancle provisions, error code in CB is timeout.
+ */
+void bt_mesh_provision_cancle( void );
 
 /*****************************************adapt*************************************/
 

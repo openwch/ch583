@@ -17,11 +17,15 @@ extern "C" {
 
 /******************************************************************************/
 
-#define APP_NODE_EVT         (1 << 0)
-#define APP_NODE_TEST_EVT    (1 << 1)
+#define APP_NODE_EVT                    (1 << 0)
+#define APP_NODE_TEST_EVT               (1 << 1)
+#define APP_DELETE_NODE_TIMEOUT_EVT     (1 << 2)
 
 /******************************************************************************/
-// 远端节点配置流程
+
+/**
+ * @brief 远端节点配置流程状态
+ */
 typedef enum
 {
     NODE_INIT = 0,
@@ -32,7 +36,9 @@ typedef enum
     NODE_CONFIGURATIONED = 4,
 } node_stage_t;
 
-// 本地节点配置流程
+/**
+ * @brief 本地节点配置流程状态
+ */
 typedef enum
 {
     LOCAL_INIT = 0,
@@ -42,6 +48,9 @@ typedef enum
     LOCAL_CONFIGURATIONED = 4,
 } local_stage_t;
 
+/**
+ * @brief 节点配置流程组合体
+ */
 typedef union
 {
     node_stage_t  node;
@@ -51,12 +60,18 @@ typedef union
 typedef void (*cfg_rsp_handler_t)(void *node, const void *rsp);
 typedef BOOL (*stage_handler_t)(void *node);
 
+/**
+ * @brief 节点配置流程回调
+ */
 typedef struct
 {
     cfg_rsp_handler_t rsp;
     stage_handler_t   stage;
 } cfg_cb_t;
 
+/**
+ * @brief 配置节点的结构体
+ */
 typedef struct
 {
     uint16_t node_addr;
@@ -76,6 +91,9 @@ extern const uint16_t self_prov_app_idx;
 extern const uint32_t self_prov_iv_index;
 extern const uint16_t self_prov_addr;
 
+/**
+ * @brief   应用层初始化
+ */
 void App_Init(void);
 
 /******************************************************************************/

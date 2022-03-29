@@ -85,9 +85,9 @@ int main()
     capFlag = 0;
     for(i = 0; i < 100; i++)
     {
-        printf("%08ld ", CapBuf[i] & 0x1ffffff); // 26bit, 最高位表示 高电平还是低电平
+        PRINT("%08ld ", CapBuf[i] & 0x1ffffff); // 26bit, 最高位表示 高电平还是低电平
     }
-    printf("\n");
+    PRINT("\n");
 
 #endif
 
@@ -107,7 +107,7 @@ int main()
     {
         /* 1s打印一次当前计数值，如果送入脉冲频率较高，可能很快计数溢出，需要按实际情况修改 */
         mDelaymS(1000);
-        printf("=%ld \n", TMR2_GetCurrentCount());
+        PRINT("=%ld \n", TMR2_GetCurrentCount());
     } while(1);
 
 #endif
@@ -195,7 +195,7 @@ void TMR2_IRQHandler(void)
     if(TMR2_GetITFlag(TMR1_2_IT_DMA_END))
     {
         TMR2_ClearITFlag(TMR1_2_IT_DMA_END);
-        printf("DMA end\n");
+        PRINT("DMA end\n");
         /* DMA 结束 */
         /* 用户可自行添加需要的处理 */
     }

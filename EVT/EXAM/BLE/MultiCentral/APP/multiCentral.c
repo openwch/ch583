@@ -648,7 +648,7 @@ static void centralEventCB(gapRoleEvent_t *pEvent)
                     centralConnList[connItem].state = BLE_STATE_CONNECTED;
                     centralConnList[connItem].connHandle = pEvent->linkCmpl.connectionHandle;
 
-                    printf("Conn %x - Int %x \n", pEvent->linkCmpl.connectionHandle, pEvent->linkCmpl.connInterval);
+                    PRINT("Conn %x - Int %x \n", pEvent->linkCmpl.connectionHandle, pEvent->linkCmpl.connInterval);
 
                     //  Á¬½Ó0
                     if(connItem == CONNECT0_ITEM)
@@ -736,7 +736,7 @@ static void centralEventCB(gapRoleEvent_t *pEvent)
 
         case GAP_LINK_PARAM_UPDATE_EVENT:
         {
-            printf("Update %x - Int %x \n", pEvent->linkUpdate.connectionHandle, pEvent->linkUpdate.connInterval);
+            PRINT("Update %x - Int %x \n", pEvent->linkUpdate.connectionHandle, pEvent->linkUpdate.connInterval);
         }
         break;
 

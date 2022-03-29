@@ -320,7 +320,7 @@ uint8_t CreatLongName()
             } /*复制短文件名*/
             i = CHRV3FileClose();
             i = CHRV3FileCreate(); /*疑惑这里要不要恢复到刚进入此函数时的簇号*/
-            printf("k<16\r\n");
+            PRINT("k<16\r\n");
             return i; /*创建文件,返回状态*/
         }
         else
@@ -660,7 +660,7 @@ int main()
                 CHRV3DiskStatus = DISK_USB_ADDR;
                 for(i = 0; i != 10; i++)
                 {
-                    printf("Wait DiskReady\n");
+                    PRINT("Wait DiskReady\n");
                     s = CHRV3DiskReady(); //等待U盘准备好
                     if(s == ERR_SUCCESS)
                     {
@@ -668,7 +668,7 @@ int main()
                     }
                     else
                     {
-                        printf("%02x\n", (uint16_t)s);
+                        PRINT("%02x\n", (uint16_t)s);
                     }
                     mDelaymS(50);
                 }
@@ -676,7 +676,7 @@ int main()
                 if(CHRV3DiskStatus >= DISK_MOUNTED)
                 {
                     //创建长文件名文件演示
-                    printf("Create Long Name\n");
+                    PRINT("Create Long Name\n");
                     strcpy((uint8_t *)mCmdParam.Create.mPathName, "/TCBD~1.CSV"); /* 新文件名,在根目录下,中文文件名 */
 
                     LongFileName[0] = 0X0054; /*给出UNICODE的长文件名*/
@@ -700,9 +700,9 @@ int main()
 
                     s = CreatLongName(); /*创建长文件名*/
                     if(s != ERR_SUCCESS)
-                        printf("Error: %02x\n", s);
+                        PRINT("Error: %02x\n", s);
                     else
-                        printf("Creat end\n");
+                        PRINT("Creat end\n");
                 }
             }
         }

@@ -38,7 +38,7 @@ int main()
     GPIOB_ModeCfg(GPIO_Pin_13 | GPIO_Pin_12, GPIO_ModeIN_PU);
 
 #if(I2C_MODE == HOST_MODE)
-    printf("IIC Host mode\r\n");
+    PRINT("IIC Host mode\r\n");
     I2C_Init(I2C_Mode_I2C, 400000, I2C_DutyCycle_16_9, I2C_Ack_Enable, I2C_AckAddr_7bit, TxAdderss);
     while(I2C_GetFlagStatus(I2C_FLAG_BUSY) != RESET);
 
@@ -62,7 +62,7 @@ int main()
     I2C_GenerateSTOP(ENABLE);
 
 #elif(I2C_MODE == SLAVE_MODE)
-    printf("IIC Slave mode\r\n");
+    PRINT("IIC Slave mode\r\n");
     I2C_Init(I2C_Mode_I2C, 400000, I2C_DutyCycle_16_9, I2C_Ack_Enable, I2C_AckAddr_7bit, RxAdderss);
 
     while(!I2C_CheckEvent(I2C_EVENT_SLAVE_RECEIVER_ADDRESS_MATCHED));
@@ -76,10 +76,10 @@ int main()
         }
     }
 
-    printf("RxData:\r\n");
+    PRINT("RxData:\r\n");
     for(i = 0; i < 6; i++)
     {
-        printf("%02x\r\n", RxData[i]);
+        PRINT("%02x\r\n", RxData[i]);
     }
 
 #endif

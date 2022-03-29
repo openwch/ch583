@@ -40,7 +40,7 @@ extern "C" {
 #define CONFIG_MESH_ADV_BUF_COUNT_DEF          (10)
 #define CONFIG_MESH_ADV_BUF_COUNT_MAX          (256)
 
-// RPL数据缓存个数
+// RPL数据缓存个数,需不小于配网发起者支持的配网设备节点个数
 #define CONFIG_MESH_RPL_COUNT_MIN              (6)
 #define CONFIG_MESH_RPL_COUNT_DEF              (20)
 #define CONFIG_MESH_RPL_COUNT_MAX              (128)

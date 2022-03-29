@@ -701,20 +701,18 @@ static void centralEventCB(gapRoleEvent_t *pEvent)
         case GAP_EXT_ADV_DEVICE_INFO_EVENT:
         {
             // Display device addr
-            PRINT("Recv ext adv - Addr %x %x %x %x %x %x \n", pEvent->deviceExtAdvInfo.addr[0],
-                  pEvent->deviceExtAdvInfo.addr[1], pEvent->deviceExtAdvInfo.addr[2],
-                  pEvent->deviceExtAdvInfo.addr[3], pEvent->deviceExtAdvInfo.addr[4],
-                  pEvent->deviceExtAdvInfo.addr[5]);
+            PRINT("Recv ext adv \n");
+            // Add device to list
+            centralAddDeviceInfo(pEvent->deviceExtAdvInfo.addr, pEvent->deviceExtAdvInfo.addrType);
         }
         break;
 
         case GAP_DIRECT_DEVICE_INFO_EVENT:
         {
             // Display device addr
-            PRINT("Recv direct adv - Addr %x %x %x %x %x %x \n", pEvent->deviceExtAdvInfo.addr[0],
-                  pEvent->deviceExtAdvInfo.addr[1], pEvent->deviceExtAdvInfo.addr[2],
-                  pEvent->deviceExtAdvInfo.addr[3], pEvent->deviceExtAdvInfo.addr[4],
-                  pEvent->deviceExtAdvInfo.addr[5]);
+            PRINT("Recv direct adv \n");
+            // Add device to list
+            centralAddDeviceInfo(pEvent->deviceDirectInfo.addr, pEvent->deviceDirectInfo.addrType);
         }
         break;
 

@@ -14,19 +14,21 @@
 #include "CONFIG.h"
 #include "app_vendor_model.h"
 #include "app_generic_onoff_model.h"
+#include "app_generic_lightness_model.h"
+#include "app_generic_color_model.h"
 
 /*********************************************************************
  * GLOBAL TYPEDEFS
- */
-/* Mac Address Light2 */
-#define PID    9701
+        三元组地址信息                     */
+/* Mac Address Light3   */
+#define PID    10135680
 #define MAC_ADDR                       \
   {                                    \
-    0xf8, 0xa7, 0x63, 0x6a, 0xec, 0x3f \
+    0x50, 0x3d, 0xeb, 0x90, 0x35, 0x17 \
   }
 #define ALI_SECRET                                                                                 \
   {                                                                                                \
-    0x6b, 0xfa, 0x68, 0x6f, 0x9d, 0x1b, 0x37, 0x00, 0x01, 0xd1, 0xfd, 0xb8, 0x27, 0x7d, 0xc0, 0x81 \
+    0xcb, 0xd1, 0xc1, 0x33, 0xa8, 0x28, 0xc7, 0xdc, 0x7e, 0xbd, 0xef, 0x6f, 0xbc, 0x41, 0x55, 0x0e \
   }
 
 /*********************************************************************
@@ -516,7 +518,7 @@ void bt_mesh_indicate_send(struct bt_mesh_indicate *ind)
 /*********************************************************************
  * @fn      send_led_indicate
  *
- * @brief   发送当前LED状态，当有LED状态更新时都需要调用此函数
+ * @brief   发送当前LED开关状态，当有LED开关状态更新时都需要调用此函数
  *
  * @param   param -  发送通知的发送参数
  *
@@ -545,6 +547,76 @@ void send_led_indicate(struct indicate_param *param)
 
     /* Add current generic onoff status */
     net_buf_simple_add_u8(&(ind->buf->b), read_led_state(MSG_PIN));
+
+    bt_mesh_indicate_send(ind);
+}
+
+/*********************************************************************
+ * @fn      send_lightness_indicate
+ *
+ * @brief   发送当前LED亮度，当有LED亮度更新时都需要调用此函数
+ *
+ * @param   param   - 发送通知的发送参数
+ *
+ * @return  none*/
+void send_lightness_indicate(struct indicate_param *param)          //添加处
+{
+    struct bt_mesh_indicate *ind;
+
+    ind = bt_mesh_ind_alloc(16);
+    if(!ind)
+    {
+        APP_DBG("Unable allocate buffers");
+        return;
+    }
+    memcpy(&(ind->param), param, sizeof(struct indicate_param));
+
+    /* Init indication opcode */
+    bt_mesh_model_msg_init(&(ind->buf->b), OP_VENDOR_MESSAGE_ATTR_INDICATION);
+
+    /* Add tid field */
+    net_buf_simple_add_u8(&(ind->buf->b), param->tid);
+
+    /* Add brightness attrbute opcode */
+    net_buf_simple_add_le16(&(ind->buf->b), ALI_GEN_ATTR_TYPE_BRIGHTNESS);
+
+    /* Add brightness status (655~65535对应天猫控制1~100) */
+    net_buf_simple_add_le16(&(ind->buf->b), read_led_lightness(MSG_PIN));           //添加处（修改）
+
+    bt_mesh_indicate_send(ind);
+}
+
+/*********************************************************************
+ * @fn      send_lightness_indicate
+ *
+ * @brief   发送当前LED色温，当有LED色温更新时都需要调用此函数
+ *
+ * @param   param   - 发送通知的发送参数
+ *
+ * @return  none*/
+void send_color_indicate(struct indicate_param *param)          //添加处
+{
+    struct bt_mesh_indicate *ind;
+
+    ind = bt_mesh_ind_alloc(16);
+    if(!ind)
+    {
+        APP_DBG("Unable allocate buffers");
+        return;
+    }
+    memcpy(&(ind->param), param, sizeof(struct indicate_param));
+
+    /* Init indication opcode */
+    bt_mesh_model_msg_init(&(ind->buf->b), OP_VENDOR_MESSAGE_ATTR_INDICATION);
+
+    /* Add tid field */
+    net_buf_simple_add_u8(&(ind->buf->b), param->tid);
+
+    /* Add brightness attrbute opcode */
+    net_buf_simple_add_le16(&(ind->buf->b), ALI_GEN_ATTR_TYPE_COLOR);
+
+    /* Add brightness status (992~20000对应天猫控制3000~6400) */
+    net_buf_simple_add_le16(&(ind->buf->b), read_led_color(MSG_PIN));           //添加处（修改）
 
     bt_mesh_indicate_send(ind);
 }

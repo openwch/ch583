@@ -37,7 +37,7 @@ void mStopIfError(uint8_t iError)
     {
         return; /* 操作成功 */
     }
-    printf("Error: %02X\n", (uint16_t)iError); /* 显示错误 */
+    PRINT("Error: %02X\n", (uint16_t)iError); /* 显示错误 */
     /* 遇到错误后,应该分析错误码以及CHRV3DiskStatus状态,例如调用CHRV3DiskReady查询当前U盘是否连接,如果U盘已断开那么就重新等待U盘插上再操作,
      建议出错后的处理步骤:
      1、调用一次CHRV3DiskReady,成功则继续操作,例如Open,Read/Write等
@@ -94,7 +94,7 @@ int main()
                 CHRV3DiskStatus = DISK_USB_ADDR;
                 for(i = 0; i != 10; i++)
                 {
-                    printf("Wait DiskReady\n");
+                    PRINT("Wait DiskReady\n");
                     s = CHRV3DiskReady(); //等待U盘准备好
                     if(s == ERR_SUCCESS)
                     {
@@ -102,7 +102,7 @@ int main()
                     }
                     else
                     {
-                        printf("%02x\n", (uint16_t)s);
+                        PRINT("%02x\n", (uint16_t)s);
                     }
                     mDelaymS(50);
                 }
@@ -110,11 +110,11 @@ int main()
                 if(CHRV3DiskStatus >= DISK_MOUNTED)
                 {
                     //创建文件演示
-                    printf("Create\n");
+                    PRINT("Create\n");
                     strcpy((uint8_t *)mCmdParam.Create.mPathName, "/NEWFILE.TXT"); /* 新文件名,在根目录下,中文文件名 */
                     s = CHRV3FileCreate();                                         /* 新建文件并打开,如果文件已经存在则先删除后再新建 */
                     mStopIfError(s);
-                    printf("ByteWrite\n");
+                    PRINT("ByteWrite\n");
                     //实际应该判断写数据长度和定义缓冲区长度是否相符，如果大于缓冲区长度则需要多次写入
                     i = sprintf((uint8_t *)buf, "Note: \xd\xa这个程序是以字节为单位进行U盘文件读写,RV3简单演示功能。\xd\xa"); /*演示 */
                     for(c = 0; c < 10; c++)
@@ -123,17 +123,17 @@ int main()
                         mCmdParam.ByteWrite.mByteBuffer = buf; /* 指向缓冲区 */
                         s = CHRV3ByteWrite();                  /* 以字节为单位向文件写入数据 */
                         mStopIfError(s);
-                        printf("成功写入 %02X次\n", (uint16_t)c);
+                        PRINT("成功写入 %02X次\n", (uint16_t)c);
                     }
                     //演示修改文件属性
-                    printf("Modify\n");
+                    PRINT("Modify\n");
                     mCmdParam.Modify.mFileAttr = 0xff;                        //输入参数: 新的文件属性,为0FFH则不修改
                     mCmdParam.Modify.mFileTime = 0xffff;                      //输入参数: 新的文件时间,为0FFFFH则不修改,使用新建文件产生的默认时间
                     mCmdParam.Modify.mFileDate = MAKE_FILE_DATE(2015, 5, 18); //输入参数: 新的文件日期: 2015.05.18
                     mCmdParam.Modify.mFileSize = 0xffffffff;                  // 输入参数: 新的文件长度,以字节为单位写文件应该由程序库关闭文件时自动更新长度,所以此处不修改
                     i = CHRV3FileModify();                                    //修改当前文件的信息,修改日期
                     mStopIfError(i);
-                    printf("Close\n");
+                    PRINT("Close\n");
                     mCmdParam.Close.mUpdateLen = 1; /* 自动计算文件长度,以字节为单位写文件,建议让程序库关闭文件以便自动更新文件长度 */
                     i = CHRV3FileClose();
                     mStopIfError(i);
@@ -143,11 +143,11 @@ int main()
 //                    mStopIfError(s);
 
                     /* 删除某文件 */
-                    printf("Erase\n");
+                    PRINT("Erase\n");
                     strcpy((uint8_t *)mCmdParam.Create.mPathName, "/OLD"); //将被删除的文件名,在根目录下
                     i = CHRV3FileErase();                                  //删除文件并关闭
                     if(i != ERR_SUCCESS)
-                        printf("Error: %02X\n", (uint16_t)i); //显示错误
+                        PRINT("Error: %02X\n", (uint16_t)i); //显示错误
                 }
             }
         }

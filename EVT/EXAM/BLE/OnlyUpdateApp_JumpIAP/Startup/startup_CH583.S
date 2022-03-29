@@ -1,5 +1,5 @@
 /********************************** (C) COPYRIGHT *******************************
-* File Name          : startup_ch57x.s
+* File Name          : startup_ch58x.s
 * Author             : WCH
 * Version            : V1.0.0
 * Date               : 2020/04/30
@@ -10,5 +10,5 @@
 	.global	_start
 	.align	1
 _start:
-
+	j	0xC000
 

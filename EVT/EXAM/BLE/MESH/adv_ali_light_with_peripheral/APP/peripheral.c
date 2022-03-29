@@ -17,11 +17,15 @@
 #include "gattprofile.h"
 #include "peripheral.h"
 #include "app.h"
+#include "app_generic_onoff_model.h"
+#include "app_generic_lightness_model.h"
+#include "app_generic_color_model.h"
 
 /*********************************************************************
  * MACROS
  */
-
+extern uint16_t led_color;      //范围 992——20000
+extern uint16_t led_lightness;  //范围 655——65535
 /*********************************************************************
  * CONSTANTS
  */
@@ -81,7 +85,7 @@ static uint8_t Peripheral_TaskID = INVALID_TASK_ID; // Task ID for internal task
 // GAP - SCAN RSP data (max size = 31 bytes)
 static uint8_t scanRspData[] = {
     // complete name
-    0x12, // length of this data
+    0x18, // length of this data
     GAP_ADTYPE_LOCAL_NAME_COMPLETE,
     'S',
     'i',
@@ -631,8 +635,49 @@ static void simpleProfileChangeCB(uint8_t paramID, uint8_t *pValue, uint16_t len
             uint8_t newValue[SIMPLEPROFILE_CHAR1_LEN];
             tmos_memcpy(newValue, pValue, len);
             // 收到CHAR1数据，翻转灯状态
-            send_led_state();
+            PRINT("键值：%d\n", newValue[0]);
+
+            switch(newValue[0])
+            {
+                case 0x00:      //开关按键触发
+                {
+                    toggle_led_state(MSG_PIN);      //翻转开关
+                    break;
+                }
+
+                case 0x01:      //亮度按键触发
+                {
+                    if(read_led_state(MSG_PIN))
+                    {
+                        if(led_lightness <= 64886) led_lightness += 649;
+                        else led_lightness = 655;
+
+                        set_led_lightness(MSG_PIN, led_lightness);      //设置亮度
+                    }
+                    break;
+                }
+
+                case 0x02:      //色温按键触发
+                {
+                    if(read_led_state(MSG_PIN))
+                    {
+                        if(led_color >= 1178) led_color -= 190;
+                        else led_color = 19616;
+
+                        set_led_color(MSG_PIN, led_color);      //设置色温
+                    }
+                    break;
+
+                }
+                default:
+                    break;
+            }
+
+            send_led_state();           //发送灯的所有状态到天猫精灵
+
             PRINT("profile ChangeCB CHAR1.. \n");
+            PRINT("亮度Change : %d\t", led_lightness);
+            PRINT("色温Change: %d\n", led_color);
             break;
         }
 

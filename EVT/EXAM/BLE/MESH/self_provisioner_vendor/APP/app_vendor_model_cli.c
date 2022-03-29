@@ -237,9 +237,11 @@ static void vendor_message_cli_trans(struct bt_mesh_model   *model,
     uint8_t                  *pData = buf->data;
     uint16_t                  len = buf->len;
 
-    if(pData[0] != vendor_model_cli->cli_tid.trans_tid)
+    if((pData[0] != vendor_model_cli->cli_tid.trans_tid) ||
+       (ctx->addr != vendor_model_cli->cli_tid.trans_addr))
     {
         vendor_model_cli->cli_tid.trans_tid = pData[0];
+        vendor_model_cli->cli_tid.trans_addr = ctx->addr;
         // 开头为tid
         pData++;
         len--;
@@ -276,9 +278,11 @@ static void vendor_message_cli_ind(struct bt_mesh_model *model, struct bt_mesh_m
     uint16_t                  len = buf->len;
     APP_DBG("src: 0x%04x dst: 0x%04x rssi: %d app_idx: 0x%x", ctx->addr, ctx->recv_dst, ctx->recv_rssi, ctx->app_idx);
 
-    if(pData[0] != vendor_model_cli->cli_tid.ind_tid)
+    if((pData[0] != vendor_model_cli->cli_tid.ind_tid) ||
+       (ctx->addr != vendor_model_cli->cli_tid.trans_addr))
     {
         vendor_model_cli->cli_tid.ind_tid = pData[0];
+        vendor_model_cli->cli_tid.trans_addr = ctx->addr;
         // 开头为tid
         pData++;
         len--;

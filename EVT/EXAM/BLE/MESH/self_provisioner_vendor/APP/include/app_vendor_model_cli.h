@@ -87,7 +87,9 @@ typedef void (*vendor_model_cli_rsp_handler_t)(const vendor_model_cli_status_t *
 struct vendor_model_cli_tid
 {
     uint8_t trans_tid;
+    uint16_t trans_addr;
     uint8_t ind_tid;
+    uint16_t ind_addr;
 };
 
 /**

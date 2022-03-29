@@ -34,7 +34,7 @@ void mStopIfError(uint8_t iError)
     {
         return; /* 操作成功 */
     }
-    printf("Error: %02X\n", (uint16_t)iError); /* 显示错误 */
+    PRINT("Error: %02X\n", (uint16_t)iError); /* 显示错误 */
     /* 遇到错误后,应该分析错误码以及CHRV3DiskStatus状态,例如调用CHRV3DiskReady查询当前U盘是否连接,如果U盘已断开那么就重新等待U盘插上再操作,
      建议出错后的处理步骤:
      1、调用一次CHRV3DiskReady,成功则继续操作,例如Open,Read/Write等
@@ -71,7 +71,7 @@ int main()
     CHRV3LibInit(); //初始化U盘程序库以支持U盘文件
 
     FoundNewDev = 0;
-    printf("Wait Device In\n");
+    PRINT("Wait Device In\n");
     while(1)
     {
         s = ERR_SUCCESS;
@@ -93,12 +93,12 @@ int main()
             s = InitRootDevice(); // 初始化USB设备
             if(s == ERR_SUCCESS)
             {
-                printf("Start UDISK_demo @CHRV3UFI library\n");
+                PRINT("Start UDISK_demo @CHRV3UFI library\n");
                 // U盘操作流程：USB总线复位、U盘连接、获取设备描述符和设置USB地址、可选的获取配置描述符，之后到达此处，由CHRV3子程序库继续完成后续工作
                 CHRV3DiskStatus = DISK_USB_ADDR;
                 for(i = 0; i != 10; i++)
                 {
-                    printf("Wait DiskReady\n");
+                    PRINT("Wait DiskReady\n");
                     s = CHRV3DiskReady();
                     if(s == ERR_SUCCESS)
                     {
@@ -109,12 +109,12 @@ int main()
                 if(CHRV3DiskStatus >= DISK_MOUNTED) //U盘准备好
                 {
                     /* 读文件 */
-                    printf("Open\n");
+                    PRINT("Open\n");
                     strcpy((uint8_t *)mCmdParam.Open.mPathName, "/C51/CHRV3HFT.C"); //设置要操作的文件名和路径
                     s = CHRV3FileOpen();                                            //打开文件
                     if(s == ERR_MISS_DIR)
                     {
-                        printf("不存在该文件夹则列出根目录所有文件\n");
+                        PRINT("不存在该文件夹则列出根目录所有文件\n");
                         pCodeStr = (uint8_t *)"/*";
                     }
                     else
@@ -122,7 +122,7 @@ int main()
                         pCodeStr = (uint8_t *)"/C51/*"; //列出\C51子目录下的的文件
                     }
 
-                    printf("List file %s\n", pCodeStr);
+                    PRINT("List file %s\n", pCodeStr);
                     for(j = 0; j < 10000; j++) //限定10000个文件,实际上没有限制
                     {
                         strcpy((uint8_t *)mCmdParam.Open.mPathName, (const uint8_t *)pCodeStr); //搜索文件名,*为通配符,适用于所有文件或者子目录
@@ -137,7 +137,7 @@ int main()
                         }
                         if(i == ERR_FOUND_NAME) //搜索到与通配符相匹配的文件名,文件名及其完整路径在命令缓冲区中
                         {
-                            printf("  match file %04d#: %s\n", (unsigned int)j, mCmdParam.Open.mPathName); /* 显示序号和搜索到的匹配文件名或者子目录名 */
+                            PRINT("  match file %04d#: %s\n", (unsigned int)j, mCmdParam.Open.mPathName); /* 显示序号和搜索到的匹配文件名或者子目录名 */
                             continue;                                                                      /* 继续搜索下一个匹配的文件名,下次搜索时序号会加1 */
                         }
                         else //出错
@@ -147,16 +147,16 @@ int main()
                         }
                     }
                     i = CHRV3FileClose(); //关闭文件
-                    printf("U盘演示完成\n");
+                    PRINT("U盘演示完成\n");
                 }
                 else
                 {
-                    printf("U盘没有准备好 ERR =%02X\n", (uint16_t)s);
+                    PRINT("U盘没有准备好 ERR =%02X\n", (uint16_t)s);
                 }
             }
             else
             {
-                printf("初始化U盘失败，请拔下U盘重试\n");
+                PRINT("初始化U盘失败，请拔下U盘重试\n");
             }
         }
         mDelaymS(100);  // 模拟单片机做其它事

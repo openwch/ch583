@@ -126,7 +126,7 @@ typedef void (*cyclingServiceCB_t)(uint8_t event, uint32_t *pNewCummVal);
  *
  * @return  none
  */
-extern void CyclingService_Init(uint8_t task_id);
+extern void CyclingService_Init(void);
 
 /*********************************************************************
  * @fn      CyclingService_ProcessEvent

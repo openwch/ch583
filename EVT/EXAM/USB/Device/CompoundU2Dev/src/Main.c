@@ -655,7 +655,7 @@ int main()
     SetSysClock(CLK_SOURCE_PLL_60MHz);
 
     DebugInit();
-    printf("start\n");
+    PRINT("start\n");
 
     pU2EP0_RAM_Addr = EP0_Databuf;
     pU2EP1_RAM_Addr = EP1_Databuf;

@@ -161,7 +161,7 @@ handle_reset:
 	bltu a0, a1, 1b
 2:
 	/* 流水线控制位 & 动态预测控制位 */
-	li t0, 0x1f	/*原0x3f-为了屏蔽中断*/
+	li t0, 0x1f
 	csrw 0xbc0, t0
 	/* 打开嵌套中断、硬件压栈功能 */
 	li t0, 0x3

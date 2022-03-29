@@ -143,7 +143,9 @@ typedef void (*vendor_model_srv_rsp_handler_t)(const vendor_model_srv_status_t *
 struct vendor_model_srv_tid
 {
     uint8_t trans_tid;
+    uint16_t trans_addr;
     uint8_t write_tid;
+    uint16_t write_addr;
 };
 
 /**

@@ -80,12 +80,12 @@ app_drv_fifo_write(app_drv_fifo_t *fifo, uint8_t *data, uint16_t *p_write_length
     {
         return APP_DRV_FIFO_RESULT_NULL;
     }
-    //printf("fifo_length = %d\r\n",fifo_length(fifo));
+    //PRINT("fifo_length = %d\r\n",fifo_length(fifo));
     const uint16_t available_count = fifo->size - fifo_length(fifo);
     const uint16_t requested_len = (*p_write_length);
     uint16_t       index = 0;
     uint16_t       write_size = MIN(requested_len, available_count);
-    //printf("available_count %d\r\n",available_count);
+    //PRINT("available_count %d\r\n",available_count);
     // Check if the FIFO is FULL.
     if(available_count == 0)
     {
@@ -155,7 +155,7 @@ app_drv_fifo_read(app_drv_fifo_t *fifo, uint8_t *data, uint16_t *p_read_length)
     {
         return APP_DRV_FIFO_RESULT_NOT_FOUND;
     }
-    //printf("read size = %d,byte_count = %d\r\n",read_size,byte_count);
+    //PRINT("read size = %d,byte_count = %d\r\n",read_size,byte_count);
     for(index = 0; index < read_size; index++)
     {
         //pop
