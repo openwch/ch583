@@ -139,10 +139,10 @@ int main()
 #if 0 /* 修改用户配置值 */
     s = UserOptionByteConfig(ENABLE, ENABLE, ENABLE, WRProt_Size);
     if(s)
-        printf("ERR\n");
+        PRINT("ERR\n");
     else
     {
-        printf("suc\n");
+        PRINT("suc\n");
         mDelaymS(10);
         UserOptionByte_Active();
     }
@@ -151,10 +151,10 @@ int main()
 #if 0 /* 关闭两线调试接口 */
     s = UserOptionByteClose_SWD();
     if(s)
-        printf("ERR\n");
+        PRINT("ERR\n");
     else
     {
-        printf("suc\n");
+        PRINT("suc\n");
         mDelaymS(10);
         UserOptionByte_Active();
     }

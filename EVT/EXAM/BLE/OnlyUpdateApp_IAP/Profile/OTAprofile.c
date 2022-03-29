@@ -14,6 +14,7 @@
 #include "CONFIG.h"
 #include "OTAprofile.h"
 #include "CH583SFR.h"
+#include "ota.h"
 
 /*********************************************************************
  * MACROS
@@ -70,9 +71,9 @@ static uint8_t OTAProfileCharUserDesp[12] = "OTA Channel";
 
 // write and read buffer
 static uint8_t OTAProfileReadLen;
-static uint8_t OTAProfileReadBuf[20];
+static uint8_t OTAProfileReadBuf[IAP_LEN];
 static uint8_t OTAProfileWriteLen;
-static uint8_t OTAProfileWriteBuf[20];
+static uint8_t OTAProfileWriteBuf[IAP_LEN];
 
 /*********************************************************************
  * Profile Attributes - Table

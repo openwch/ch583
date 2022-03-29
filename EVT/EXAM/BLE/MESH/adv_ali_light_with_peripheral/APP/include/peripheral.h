@@ -1,11 +1,12 @@
 /********************************** (C) COPYRIGHT *******************************
-* File Name          : peripheral.h
-* Author             : WCH
-* Version            : V1.0
-* Date               : 2018/12/11
-* Description        :
-
-*******************************************************************************/
+ * File Name          : peripheral.h
+ * Author             : WCH
+ * Version            : V1.1
+ * Date               : 2021/11/18
+ * Description        :
+ * Copyright (c) 2021 Nanjing Qinheng Microelectronics Co., Ltd.
+ * SPDX-License-Identifier: Apache-2.0
+ *******************************************************************************/
 
 #ifndef PERIPHERAL_H
 #define PERIPHERAL_H
@@ -53,6 +54,9 @@ extern void Peripheral_Init(void);
  */
 extern uint16_t Peripheral_ProcessEvent(uint8_t task_id, uint16_t events);
 
+/*
+ * Prepare and send simpleProfileChar4 notification
+ */
 extern void peripheralChar4Notify(uint8_t *pValue, uint16_t len);
 
 /*********************************************************************

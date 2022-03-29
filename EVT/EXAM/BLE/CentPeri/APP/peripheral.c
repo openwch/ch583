@@ -405,7 +405,7 @@ static void Peripheral_LinkEstablished(gapRoleEvent_t *pEvent)
         // Start read rssi
         tmos_start_task(Peripheral_TaskID, SBP_READ_RSSI_EVT, SBP_READ_RSSI_EVT_PERIOD);
 
-        printf("Conn %x - Int %x \n", event->connectionHandle, event->connInterval);
+        PRINT("Conn %x - Int %x \n", event->connectionHandle, event->connInterval);
     }
 }
 
@@ -479,7 +479,7 @@ static void peripheralParamUpdateCB(uint16_t connHandle, uint16_t connInterval,
         peripheralConnList.connSlaveLatency = connSlaveLatency;
         peripheralConnList.connTimeout = connTimeout;
 
-        printf("Update %x - Int %x \n", connHandle, connInterval);
+        PRINT("Update %x - Int %x \n", connHandle, connInterval);
     }
     else
     {

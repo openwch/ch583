@@ -56,6 +56,8 @@ static const uint8_t self_prov_app_key[16] = {
     0x00, 0x23, 0x45, 0x67, 0x89, 0xab, 0xcd, 0xef,
 };
 
+/*  The key indexes are 12-bit values ranging from 0x000 to 0xFFF
+    inclusive. A network key at index 0x000 is called the primary NetKey*/
 const uint16_t self_prov_net_idx = 0x0000;      // 自配网所用的net key
 const uint16_t self_prov_app_idx = 0x0001;      // 自配网所用的app key
 const uint32_t self_prov_iv_index = 0x00000000; // 自配网的iv_index
@@ -80,6 +82,7 @@ static void unprov_recv(bt_mesh_prov_bearer_t bearer,
 static void node_added(uint16_t net_idx, uint16_t addr, uint8_t num_elem);
 static void cfg_cli_rsp_handler(const cfg_cli_status_t *val);
 static void vendor_model_cli_rsp_handler(const vendor_model_cli_status_t *val);
+static int  vendor_model_cli_send(uint16_t addr, uint8_t *pData, uint16_t len);
 static void node_init(void);
 
 static struct bt_mesh_cfg_srv cfg_srv = {
@@ -171,6 +174,8 @@ static const struct bt_mesh_prov app_prov = {
 
 // 配网者管理的节点，第0个为自己，第1，2依次为配网顺序的节点
 node_t app_nodes[1 + CONFIG_MESH_PROV_NODE_COUNT_DEF] = {0};
+
+app_mesh_manage_t app_mesh_manage;
 
 uint16_t reset_node_addr = BLE_MESH_ADDR_UNASSIGNED;
 /*********************************************************************
@@ -742,7 +747,7 @@ static void cfg_cli_rsp_handler(const cfg_cli_status_t *val)
     node_t *node;
     APP_DBG("");
 
-    // 删除节点的应答,由于有可能节点已被删除所以收不到应答，所以不管是否应答一律算成功。注意如果节点未在线则节点自身不会收到删除命令
+    // 通过协议栈删除节点的应答,由于有可能节点已被删除所以收不到应答，所以不管是否应答一律算成功。注意如果节点未在线则节点自身不会收到删除命令
     if(val->cfgHdr.opcode == OP_NODE_RESET)
     {
         if(reset_node_addr != BLE_MESH_ADDR_UNASSIGNED)
@@ -799,6 +804,28 @@ static void vendor_model_cli_rsp_handler(const vendor_model_cli_status_t *val)
         APP_DBG("trans len %d, data 0x%02x from 0x%04x", val->vendor_model_cli_Event.trans.len,
                 val->vendor_model_cli_Event.trans.pdata[0],
                 val->vendor_model_cli_Event.trans.addr);
+        tmos_memcpy(&app_mesh_manage, val->vendor_model_cli_Event.trans.pdata, val->vendor_model_cli_Event.trans.len);
+        switch(app_mesh_manage.data.buf[0])
+        {
+            // 判断是否为应用层自定义删除命令应答
+            case CMD_DELETE_NODE_ACK:
+            {
+                if(val->vendor_model_cli_Event.trans.len != DELETE_NODE_ACK_DATA_LEN)
+                {
+                    APP_DBG("Delete node ack data err!");
+                    return;
+                }
+                node_t *node;
+                tmos_stop_task(App_TaskID, APP_DELETE_NODE_TIMEOUT_EVT);
+                bt_mesh_node_del_by_addr(val->vendor_model_cli_Event.trans.addr);
+                node = node_get(val->vendor_model_cli_Event.trans.addr);
+                node->stage.node = NODE_INIT;
+                node->node_addr = BLE_MESH_ADDR_UNASSIGNED;
+                node->fixed = FALSE;
+                APP_DBG("Delete node complete");
+                break;
+            }
+        }
         // 转发给主机(如果已连接)
         peripheralChar4Notify(val->vendor_model_cli_Event.trans.pdata, val->vendor_model_cli_Event.trans.len);
     }
@@ -822,6 +849,32 @@ static void vendor_model_cli_rsp_handler(const vendor_model_cli_status_t *val)
 }
 
 /*********************************************************************
+ * @fn      vendor_model_cli_send
+ *
+ * @brief   通过厂商自定义模型发送数据
+ *
+ * @param   addr    - 需要发送的目的地址
+ *          pData   - 需要发送的数据指针
+ *          len     - 需要发送的数据长度
+ *
+ * @return  参考Global_Error_Code
+ */
+static int vendor_model_cli_send(uint16_t addr, uint8_t *pData, uint16_t len)
+{
+    struct send_param param = {
+        .app_idx = self_prov_app_idx,     // 此消息使用的app key
+        .addr = addr,                     // 此消息发往的目的地地址，此处为第1个配网的节点
+        .trans_cnt = 0x01,                // 此消息的用户层发送次数
+        .period = K_MSEC(400),            // 此消息重传的间隔，建议不小于(200+50*TTL)ms，若数据较大则建议加长
+        .rand = (0),                      // 此消息发送的随机延迟
+        .tid = vendor_cli_tid_get(),      // tid，每个独立消息递增循环，cli使用0~127
+        .send_ttl = BLE_MESH_TTL_DEFAULT, // ttl，无特定则使用默认值
+    };
+//    return vendor_message_cli_write(&param, pData, len);  // 调用自定义模型客户端的有应答写函数发送数据，默认超时2s
+    return vendor_message_cli_send_trans(&param, pData, len); // 或者调用自定义模型服务的透传函数发送数据，只发送，无应答机制
+}
+
+/*********************************************************************
  * @fn      keyPress
  *
  * @brief   按键回调
@@ -838,46 +891,57 @@ void keyPress(uint8_t keys)
     {
         default:
         {
-            if(1)
+            if(0)
             {
                 // 发送数据
                 if(app_nodes[1].node_addr)
                 {
                     uint8_t status;
                     APP_DBG("node1_addr %x", app_nodes[1].node_addr);
-                    struct send_param param = {
-                        .app_idx = self_prov_app_idx,     // 此消息使用的app key
-                        .addr = app_nodes[1].node_addr,   // 此消息发往的目的地地址，此处为第1个配网的节点
-                        .trans_cnt = 0x01,                // 此消息的发送次数
-                        .period = K_MSEC(400),            // 此消息重传的间隔，建议不小于(200+50*TTL)ms，若数据较大则建议加长
-                        .rand = (0),                      // 此消息发送的随机延迟
-                        .tid = vendor_cli_tid_get(),      // tid，每个独立消息递增循环，cli使用0~127
-                        .send_ttl = BLE_MESH_TTL_DEFAULT, // ttl，无特定则使用默认值
-                    };
                     uint8_t data[16] = {0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 11, 12, 13, 14, 15, 16};
-                    //				    status = vendor_message_cli_write(&param, data, 16);	// 调用自定义模型客户端的有应答写函数发送数据，默认超时2s
-                    status = vendor_message_cli_send_trans(&param, data, 16); // 或者调用自定义模型客户端的透传函数发送数据，只发送，无应答机制
+                    status = vendor_model_cli_send(app_nodes[1].node_addr, data, 16);
                     if(status)
                     {
                         APP_DBG("write failed %d", status);
                     }
                 }
             }
-            if(0)
+            if(1)
             {
-                // 删除节点
+                // 删除节点，可以通过协议栈写好的命令删除，也可以通过应用层自定协议删除
                 if(app_nodes[1].node_addr)
                 {
                     uint8_t status;
                     APP_DBG("node1_addr %x", app_nodes[1].node_addr);
-                    status = bt_mesh_cfg_node_reset(self_prov_net_idx, app_nodes[1].node_addr);
-                    if(status)
+                    if(0)
                     {
-                        APP_DBG("reset failed %d", status);
+                        // 通过协议栈写好的命令删除
+                        status = bt_mesh_cfg_node_reset(self_prov_net_idx, app_nodes[1].node_addr);
+                        if(status)
+                        {
+                            APP_DBG("reset failed %d", status);
+                        }
+                        else
+                        {
+                            reset_node_addr = app_nodes[1].node_addr;
+                        }
                     }
-                    else
+                    if(1)
                     {
-                        reset_node_addr = app_nodes[1].node_addr;
+                        // 通过应用层自定协议删除
+                        app_mesh_manage.delete_node.cmd = CMD_DELETE_NODE;
+                        app_mesh_manage.delete_node.addr[0] = app_nodes[1].node_addr&0xFF;
+                        app_mesh_manage.delete_node.addr[1] = (app_nodes[1].node_addr>>8)&0xFF;
+                        status = vendor_model_cli_send(app_nodes[1].node_addr, app_mesh_manage.data.buf, DELETE_NODE_DATA_LEN);
+                        if(status)
+                        {
+                            APP_DBG("delete failed %d", status);
+                        }
+                        else
+                        {
+                            // 定时三秒，未收到应答就超时
+                            tmos_start_task(App_TaskID, APP_DELETE_NODE_TIMEOUT_EVT, 4800);
+                        }
                     }
                 }
             }
@@ -1059,22 +1123,20 @@ static uint16_t App_ProcessEvent(uint8_t task_id, uint16_t events)
         {
             uint8_t status;
             APP_DBG("app_nodes[1] ADDR %x", app_nodes[1].node_addr);
-            struct send_param param = {
-                .app_idx = self_prov_app_idx,     // 此消息使用的app key
-                .addr = app_nodes[1].node_addr,   // 此消息发往的目的地地址，此处为配置远端节点1的地址
-                .trans_cnt = 0x01,                // 此消息的发送次数
-                .period = K_MSEC(400),            // 此消息重传的间隔，建议不小于(200+50*TTL)ms，若数据较大则建议加长
-                .rand = (0),                      // 此消息发送的随机延迟
-                .tid = vendor_cli_tid_get(),      // tid，每个独立消息递增循环，cli使用0~127
-                .send_ttl = BLE_MESH_TTL_DEFAULT, // ttl，无特定则使用默认值
-            };
-            uint8_t data[16] = {0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 11, 12, 13, 14, 15, 16};
-            status = vendor_message_cli_send_trans(&param, data, 4); // 调用自定义模型客户端的透传函数发送数据
+            uint8_t data[4] = {0, 1, 2, 3};
+            status = vendor_model_cli_send(app_nodes[1].node_addr, data, 4); // 调用自定义模型客户端的透传函数发送数据
             if(status)
                 APP_DBG("trans failed %d", status);
         }
-        tmos_start_task(App_TaskID, APP_NODE_TEST_EVT, 3200);
+        tmos_start_task(App_TaskID, APP_NODE_TEST_EVT, 6400);
         return (events ^ APP_NODE_TEST_EVT);
+    }
+
+    if(events & APP_DELETE_NODE_TIMEOUT_EVT)
+    {
+        // 通过应用层自定协议删除超时，可添加其他流程
+        APP_DBG("Delete node failed ");
+        return (events ^ APP_DELETE_NODE_TIMEOUT_EVT);
     }
 
     // Discard unknown events

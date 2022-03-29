@@ -288,7 +288,7 @@ static bStatus_t ble_uart_WriteAttrCB(uint16 connHandle, gattAttribute_t *pAttr,
                 uint16         charCfg = BUILD_UINT16(pValue[0], pValue[1]);
                 ble_uart_evt_t evt;
 
-                //printf("CCCD set: [%d]\n", charCfg);
+                //PRINT("CCCD set: [%d]\n", charCfg);
                 evt.type = (charCfg == GATT_CFG_NO_OPERATION) ? BLE_UART_EVT_TX_NOTI_DISABLED : BLE_UART_EVT_TX_NOTI_ENABLED;
                 ble_uart_AppCBs(connHandle, &evt);
             }
@@ -346,7 +346,7 @@ static void ble_uart_HandleConnStatusCB(uint16 connHandle, uint8 changeType)
         {
             //ble_uart_TxCCCD[0].value = 0;
             GATTServApp_InitCharCfg(connHandle, ble_uart_TxCCCD);
-            //printf("clear client configuration\n");
+            //PRINT("clear client configuration\n");
         }
     }
 }

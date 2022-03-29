@@ -580,7 +580,6 @@ void Rec_OTA_IAP_DataDeal(void)
         case CMD_IAP_VERIFY:
         {
             uint32_t i;
-            uint8_t  p_flash[IAP_LEN - 4];
             uint8_t  status = 0;
 
             OpParaDataLen = iap_rec_data.verify.len;
@@ -635,6 +634,8 @@ void Rec_OTA_IAP_DataDeal(void)
             send_buf[5] = (uint8_t)(FLASH_BLOCK_SIZE & 0xff);
             send_buf[6] = (uint8_t)((FLASH_BLOCK_SIZE >> 8) & 0xff);
 
+            send_buf[7] = CHIP_ID&0xFF;
+            send_buf[8] = (CHIP_ID<<8)&0xFF;
             /* 有需要再增加 */
 
             /* 发送信息 */

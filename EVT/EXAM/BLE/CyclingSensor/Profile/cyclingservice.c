@@ -68,6 +68,8 @@ const uint8_t cyclingCommandUUID[ATT_BT_UUID_SIZE] = {
  * EXTERNAL FUNCTIONS
  */
 
+uint16_t CyclingService_ProcessEvent(uint8_t task_id, uint16_t events);
+
 /*********************************************************************
  * LOCAL VARIABLES
  */
@@ -237,10 +239,10 @@ gattServiceCBs_t cyclingCBs = {
  *
  * @return  none
  */
-void CyclingService_Init(uint8_t task_id)
+void CyclingService_Init()
 {
     // Only purpose is to obtain task ID
-    cyclingService_TaskID = task_id;
+    cyclingService_TaskID = TMOS_ProcessEventRegister(CyclingService_ProcessEvent);
 }
 
 /*********************************************************************

@@ -637,6 +637,7 @@ void Rec_OTA_IAP_DataDeal(void)
 
             /* 当前是ImageA，直接编程 */
             status = FLASH_ROM_WRITE(OpAdd, iap_rec_data.program.buf, (uint16_t)OpParaDataLen);
+            if(status)             PRINT("IAP_PROM err \r\n");
             OTA_IAP_SendCMDDealSta(status);
             break;
         }
@@ -674,7 +675,6 @@ void Rec_OTA_IAP_DataDeal(void)
         case CMD_IAP_VERIFY:
         {
             uint32_t i;
-            uint8_t  p_flash[IAP_LEN - 4];
             uint8_t  status = 0;
 
             OpParaDataLen = iap_rec_data.verify.len;
@@ -684,11 +684,14 @@ void Rec_OTA_IAP_DataDeal(void)
             OpAdd = OpAdd * 16;
 
             OpAdd += IMAGE_A_SIZE;
-
             PRINT("IAP_VERIFY: %08x len:%d \r\n", (int)OpAdd, (int)OpParaDataLen);
 
             /* 当前是ImageA，直接读取ImageB校验 */
             status = FLASH_ROM_VERIFY(OpAdd, iap_rec_data.verify.buf, OpParaDataLen);
+            if(status)
+            {
+                PRINT("IAP_VERIFY err \r\n");
+            }
             VerifyStatus |= status;
             OTA_IAP_SendCMDDealSta(VerifyStatus);
             break;
@@ -730,6 +733,8 @@ void Rec_OTA_IAP_DataDeal(void)
             send_buf[5] = (uint8_t)(FLASH_BLOCK_SIZE & 0xff);
             send_buf[6] = (uint8_t)((FLASH_BLOCK_SIZE >> 8) & 0xff);
 
+            send_buf[7] = CHIP_ID&0xFF;
+            send_buf[8] = (CHIP_ID<<8)&0xFF;
             /* 有需要再增加 */
 
             /* 发送信息 */

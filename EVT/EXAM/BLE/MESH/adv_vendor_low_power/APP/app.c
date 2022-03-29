@@ -23,6 +23,9 @@
 #define SELENCE_ADV_ON    0x01
 #define SELENCE_ADV_OF    0x00
 
+#define APP_DELETE_LOCAL_NODE_DELAY   3200
+// shall not less than APP_DELETE_LOCAL_NODE_DELAY
+#define APP_DELETE_NODE_INFO_DELAY    3200
 /*********************************************************************
  * GLOBAL TYPEDEFS
  */
@@ -52,6 +55,7 @@ static void link_open(bt_mesh_prov_bearer_t bearer);
 static void link_close(bt_mesh_prov_bearer_t bearer, uint8_t reason);
 static void prov_complete(uint16_t net_idx, uint16_t addr, uint8_t flags, uint32_t iv_index);
 static void vendor_model_srv_rsp_handler(const vendor_model_srv_status_t *val);
+static int  vendor_model_srv_send(uint16_t addr, uint8_t *pData, uint16_t len);
 static void prov_reset(void);
 
 static struct bt_mesh_cfg_srv cfg_srv = {
@@ -148,6 +152,10 @@ static const struct bt_mesh_prov app_prov = {
     .complete = prov_complete,
     .reset = prov_reset,
 };
+
+app_mesh_manage_t app_mesh_manage;
+
+uint16_t delete_node_info_address=0;
 
 /*********************************************************************
  * GLOBAL TYPEDEFS
@@ -328,6 +336,52 @@ static void vendor_model_srv_rsp_handler(const vendor_model_srv_status_t *val)
         APP_DBG("len %d, data 0x%02x from 0x%04x", val->vendor_model_srv_Event.trans.len,
                 val->vendor_model_srv_Event.trans.pdata[0],
                 val->vendor_model_srv_Event.trans.addr);
+        tmos_memcpy(&app_mesh_manage, val->vendor_model_srv_Event.trans.pdata, val->vendor_model_srv_Event.trans.len);
+        switch(app_mesh_manage.data.buf[0])
+        {
+            // 判断是否为删除命令
+            case CMD_DELETE_NODE:
+            {
+                if(val->vendor_model_srv_Event.trans.len != DELETE_NODE_DATA_LEN)
+                {
+                    APP_DBG("Delete node data err!");
+                    return;
+                }
+                uint8_t status;
+                APP_DBG("receive delete cmd, send ack and start delete node delay");
+                app_mesh_manage.delete_node_ack.cmd = CMD_DELETE_NODE_ACK;
+                status = vendor_model_srv_send(val->vendor_model_srv_Event.trans.addr,
+                                                app_mesh_manage.data.buf, DELETE_NODE_ACK_DATA_LEN);
+                if(status)
+                {
+                    APP_DBG("send ack failed %d", status);
+                }
+                // 即将删除自身，先发送CMD_DELETE_NODE_INFO命令
+                APP_DBG("send to all node to let them delete stored info ");
+                app_mesh_manage.delete_node_info.cmd = CMD_DELETE_NODE_INFO;
+                status = vendor_model_srv_send(BLE_MESH_ADDR_ALL_NODES,
+                                                app_mesh_manage.data.buf, DELETE_NODE_INFO_DATA_LEN);
+                if(status)
+                {
+                    APP_DBG("send ack failed %d", status);
+                }
+                tmos_start_task(App_TaskID, APP_DELETE_LOCAL_NODE_EVT, APP_DELETE_LOCAL_NODE_DELAY);
+                break;
+            }
+
+            // 判断是否为有节点被删除，需要删除存储的节点信息
+            case CMD_DELETE_NODE_INFO:
+            {
+                if(val->vendor_model_srv_Event.trans.len != DELETE_NODE_INFO_DATA_LEN)
+                {
+                    APP_DBG("Delete node info data err!");
+                    return;
+                }
+                delete_node_info_address = val->vendor_model_srv_Event.trans.addr;
+                tmos_start_task(App_TaskID, APP_DELETE_NODE_INFO_EVT, APP_DELETE_NODE_INFO_DELAY);
+                break;
+            }
+        }
     }
     else if(val->vendor_model_srv_Hdr.opcode == OP_VENDOR_MESSAGE_TRANSPARENT_WRT)
     {
@@ -347,6 +401,32 @@ static void vendor_model_srv_rsp_handler(const vendor_model_srv_status_t *val)
 }
 
 /*********************************************************************
+ * @fn      vendor_model_srv_send
+ *
+ * @brief   通过厂商自定义模型发送数据
+ *
+ * @param   addr    - 需要发送的目的地址
+ *          pData   - 需要发送的数据指针
+ *          len     - 需要发送的数据长度
+ *
+ * @return  参考Global_Error_Code
+ */
+static int vendor_model_srv_send(uint16_t addr, uint8_t *pData, uint16_t len)
+{
+    struct send_param param = {
+        .app_idx = vnd_models[0].keys[0], // 此消息使用的app key，如无特定则使用第0个key
+        .addr = addr,          // 此消息发往的目的地地址，例程为发往订阅地址，包括自己
+        .trans_cnt = 0x01,                // 此消息的用户层发送次数
+        .period = K_MSEC(400),            // 此消息重传的间隔，建议不小于(200+50*TTL)ms，若数据较大则建议加长
+        .rand = (0),                      // 此消息发送的随机延迟
+        .tid = vendor_srv_tid_get(),      // tid，每个独立消息递增循环，srv使用128~191
+        .send_ttl = BLE_MESH_TTL_DEFAULT, // ttl，无特定则使用默认值
+    };
+//    return vendor_message_srv_indicate(&param, pData, len);  // 调用自定义模型服务的有应答指示函数发送数据，默认超时2s
+    return vendor_message_srv_send_trans(&param, pData, len); // 或者调用自定义模型服务的透传函数发送数据，只发送，无应答机制
+}
+
+/*********************************************************************
  * @fn      keyPress
  *
  * @brief   按键回调
@@ -363,21 +443,14 @@ void keyPress(uint8_t keys)
     {
         default:
         {
-            uint8_t           status;
-            struct send_param param = {
-                .app_idx = vnd_models[0].keys[0], // 此消息使用的app key，如无特定则使用第0个key
-                .addr = 0x01,                     // 此消息发往的目的地地址，例程为发往配网发起者，默认地址为0x0001
-                .trans_cnt = 0x01,                // 此消息的用户层发送次数
-                .period = K_MSEC(400),            // 此消息重传的间隔，建议不小于(200+50*TTL)ms，若数据较大则建议加长
-                .rand = (0),                      // 此消息发送的随机延迟
-                .tid = vendor_srv_tid_get(),      // tid，每个独立消息递增循环，srv使用128~191
-                .send_ttl = BLE_MESH_TTL_DEFAULT, // ttl，无特定则使用默认值
-            };
+            uint8_t status;
             uint8_t data[8] = {0, 1, 2, 3, 4, 5, 6, 7};
-            //			status = vendor_message_srv_indicate(&param, data, 8);	// 调用自定义模型服务的有应答指示函数发送数据，默认超时2s
-            status = vendor_message_srv_send_trans(&param, data, 8); // 或者调用自定义模型服务的透传函数发送数据，只发送，无应答机制
+            // 发往配网者节点
+            status = vendor_model_srv_send(0x0001, data, 8);
             if(status)
-                APP_DBG("indicate failed %d", status);
+            {
+                APP_DBG("send failed %d", status);
+            }
             break;
         }
     }
@@ -549,6 +622,23 @@ static uint16_t App_ProcessEvent(uint8_t task_id, uint16_t events)
             tmos_start_task(App_TaskID, APP_LPN_ENABLE_EVT, 1600);
         }
         return (events ^ APP_LPN_ENABLE_EVT);
+    }
+
+    if(events & APP_DELETE_LOCAL_NODE_EVT)
+    {
+        // 收到删除命令，删除自身网络信息
+        APP_DBG("Delete local node");
+        // 复位自身网络状态
+        bt_mesh_reset();
+        return (events ^ APP_DELETE_LOCAL_NODE_EVT);
+    }
+
+    if(events & APP_DELETE_NODE_INFO_EVT)
+    {
+        // 删除已存储的被删除节点的信息
+        bt_mesh_delete_node_info(delete_node_info_address,app_comp.elem_count);
+        APP_DBG("Delete stored node info complete");
+        return (events ^ APP_DELETE_NODE_INFO_EVT);
     }
 
     // Discard unknown events

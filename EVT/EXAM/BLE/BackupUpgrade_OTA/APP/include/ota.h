@@ -47,7 +47,7 @@
 #define CMD_IAP_INFO           0x84               // IAP获取设备信息
 
 /* 数据帧长度定义 */
-#define IAP_LEN                20
+#define IAP_LEN                247
 
 /* 存放在DataFlash地址，不能占用蓝牙的位置 */
 #define OTA_DATAFLASH_ADD      0x00077000 - FLASH_ROM_MAX_SIZE

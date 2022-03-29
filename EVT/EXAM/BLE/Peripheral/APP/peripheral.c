@@ -681,7 +681,7 @@ static void peripheralChar4Notify(uint8_t *pValue, uint16_t len)
     attHandleValueNoti_t noti;
     if(len > (peripheralMTU - 3))
     {
-        printf("Too large noti\n");
+        PRINT("Too large noti\n");
         return;
     }
     noti.len = len;
