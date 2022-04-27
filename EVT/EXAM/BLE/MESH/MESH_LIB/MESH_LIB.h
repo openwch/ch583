@@ -1,8 +1,8 @@
 /********************************** (C) COPYRIGHT *******************************
  * File Name          : mesh_lib.h
  * Author             : WCH
- * Version            : V1.4
- * Date               : 2022/01/18
+ * Version            : V1.53
+ * Date               : 2022/04/25
  * Description        :
  * Copyright (c) 2021 Nanjing Qinheng Microelectronics Co., Ltd.
  *******************************************************************************/
@@ -118,7 +118,7 @@ typedef signed int ssize_t;
 #endif
 
 /******************************************************************************/
-#define  VER_MESH_FILE            "MESH_LIB_V1.5"
+#define  VER_MESH_FILE            "MESH_LIB_V1.53"
 extern const uint8_t VER_MESH_LIB[];
 
 // Global_Error_Code
@@ -3529,6 +3529,18 @@ void bt_mesh_reset( void );
  * @brief Initialize mesh ECC.
  */
 void ble_sm_alg_ecc_init( void );
+
+/**
+ * @brief Get iv index.
+ */
+uint32_t bt_mesh_iv_index_get( void );
+
+/**
+ * @brief Get key refresh and IV update flag of net.
+ *
+ * @param[in] net_idx   Net index
+ */
+uint8_t bt_mesh_net_flags_get( uint16_t net_idx );
 
 /******************************************************************************/
 
