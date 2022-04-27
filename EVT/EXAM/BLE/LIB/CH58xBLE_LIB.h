@@ -699,7 +699,7 @@ extern const uint8_t VER_LIB[];  // LIB version
 #define GAP_BOND_COMPLETE_EVENT                 0x0E //!< Sent when the bonding process is complete. This event is sent as an tmos message defined as gapBondCompleteEvent_t.
 #define GAP_PAIRING_REQ_EVENT                   0x0F //!< Sent when an unexpected Pairing Request is received. This event is sent as an tmos message defined as gapPairingReqEvent_t.
 #define GAP_DIRECT_DEVICE_INFO_EVENT            0x10 //!< Sent when a direct Advertising Data is received. This event is sent as an tmos message defined as gapDirectDeviceInfoEvent_t.
-#define GAP_PHY_UPDATE_EVENT                    0x11 //!< Sent when a PHY Update Event is received. This event is sent as an tmos message defined as gapPhyUpdateEvent_t.
+#define GAP_PHY_UPDATE_EVENT                    0x11 //!< Sent when a PHY Update Event is received. This event is sent as an tmos message defined as gapLinkUpdateEvent_t.
 #define GAP_EXT_ADV_DEVICE_INFO_EVENT           0x12 //!< Sent when a Extended Advertising Data is received. This event is sent as an tmos message defined as gapExtAdvDeviceInfoEvent_t.
 #define GAP_MAKE_PERIODIC_ADV_DONE_EVENT        0x13 //!< Sent when the Set Periodic Advertising enable is complete. This event is sent as an tmos message defined as gapMakePeriodicRspEvent_t.
 #define GAP_END_PERIODIC_ADV_DONE_EVENT         0x14 //!< Sent when the Set Periodic Advertising disable is complete. This event is sent as an tmos message defined as gapEndPeriodicRspEvent_t.
