@@ -165,6 +165,14 @@ void Calibration_LSI(Cali_LevelTypeDef cali_Lv)
     SAFEOPERATE;
     R8_OSC_CAL_CTRL |= RB_OSC_CNT_EN;
     R16_OSC_CAL_CNT |= RB_OSC_CAL_OV_CLR;
+    while( (R8_OSC_CAL_CTRL&RB_OSC_CNT_EN)!= RB_OSC_CNT_EN )
+    {
+        R8_SAFE_ACCESS_SIG = SAFE_ACCESS_SIG1;
+        R8_SAFE_ACCESS_SIG = SAFE_ACCESS_SIG2;
+        SAFEOPERATE;
+        R8_OSC_CAL_CTRL |= RB_OSC_CNT_EN;
+        PRINT("R8_OSC_CAL_CTRL %x\n",R8_OSC_CAL_CTRL&RB_OSC_CNT_EN);
+    }
     while(1)
     {
         while(!(R8_OSC_CAL_CTRL & RB_OSC_CNT_HALT));

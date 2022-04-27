@@ -82,11 +82,22 @@ void SetSysClock(SYS_CLKTypeDef sc)
         __nop();
         __nop();
         R8_SAFE_ACCESS_SIG = 0;
-        R8_SAFE_ACCESS_SIG = SAFE_ACCESS_SIG1;
-        R8_SAFE_ACCESS_SIG = SAFE_ACCESS_SIG2;
-        SAFEOPERATE;
-        R8_FLASH_CFG = 0X52;
-        R8_SAFE_ACCESS_SIG = 0;
+        if(sc == CLK_SOURCE_PLL_80MHz)
+        {
+            R8_SAFE_ACCESS_SIG = SAFE_ACCESS_SIG1;
+            R8_SAFE_ACCESS_SIG = SAFE_ACCESS_SIG2;
+            SAFEOPERATE;
+            R8_FLASH_CFG = 0X02;
+            R8_SAFE_ACCESS_SIG = 0;
+        }
+        else
+        {
+            R8_SAFE_ACCESS_SIG = SAFE_ACCESS_SIG1;
+            R8_SAFE_ACCESS_SIG = SAFE_ACCESS_SIG2;
+            SAFEOPERATE;
+            R8_FLASH_CFG = 0X52;
+            R8_SAFE_ACCESS_SIG = 0;
+        }
     }
     else
     {
