@@ -20,6 +20,7 @@
 const ble_mesh_cfg_t app_mesh_cfg = {
     .common_cfg.adv_buf_count = CONFIG_MESH_ADV_BUF_COUNT_DEF,
     .common_cfg.rpl_count = CONFIG_MESH_RPL_COUNT_DEF,
+    .common_cfg.allow_rpl_cycle = CONFIG_MESH_ALLOW_RPL_CYCLE,
     .common_cfg.allow_same_addr = CONFIG_MESH_ALLOW_SAME_ADDR,
     .common_cfg.ivu_divider = CONFIG_MESH_IVU_DIVIDER_DEF,
     .common_cfg.mod_key_count = CONFIG_MESH_MOD_KEY_COUNT_DEF,
@@ -143,7 +144,7 @@ const struct device app_dev = {
     .info = {
         .nvs_sector_cnt = CONFIG_MESH_SECTOR_COUNT_DEF,
         .nvs_write_size = sizeof(int),
-        .nvs_sector_size = 512,
+        .nvs_sector_size = CONFIG_MESH_SECTOR_SIZE_DEF,
         .nvs_store_baddr = CONFIG_MESH_NVS_ADDR_DEF,
     },
 };

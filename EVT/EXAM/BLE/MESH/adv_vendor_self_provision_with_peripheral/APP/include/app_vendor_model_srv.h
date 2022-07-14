@@ -164,30 +164,6 @@ extern const struct bt_mesh_model_cb bt_mesh_vendor_model_srv_cb;
 extern const struct bt_mesh_model_op vnd_model_srv_op[];
 
 /**
- * @brief   读取led状态
- *
- * @param   led_pin - 引脚
- *
- * @return  led状态
- */
-BOOL read_led_state(uint32_t led_pin);
-
-/**
- * @brief   设置led状态
- *
- * @param   led_pin - 引脚
- * @param   on      - 状态
- */
-void set_led_state(uint32_t led_pin, BOOL on);
-
-/**
- * @brief   翻转led状态
- *
- * @param   led_pin - 引脚
- */
-void toggle_led_state(uint32_t led_pin);
-
-/**
  * @brief   indicate,有应答传输数据通道
  *
  * @param   param   - 发送参数.

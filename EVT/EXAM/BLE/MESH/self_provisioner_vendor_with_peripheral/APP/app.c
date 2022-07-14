@@ -80,6 +80,7 @@ static void unprov_recv(bt_mesh_prov_bearer_t bearer,
                         const uint8_t uuid[16], bt_mesh_prov_oob_info_t oob_info,
                         const unprivison_info_t *info);
 static void node_added(uint16_t net_idx, uint16_t addr, uint8_t num_elem);
+static node_t *node_get(uint16_t node_addr);
 static void cfg_cli_rsp_handler(const cfg_cli_status_t *val);
 static void vendor_model_cli_rsp_handler(const vendor_model_cli_status_t *val);
 static int  vendor_model_cli_send(uint16_t addr, uint8_t *pData, uint16_t len);
@@ -89,7 +90,7 @@ static struct bt_mesh_cfg_srv cfg_srv = {
 #if(CONFIG_BLE_MESH_RELAY)
     .relay = BLE_MESH_RELAY_ENABLED,
 #endif
-    .beacon = BLE_MESH_BEACON_DISABLED,
+    .beacon = BLE_MESH_BEACON_ENABLED,
 #if(CONFIG_BLE_MESH_FRIEND)
     .frnd = BLE_MESH_FRIEND_ENABLED,
 #endif
@@ -178,6 +179,7 @@ node_t app_nodes[1 + CONFIG_MESH_PROV_NODE_COUNT_DEF] = {0};
 app_mesh_manage_t app_mesh_manage;
 
 uint16_t reset_node_addr = BLE_MESH_ADDR_UNASSIGNED;
+uint8_t settings_load_over = FALSE;
 /*********************************************************************
  * GLOBAL TYPEDEFS
  */
@@ -286,6 +288,13 @@ static BOOL node_work_handler(void)
     if(node->retry_cnt-- == 0)
     {
         APP_DBG("Ran Out of Retransmit");
+        // 如果配置失败则删除节点
+        bt_mesh_node_del_by_addr(node->node_addr);
+        node = node_get(node->node_addr);
+        node->stage.node = NODE_INIT;
+        node->node_addr = BLE_MESH_ADDR_UNASSIGNED;
+        node->fixed = FALSE;
+        APP_DBG("Delete node complete");
         goto unblock;
     }
 
@@ -294,9 +303,9 @@ static BOOL node_work_handler(void)
         return FALSE;
     }
 
-unblock:
-
     node->fixed = TRUE;
+
+unblock:
 
     node = node_block_get();
     if(node)
@@ -421,7 +430,7 @@ static node_t *node_cfg_process(node_t *node, uint16_t net_idx, uint16_t addr, u
 
     if(!node->blocked)
     {
-        tmos_set_event(App_TaskID, APP_NODE_EVT);
+        tmos_start_task(App_TaskID, APP_NODE_EVT, 1600);
     }
     return node;
 }
@@ -438,7 +447,7 @@ static node_t *node_cfg_process(node_t *node, uint16_t net_idx, uint16_t addr, u
  */
 static void node_stage_set(node_t *node, node_stage_t new_stage)
 {
-    node->retry_cnt = 3;
+    node->retry_cnt = 5;
     node->stage.node = new_stage;
 }
 
@@ -668,7 +677,15 @@ static void prov_complete(uint16_t net_idx, uint16_t addr, uint8_t flags, uint32
         }
 
         node->cb = &local_cfg_cb;
-        local_stage_set(node, LOCAL_APPKEY_ADD);
+        // 判断当前是否已加载完成，如果还在加载中则说明上次运行已配置，直接认为已完成
+        if( settings_load_over )
+        {
+            local_stage_set(node, LOCAL_APPKEY_ADD);
+        }
+        else
+        {
+            local_stage_set(node, LOCAL_CONFIGURATIONED);
+        }
     }
 }
 
@@ -728,7 +745,15 @@ static void node_added(uint16_t net_idx, uint16_t addr, uint8_t num_elem)
         }
 
         node->cb = &node_cfg_cb;
-        node_stage_set(node, NODE_APPKEY_ADD);
+        // 判断当前是否已加载完成，如果还在加载中则说明上次运行已配置，直接认为已完成
+        if( settings_load_over )
+        {
+            node_stage_set(node, NODE_APPKEY_ADD);
+        }
+        else
+        {
+            node_stage_set(node, NODE_CONFIGURATIONED);
+        }
     }
 }
 
@@ -836,7 +861,7 @@ static void vendor_model_cli_rsp_handler(const vendor_model_cli_status_t *val)
                 val->vendor_model_cli_Event.ind.pdata[0],
                 val->vendor_model_cli_Event.ind.addr);
         // 转发给主机(如果已连接)
-        peripheralChar4Notify(val->vendor_model_cli_Event.trans.pdata, val->vendor_model_cli_Event.trans.len);
+        peripheralChar4Notify(val->vendor_model_cli_Event.ind.pdata, val->vendor_model_cli_Event.trans.len);
     }
     else if(val->vendor_model_cli_Hdr.opcode == OP_VENDOR_MESSAGE_TRANSPARENT_WRT)
     {
@@ -1052,6 +1077,7 @@ void blemesh_on_sync(void)
 
 #if(CONFIG_BLE_MESH_SETTINGS)
     settings_load();
+    settings_load_over = TRUE;
 #endif /* SETTINGS */
 
     if(bt_mesh_is_provisioned())

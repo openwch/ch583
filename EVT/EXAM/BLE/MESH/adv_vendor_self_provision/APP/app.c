@@ -85,7 +85,7 @@ static void prov_reset(void);
 
 static struct bt_mesh_cfg_srv cfg_srv = {
     .relay = BLE_MESH_RELAY_ENABLED,
-    .beacon = BLE_MESH_BEACON_DISABLED,
+    .beacon = BLE_MESH_BEACON_ENABLED,
 #if(CONFIG_BLE_MESH_FRIEND)
     .frnd = BLE_MESH_FRIEND_ENABLED,
 #endif
@@ -547,7 +547,7 @@ void keyPress(uint8_t keys)
         default:
         {
             // 向订阅地址发送数据
-            if(0)
+            if(1)
             {
                 int status;
                 uint8_t data[8] = {0, 1, 2, 3, 4, 5, 6, 7};
@@ -558,7 +558,7 @@ void keyPress(uint8_t keys)
                 }
             }
             // 发送删除节点命令,通过应用层自定协议删除，这里假设删除地址为0x0002的节点
-            if(1)
+            if(0)
             {
                 int status;
                 uint16_t delete_addr = 0x0002;

@@ -45,6 +45,9 @@ extern "C" {
 #define CONFIG_MESH_RPL_COUNT_DEF              (20)
 #define CONFIG_MESH_RPL_COUNT_MAX              (128)
 
+// RPL缓存循环使用，开启后网络中节点数量不受RPL限制，但NVS将不存储RPL数据
+#define CONFIG_MESH_ALLOW_RPL_CYCLE            (FALSE)
+
 // IV Update State Timer 基于96H的分频系数
 #define CONFIG_MESH_IVU_DIVIDER_MIN            (1)
 #define CONFIG_MESH_IVU_DIVIDER_DEF            (96)
@@ -117,6 +120,9 @@ extern "C" {
 #define CONFIG_MESH_SECTOR_COUNT_MIN           (2)
 #define CONFIG_MESH_SECTOR_COUNT_DEF           (3)
 
+// NVS存储扇区大小
+#define CONFIG_MESH_SECTOR_SIZE_DEF            (4096)
+
 // NVS存储首地址
 #define CONFIG_MESH_NVS_ADDR_DEF               (0)
 
@@ -186,8 +192,7 @@ extern "C" {
 #define CONFIG_MESH_RETRY_TIMEOUT_MAX          (60)
 
 // 配网发起者支持的配网设备节点个数
-#define CONFIG_MESH_PROV_NODE_COUNT_MIN        (1)
-#define CONFIG_MESH_PROV_NODE_COUNT_DEF        (2)
+#define CONFIG_MESH_PROV_NODE_COUNT_DEF        (0)
 
 // ADV_RF配置
 #define CONFIG_MESH_RF_ACCESSADDRESS           (0x8E89BED6)

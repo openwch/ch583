@@ -58,7 +58,7 @@ static const uint8_t self_prov_app_key[16] = {
 /*  The key indexes are 12-bit values ranging from 0x000 to 0xFFF
     inclusive. A network key at index 0x000 is called the primary NetKey*/
 const uint16_t self_prov_net_idx = 0x0000;      // 自配网所用的net key
-const uint16_t self_prov_app_idx = 0x0000;      // 自配网所用的app key
+const uint16_t self_prov_app_idx = 0x0001;      // 自配网所用的app key
 const uint32_t self_prov_iv_index = 0x00000000; // 自配网的iv_index
 const uint16_t self_prov_addr = 0x0001;         // 自配网的自身主元素地址
 const uint8_t  self_prov_flags = 0x00;          // 是否处于key更新状态，默认为否
@@ -79,6 +79,7 @@ static void unprov_recv(bt_mesh_prov_bearer_t bearer,
                         const uint8_t uuid[16], bt_mesh_prov_oob_info_t oob_info,
                         const unprivison_info_t *info);
 static void node_added(uint16_t net_idx, uint16_t addr, uint8_t num_elem);
+static node_t *node_get(uint16_t node_addr);
 static void cfg_cli_rsp_handler(const cfg_cli_status_t *val);
 static void vendor_model_cli_rsp_handler(const vendor_model_cli_status_t *val);
 static int  vendor_model_cli_send(uint16_t addr, uint8_t *pData, uint16_t len);
@@ -88,7 +89,7 @@ static struct bt_mesh_cfg_srv cfg_srv = {
 #if(CONFIG_BLE_MESH_RELAY)
     .relay = BLE_MESH_RELAY_ENABLED,
 #endif
-    .beacon = BLE_MESH_BEACON_DISABLED,
+    .beacon = BLE_MESH_BEACON_ENABLED,
 #if(CONFIG_BLE_MESH_FRIEND)
     .frnd = BLE_MESH_FRIEND_ENABLED,
 #endif
@@ -174,7 +175,10 @@ static const struct bt_mesh_prov app_prov = {
 // 配网者管理的节点，第0个为自己，第1，2依次为配网顺序的节点
 node_t app_nodes[1 + CONFIG_MESH_PROV_NODE_COUNT_DEF] = {0};
 
+app_mesh_manage_t app_mesh_manage;
+
 uint16_t reset_node_addr = BLE_MESH_ADDR_UNASSIGNED;
+uint8_t settings_load_over = FALSE;
 /*********************************************************************
  * GLOBAL TYPEDEFS
  */
@@ -283,6 +287,13 @@ static BOOL node_work_handler(void)
     if(node->retry_cnt-- == 0)
     {
         APP_DBG("Ran Out of Retransmit");
+        // 如果配置失败则删除节点
+        bt_mesh_node_del_by_addr(node->node_addr);
+        node = node_get(node->node_addr);
+        node->stage.node = NODE_INIT;
+        node->node_addr = BLE_MESH_ADDR_UNASSIGNED;
+        node->fixed = FALSE;
+        APP_DBG("Delete node complete");
         goto unblock;
     }
 
@@ -291,9 +302,9 @@ static BOOL node_work_handler(void)
         return FALSE;
     }
 
-unblock:
-
     node->fixed = TRUE;
+
+unblock:
 
     node = node_block_get();
     if(node)
@@ -418,7 +429,7 @@ static node_t *node_cfg_process(node_t *node, uint16_t net_idx, uint16_t addr, u
 
     if(!node->blocked)
     {
-        tmos_set_event(App_TaskID, APP_NODE_EVT);
+        tmos_start_task(App_TaskID, APP_NODE_EVT, 1600);
     }
     return node;
 }
@@ -435,7 +446,7 @@ static node_t *node_cfg_process(node_t *node, uint16_t net_idx, uint16_t addr, u
  */
 static void node_stage_set(node_t *node, node_stage_t new_stage)
 {
-    node->retry_cnt = 3;
+    node->retry_cnt = 5;
     node->stage.node = new_stage;
 }
 
@@ -665,7 +676,15 @@ static void prov_complete(uint16_t net_idx, uint16_t addr, uint8_t flags, uint32
         }
 
         node->cb = &local_cfg_cb;
-        local_stage_set(node, LOCAL_APPKEY_ADD);
+        // 判断当前是否已加载完成，如果还在加载中则说明上次运行已配置，直接认为已完成
+        if( settings_load_over )
+        {
+            local_stage_set(node, LOCAL_APPKEY_ADD);
+        }
+        else
+        {
+            local_stage_set(node, LOCAL_CONFIGURATIONED);
+        }
     }
 }
 
@@ -725,7 +744,15 @@ static void node_added(uint16_t net_idx, uint16_t addr, uint8_t num_elem)
         }
 
         node->cb = &node_cfg_cb;
-        node_stage_set(node, NODE_APPKEY_ADD);
+        // 判断当前是否已加载完成，如果还在加载中则说明上次运行已配置，直接认为已完成
+        if( settings_load_over )
+        {
+            node_stage_set(node, NODE_APPKEY_ADD);
+        }
+        else
+        {
+            node_stage_set(node, NODE_CONFIGURATIONED);
+        }
     }
 }
 
@@ -801,19 +828,27 @@ static void vendor_model_cli_rsp_handler(const vendor_model_cli_status_t *val)
         APP_DBG("trans len %d, data 0x%02x from 0x%04x", val->vendor_model_cli_Event.trans.len,
                 val->vendor_model_cli_Event.trans.pdata[0],
                 val->vendor_model_cli_Event.trans.addr);
-        // 判断是否为应用层自定义删除应答命令
-        if((val->vendor_model_cli_Event.trans.len == 2) &&
-           (val->vendor_model_cli_Event.trans.pdata[0] == 0xAA) &&
-           (val->vendor_model_cli_Event.trans.pdata[1] == 0x55))
+        tmos_memcpy(&app_mesh_manage, val->vendor_model_cli_Event.trans.pdata, val->vendor_model_cli_Event.trans.len);
+        switch(app_mesh_manage.data.buf[0])
         {
-            node_t *node;
-            tmos_stop_task(App_TaskID, APP_DELETE_NODE_TIMEOUT_EVT);
-            bt_mesh_node_del_by_addr(reset_node_addr);
-            node = node_get(reset_node_addr);
-            node->stage.node = NODE_INIT;
-            node->node_addr = BLE_MESH_ADDR_UNASSIGNED;
-            node->fixed = FALSE;
-            APP_DBG("Delete node complete");
+            // 判断是否为应用层自定义删除命令应答
+            case CMD_DELETE_NODE_ACK:
+            {
+                if(val->vendor_model_cli_Event.trans.len != DELETE_NODE_ACK_DATA_LEN)
+                {
+                    APP_DBG("Delete node ack data err!");
+                    return;
+                }
+                node_t *node;
+                tmos_stop_task(App_TaskID, APP_DELETE_NODE_TIMEOUT_EVT);
+                bt_mesh_node_del_by_addr(val->vendor_model_cli_Event.trans.addr);
+                node = node_get(val->vendor_model_cli_Event.trans.addr);
+                node->stage.node = NODE_INIT;
+                node->node_addr = BLE_MESH_ADDR_UNASSIGNED;
+                node->fixed = FALSE;
+                APP_DBG("Delete node complete");
+                break;
+            }
         }
     }
     else if(val->vendor_model_cli_Hdr.opcode == OP_VENDOR_MESSAGE_TRANSPARENT_IND)
@@ -876,7 +911,7 @@ void keyPress(uint8_t keys)
     {
         default:
         {
-            if(1)
+            if(0)
             {
                 // 发送数据
                 if(app_nodes[1].node_addr)
@@ -891,14 +926,14 @@ void keyPress(uint8_t keys)
                     }
                 }
             }
-            if(0)
+            if(1)
             {
                 // 删除节点，可以通过协议栈写好的命令删除，也可以通过应用层自定协议删除
                 if(app_nodes[1].node_addr)
                 {
                     uint8_t status;
                     APP_DBG("node1_addr %x", app_nodes[1].node_addr);
-                    if(1)
+                    if(0)
                     {
                         // 通过协议栈写好的命令删除
                         status = bt_mesh_cfg_node_reset(self_prov_net_idx, app_nodes[1].node_addr);
@@ -911,14 +946,16 @@ void keyPress(uint8_t keys)
                             reset_node_addr = app_nodes[1].node_addr;
                         }
                     }
-                    if(0)
+                    if(1)
                     {
-                        // 通过应用层自定协议删除，演示删除命令为0x55 0xAA，删除命令应答为0xAA 0x55
-                        uint8_t data[2] = {0x55,0xAA};
-                        status = vendor_model_cli_send(app_nodes[1].node_addr, data, 2);
+                        // 通过应用层自定协议删除
+                        app_mesh_manage.delete_node.cmd = CMD_DELETE_NODE;
+                        app_mesh_manage.delete_node.addr[0] = app_nodes[1].node_addr&0xFF;
+                        app_mesh_manage.delete_node.addr[1] = (app_nodes[1].node_addr>>8)&0xFF;
+                        status = vendor_model_cli_send(app_nodes[1].node_addr, app_mesh_manage.data.buf, DELETE_NODE_DATA_LEN);
                         if(status)
                         {
-                            APP_DBG("reset failed %d", status);
+                            APP_DBG("delete failed %d", status);
                         }
                         else
                         {
@@ -1035,6 +1072,7 @@ void blemesh_on_sync(void)
 
 #if(CONFIG_BLE_MESH_SETTINGS)
     settings_load();
+    settings_load_over = TRUE;
 #endif /* SETTINGS */
 
     if(bt_mesh_is_provisioned())

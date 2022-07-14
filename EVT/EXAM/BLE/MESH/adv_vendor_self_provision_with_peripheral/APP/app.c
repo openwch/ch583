@@ -15,6 +15,7 @@
 #include "app.h"
 #include "peripheral.h"
 #include "HAL.h"
+#include "app_trans_process.h"
 
 /*********************************************************************
  * GLOBAL TYPEDEFS
@@ -24,6 +25,9 @@
 #define SELENCE_ADV_ON    0x01
 #define SELENCE_ADV_OF    0x00
 
+// 命令超时设置，如果有低功耗节点，则不能小于低功耗节点唤醒间隔（默认10s）
+#define APP_CMD_TIMEOUT               1600*10
+
 #define APP_DELETE_LOCAL_NODE_DELAY   3200
 // shall not less than APP_DELETE_LOCAL_NODE_DELAY
 #define APP_DELETE_NODE_INFO_DELAY    3200
@@ -31,7 +35,7 @@
  * GLOBAL TYPEDEFS
  */
 
-static uint8_t MESH_MEM[1024 * 2] = {0};
+static uint8_t MESH_MEM[1024 * 3] = {0};
 
 extern const ble_mesh_cfg_t app_mesh_cfg;
 extern const struct device  app_dev;
@@ -57,12 +61,14 @@ static uint8_t self_prov_app_key[16] = {
 
 const uint16_t self_prov_net_idx = 0x0000;      // 自配网所用的net key
 const uint16_t self_prov_app_idx = 0x0001;      // 自配网所用的app key
-const uint32_t self_prov_iv_index = 0x00000000; // 自配网的iv_index
+uint32_t self_prov_iv_index = 0x00000000; // 自配网的iv_index，默认为0
 uint16_t self_prov_addr = 0;         // 自配网的自身主元素地址
-const uint8_t  self_prov_flags = 0x00;          // 是否处于key更新状态，默认为否
-uint16_t vendor_sub_addr = 0xC001;        // 配置自定义模型的订阅group地址
+uint8_t  self_prov_flags = 0x00;          // 是否处于key更新状态，默认为否
 
-uint16_t delete_node_info_address=0;
+uint16_t delete_node_address=0;
+uint16_t ask_status_node_address=0;
+uint16_t ota_update_node_address=0;
+uint16_t set_sub_node_address=0;
 
 #if(!CONFIG_BLE_MESH_PB_GATT)
 NET_BUF_SIMPLE_DEFINE_STATIC(rx_buf, 65);
@@ -80,10 +86,12 @@ static void cfg_cli_rsp_handler(const cfg_cli_status_t *val);
 static void vendor_model_srv_rsp_handler(const vendor_model_srv_status_t *val);
 static int  vendor_model_srv_send(uint16_t addr, uint8_t *pData, uint16_t len);
 static void prov_reset(void);
+void App_trans_model_reveived(uint8_t *pValue, uint16_t len, uint16_t addr );
+
 
 static struct bt_mesh_cfg_srv cfg_srv = {
     .relay = BLE_MESH_RELAY_ENABLED,
-    .beacon = BLE_MESH_BEACON_DISABLED,
+    .beacon = BLE_MESH_BEACON_ENABLED,
 #if(CONFIG_BLE_MESH_FRIEND)
     .frnd = BLE_MESH_FRIEND_ENABLED,
 #endif
@@ -188,6 +196,10 @@ static const struct bt_mesh_prov app_prov = {
 node_t app_nodes[1] = {0};
 
 app_mesh_manage_t app_mesh_manage;
+
+/* flash的数据临时存储 */
+__attribute__((aligned(8))) uint8_t block_buf[16];
+
 /*********************************************************************
  * GLOBAL TYPEDEFS
  */
@@ -293,6 +305,8 @@ static void prov_complete(uint16_t net_idx, uint16_t addr, uint8_t flags, uint32
         APP_DBG("Unable allocate node object");
         return;
     }
+    set_led_state(LED_PIN, TRUE);
+    Peripheral_AdvertData_Privisioned(TRUE);
 
     // 如果未配置过网络信息，则退出回调后，执行配置本地网络信息流程
     if( vnd_models[0].keys[0] == BLE_MESH_KEY_UNUSED )
@@ -312,7 +326,28 @@ static void prov_complete(uint16_t net_idx, uint16_t addr, uint8_t flags, uint32
  */
 static void prov_reset(void)
 {
+    if( app_mesh_manage.local_reset.cmd == CMD_LOCAL_RESET )
+    {
+        app_mesh_manage.local_reset_ack.cmd = CMD_LOCAL_RESET_ACK;
+        app_mesh_manage.local_reset_ack.status = STATUS_SUCCESS;
+        // 通知主机(如果已连接)
+        peripheralChar4Notify(app_mesh_manage.data.buf, LOCAL_RESET_ACK_DATA_LEN);
+    }
+    Peripheral_TerminateLink();
+    self_prov_iv_index = 0x00000000;
+    self_prov_addr = 0;
+    self_prov_flags = 0x00;
+    delete_node_address=0;
+    ask_status_node_address=0;
+    ota_update_node_address=0;
+    set_sub_node_address=0;
+    set_led_state(LED_PIN, FALSE);
+    Peripheral_AdvertData_Privisioned(FALSE);
     APP_DBG("Waiting for privisioning data");
+#if(CONFIG_BLE_MESH_LOW_POWER)
+    bt_mesh_lpn_set(FALSE);
+    APP_DBG("Low power disable");
+#endif /* LPN */
 }
 
 /*********************************************************************
@@ -339,12 +374,37 @@ static void cfg_local_net_info(void)
     vnd_models[0].keys[0] = (uint16_t)self_prov_app_idx;
     bt_mesh_store_mod_bind(&vnd_models[0]);
     APP_DBG("lcoal app key binded");
-    // 本地添加订阅地址
-    vnd_models[0].groups[0] = (uint16_t)vendor_sub_addr;
-    bt_mesh_store_mod_sub(&vnd_models[0]);
-    APP_DBG("lcoal sub addr added");
+#if(CONFIG_BLE_MESH_LOW_POWER)
+    bt_mesh_lpn_set(TRUE);
+    APP_DBG("Low power enable");
+#endif /* LPN */
+
 }
 
+/*********************************************************************
+ * @fn      App_model_find_group
+ *
+ * @brief   在模型的订阅地址中查询对应的地址
+ *
+ * @param   mod     - 指向对应模型
+ * @param   addr    - 订阅地址
+ *
+ * @return  查到的订阅地址指针
+ */
+static uint16_t *App_model_find_group(struct bt_mesh_model *mod, u16_t addr)
+{
+    int i;
+
+    for (i = 0; i < CONFIG_MESH_MOD_GROUP_COUNT_DEF; i++)
+    {
+        if (mod->groups[i] == addr)
+        {
+            return &mod->groups[i];
+        }
+    }
+
+    return NULL;
+}
 /*********************************************************************
  * @fn      cfg_srv_rsp_handler
  *
@@ -422,67 +482,10 @@ static void vendor_model_srv_rsp_handler(const vendor_model_srv_status_t *val)
         APP_DBG("len %d, data 0x%02x from 0x%04x", val->vendor_model_srv_Event.trans.len,
                 val->vendor_model_srv_Event.trans.pdata[0],
                 val->vendor_model_srv_Event.trans.addr);
-        tmos_memcpy(&app_mesh_manage, val->vendor_model_srv_Event.trans.pdata, val->vendor_model_srv_Event.trans.len);
-        switch(app_mesh_manage.data.buf[0])
-        {
-            // 判断是否为删除命令
-            case CMD_DELETE_NODE:
-            {
-                if(val->vendor_model_srv_Event.trans.len != DELETE_NODE_DATA_LEN)
-                {
-                    APP_DBG("Delete node data err!");
-                    return;
-                }
-                uint8_t status;
-                APP_DBG("receive delete cmd, send ack and start delete node delay");
-                app_mesh_manage.delete_node_ack.cmd = CMD_DELETE_NODE_ACK;
-                status = vendor_model_srv_send(val->vendor_model_srv_Event.trans.addr,
-                                                app_mesh_manage.data.buf, DELETE_NODE_ACK_DATA_LEN);
-                if(status)
-                {
-                    APP_DBG("send ack failed %d", status);
-                }
-                // 即将删除自身，先发送CMD_DELETE_NODE_INFO命令
-                APP_DBG("send to all node to let them delete stored info ");
-                app_mesh_manage.delete_node_info.cmd = CMD_DELETE_NODE_INFO;
-                status = vendor_model_srv_send(BLE_MESH_ADDR_ALL_NODES,
-                                                app_mesh_manage.data.buf, DELETE_NODE_INFO_DATA_LEN);
-                if(status)
-                {
-                    APP_DBG("send ack failed %d", status);
-                }
-                tmos_start_task(App_TaskID, APP_DELETE_LOCAL_NODE_EVT, APP_DELETE_LOCAL_NODE_DELAY);
-                break;
-            }
-
-            // 判断是否为应用层自定义删除命令应答
-            case CMD_DELETE_NODE_ACK:
-            {
-                if(val->vendor_model_srv_Event.trans.len != DELETE_NODE_ACK_DATA_LEN)
-                {
-                    APP_DBG("Delete node ack data err!");
-                    return;
-                }
-                tmos_stop_task(App_TaskID, APP_DELETE_NODE_TIMEOUT_EVT);
-                APP_DBG("Delete node complete");
-                break;
-            }
-
-            // 判断是否为有节点被删除，需要删除存储的节点信息
-            case CMD_DELETE_NODE_INFO:
-            {
-                if(val->vendor_model_srv_Event.trans.len != DELETE_NODE_INFO_DATA_LEN)
-                {
-                    APP_DBG("Delete node info data err!");
-                    return;
-                }
-                delete_node_info_address = val->vendor_model_srv_Event.trans.addr;
-                tmos_start_task(App_TaskID, APP_DELETE_NODE_INFO_EVT, APP_DELETE_NODE_INFO_DELAY);
-                break;
-            }
-        }
-        // 转发给主机(如果已连接)
-        peripheralChar4Notify(val->vendor_model_srv_Event.trans.pdata, val->vendor_model_srv_Event.trans.len);
+        App_trans_model_reveived(val->vendor_model_srv_Event.trans.pdata, val->vendor_model_srv_Event.trans.len,
+            val->vendor_model_srv_Event.trans.addr );
+//        // 转发给主机(如果已连接)
+//        peripheralChar4Notify(val->vendor_model_srv_Event.trans.pdata, val->vendor_model_srv_Event.trans.len);
     }
     else if(val->vendor_model_srv_Hdr.opcode == OP_VENDOR_MESSAGE_TRANSPARENT_WRT)
     {
@@ -490,8 +493,8 @@ static void vendor_model_srv_rsp_handler(const vendor_model_srv_status_t *val)
         APP_DBG("len %d, data 0x%02x from 0x%04x", val->vendor_model_srv_Event.write.len,
                 val->vendor_model_srv_Event.write.pdata[0],
                 val->vendor_model_srv_Event.write.addr);
-        // 转发给主机(如果已连接)
-        peripheralChar4Notify(val->vendor_model_srv_Event.write.pdata, val->vendor_model_srv_Event.write.len);
+//        // 转发给主机(如果已连接)
+//        peripheralChar4Notify(val->vendor_model_srv_Event.write.pdata, val->vendor_model_srv_Event.write.len);
     }
     else if(val->vendor_model_srv_Hdr.opcode == OP_VENDOR_MESSAGE_TRANSPARENT_IND)
     {
@@ -519,13 +522,14 @@ static int vendor_model_srv_send(uint16_t addr, uint8_t *pData, uint16_t len)
     struct send_param param = {
         .app_idx = vnd_models[0].keys[0], // 此消息使用的app key，如无特定则使用第0个key
         .addr = addr,          // 此消息发往的目的地地址，例程为发往订阅地址，包括自己
-        .trans_cnt = 0x01,                // 此消息的用户层发送次数
-        .period = K_MSEC(400),            // 此消息重传的间隔，建议不小于(200+50*TTL)ms，若数据较大则建议加长
+        .trans_cnt = 0x05,                // 此消息的用户层发送次数
+        .period = K_MSEC(500),            // 此消息重传的间隔，建议不小于(200+50*TTL)ms，若数据较大则建议加长
         .rand = (0),                      // 此消息发送的随机延迟
         .tid = vendor_srv_tid_get(),      // tid，每个独立消息递增循环，srv使用128~191
         .send_ttl = BLE_MESH_TTL_DEFAULT, // ttl，无特定则使用默认值
     };
 //    return vendor_message_srv_indicate(&param, pData, len);  // 调用自定义模型服务的有应答指示函数发送数据，默认超时2s
+    vendor_message_srv_trans_reset();
     return vendor_message_srv_send_trans(&param, pData, len); // 或者调用自定义模型服务的透传函数发送数据，只发送，无应答机制
 }
 
@@ -548,7 +552,7 @@ void keyPress(uint8_t keys)
         {
             uint8_t status;
             uint8_t data[8] = {0, 1, 2, 3, 4, 5, 6, 7};
-            status = vendor_model_srv_send(vendor_sub_addr, data, 8);
+            status = vendor_model_srv_send(BLE_MESH_ADDR_ALL_NODES, data, 8);
             if(status)
             {
                 APP_DBG("send failed %d", status);
@@ -557,6 +561,61 @@ void keyPress(uint8_t keys)
         }
     }
 }
+
+#if(CONFIG_BLE_MESH_FRIEND)
+/*********************************************************************
+ * @fn      friend_state
+ *
+ * @brief   朋友关系建立回调
+ *
+ * @param   lpn_addr    - 低功耗节点的网络地址
+ * @param   state       - 回调状态
+ *
+ * @return  none
+ */
+static void friend_state(uint16_t lpn_addr, uint8_t state)
+{
+    if(state == FRIEND_FRIENDSHIP_ESTABLISHED)
+    {
+        APP_DBG("friend friendship established, lpn addr 0x%04x", lpn_addr);
+    }
+    else if(state == FRIEND_FRIENDSHIP_TERMINATED)
+    {
+        APP_DBG("friend friendship terminated, lpn addr 0x%04x", lpn_addr);
+    }
+    else
+    {
+        APP_DBG("unknow state %x", state);
+    }
+}
+#endif
+
+#if(CONFIG_BLE_MESH_LOW_POWER)
+/*********************************************************************
+ * @fn      lpn_state
+ *
+ * @brief   朋友关系建立回调
+ *
+ * @param   state       - 回调状态
+ *
+ * @return  none
+ */
+static void lpn_state(uint8_t state)
+{
+    if(state == LPN_FRIENDSHIP_ESTABLISHED)
+    {
+        APP_DBG("lpn friendship established");
+    }
+    else if(state == LPN_FRIENDSHIP_TERMINATED)
+    {
+        APP_DBG("lpn friendship terminated");
+    }
+    else
+    {
+        APP_DBG("unknow state %x", state);
+    }
+}
+#endif
 
 /*********************************************************************
  * @fn      blemesh_on_sync
@@ -661,11 +720,18 @@ void blemesh_on_sync(void)
 
     if(bt_mesh_is_provisioned())
     {
+        set_led_state(LED_PIN, TRUE);
         APP_DBG("Mesh network restored from flash");
+#if(CONFIG_BLE_MESH_LOW_POWER)
+        bt_mesh_lpn_set(TRUE);
+        APP_DBG("Low power enable");
+#endif /* LPN */
     }
     else
     {
-        APP_DBG("Waiting for privisioning data");
+        set_led_state(LED_PIN, FALSE);
+       APP_DBG("Waiting for privisioning data");
+        Peripheral_AdvertData_Privisioned(FALSE);
     }
 
     APP_DBG("Mesh initialized");
@@ -707,6 +773,12 @@ static uint16_t App_ProcessEvent(uint8_t task_id, uint16_t events)
     if(events & APP_NODE_EVT)
     {
         cfg_local_net_info();
+        app_mesh_manage.provision_ack.cmd = CMD_PROVISION_ACK;
+        app_mesh_manage.provision_ack.addr[0] = app_nodes[0].node_addr&0xFF;
+        app_mesh_manage.provision_ack.addr[1] = (app_nodes[0].node_addr>>8)&0xFF;
+        app_mesh_manage.provision_ack.status = STATUS_SUCCESS;
+        // 通知主机(如果已连接)
+        peripheralChar4Notify(app_mesh_manage.data.buf, PROVISION_ACK_DATA_LEN);
         return (events ^ APP_NODE_EVT);
     }
 
@@ -721,6 +793,12 @@ static uint16_t App_ProcessEvent(uint8_t task_id, uint16_t events)
             {
                 APP_DBG("Self Privisioning (err %d)", err);
                 self_prov_addr = 0;
+                app_mesh_manage.provision_ack.cmd = CMD_PROVISION_ACK;
+                app_mesh_manage.provision_ack.addr[0] = app_nodes[0].node_addr&0xFF;
+                app_mesh_manage.provision_ack.addr[1] = (app_nodes[0].node_addr>>8)&0xFF;
+                app_mesh_manage.provision_ack.status = STATUS_INVALID;
+                // 通知主机(如果已连接)
+                peripheralChar4Notify(app_mesh_manage.data.buf, PROVISION_ACK_DATA_LEN);
             }
         }
         return (events ^ APP_NODE_PROVISION_EVT);
@@ -730,6 +808,13 @@ static uint16_t App_ProcessEvent(uint8_t task_id, uint16_t events)
     {
         // 通过应用层自定协议删除超时，可添加其他流程
         APP_DBG("Delete node failed ");
+        app_mesh_manage.delete_node_ack.cmd = CMD_DELETE_NODE_ACK;
+        app_mesh_manage.delete_node_ack.addr[0] = delete_node_address&0xFF;
+        app_mesh_manage.delete_node_ack.addr[1] = (delete_node_address>>8)&0xFF;
+        app_mesh_manage.delete_node_ack.status = STATUS_TIMEOUT;
+        vendor_message_srv_trans_reset();
+        // 通知主机(如果已连接)
+        peripheralChar4Notify(app_mesh_manage.data.buf, DELETE_NODE_ACK_DATA_LEN);
         return (events ^ APP_DELETE_NODE_TIMEOUT_EVT);
     }
 
@@ -746,13 +831,528 @@ static uint16_t App_ProcessEvent(uint8_t task_id, uint16_t events)
     if(events & APP_DELETE_NODE_INFO_EVT)
     {
         // 删除已存储的被删除节点的信息
-        bt_mesh_delete_node_info(delete_node_info_address,app_comp.elem_count);
+        bt_mesh_delete_node_info(delete_node_address,app_comp.elem_count);
         APP_DBG("Delete stored node info complete");
+        app_mesh_manage.delete_node_info_ack.cmd = CMD_DELETE_NODE_INFO_ACK;
+        app_mesh_manage.delete_node_info_ack.addr[0] = delete_node_address&0xFF;
+        app_mesh_manage.delete_node_info_ack.addr[1] = (delete_node_address>>8)&0xFF;
+        // 通知主机(如果已连接)
+        peripheralChar4Notify(app_mesh_manage.data.buf, DELETE_NODE_INFO_ACK_DATA_LEN);
         return (events ^ APP_DELETE_NODE_INFO_EVT);
+    }
+
+    if(events & APP_ASK_STATUS_NODE_TIMEOUT_EVT)
+    {
+        // 查询节点状态超时
+        APP_DBG("Ask status node failed ");
+        app_mesh_manage.ask_status_ack.cmd = CMD_ASK_STATUS_ACK;
+        app_mesh_manage.ask_status_ack.addr[0] = ask_status_node_address&0xFF;
+        app_mesh_manage.ask_status_ack.addr[1] = (ask_status_node_address>>8)&0xFF;
+        app_mesh_manage.ask_status_ack.status = STATUS_TIMEOUT;
+        ask_status_node_address = 0;
+        vendor_message_srv_trans_reset();
+        // 通知主机(如果已连接)
+        peripheralChar4Notify(app_mesh_manage.data.buf, ASK_STATUS_ACK_DATA_LEN);
+        return (events ^ APP_ASK_STATUS_NODE_TIMEOUT_EVT);
+    }
+
+    if(events & APP_OTA_UPDATE_TIMEOUT_EVT)
+    {
+        // OTA 升级超时
+        APP_DBG("OTA update node failed ");
+        switch(app_mesh_manage.data.buf[0])
+        {
+            case CMD_IMAGE_INFO:
+            {
+                app_mesh_manage.image_info_ack.cmd = CMD_DELETE_NODE_ACK;
+                app_mesh_manage.image_info_ack.addr[0] = ota_update_node_address&0xFF;
+                app_mesh_manage.image_info_ack.addr[1] = (ota_update_node_address>>8)&0xFF;
+                app_mesh_manage.image_info_ack.status = STATUS_TIMEOUT;
+                peripheralChar4Notify(app_mesh_manage.data.buf, IMAGE_INFO_ACK_DATA_LEN);
+                break;
+            }
+            case CMD_UPDATE:
+            {
+                app_mesh_manage.update_ack.cmd = CMD_UPDATE_ACK;
+                app_mesh_manage.update_ack.addr[0] = ota_update_node_address&0xFF;
+                app_mesh_manage.update_ack.addr[1] = (ota_update_node_address>>8)&0xFF;
+                app_mesh_manage.update_ack.status = STATUS_TIMEOUT;
+                peripheralChar4Notify(app_mesh_manage.data.buf, UPDATE_ACK_DATA_LEN);
+                break;
+            }
+            case CMD_VERIFY:
+            {
+                app_mesh_manage.verify_ack.cmd = CMD_VERIFY_ACK;
+                app_mesh_manage.verify_ack.addr[0] = ota_update_node_address&0xFF;
+                app_mesh_manage.verify_ack.addr[1] = (ota_update_node_address>>8)&0xFF;
+                app_mesh_manage.verify_ack.status = STATUS_TIMEOUT;
+                peripheralChar4Notify(app_mesh_manage.data.buf, VERIFY_ACK_DATA_LEN);
+                break;
+            }
+        }
+        vendor_message_srv_trans_reset();
+        ota_update_node_address = 0;
+        // 通知主机(如果已连接)
+        return (events ^ APP_OTA_UPDATE_TIMEOUT_EVT);
+    }
+
+    if(events & APP_SET_SUB_TIMEOUT_EVT)
+    {
+        // 设置节点订阅地址超时
+        APP_DBG("Set sub node failed ");
+        app_mesh_manage.set_sub_ack.cmd = CMD_SET_SUB_ACK;
+        app_mesh_manage.set_sub_ack.addr[0] = set_sub_node_address&0xFF;
+        app_mesh_manage.set_sub_ack.addr[1] = (set_sub_node_address>>8)&0xFF;
+        app_mesh_manage.set_sub_ack.status = STATUS_TIMEOUT;
+        set_sub_node_address = 0;
+        vendor_message_srv_trans_reset();
+        // 通知主机(如果已连接)
+        peripheralChar4Notify(app_mesh_manage.data.buf, SET_SUB_ACK_DATA_LEN);
+        return (events ^ APP_SET_SUB_TIMEOUT_EVT);
     }
 
     // Discard unknown events
     return 0;
+}
+
+/*********************************************************************
+ * @fn      SwitchImageFlag
+ *
+ * @brief   切换dataflash里的ImageFlag
+ *
+ * @param   new_flag    - 切换的ImageFlag
+ *
+ * @return  none
+ */
+void SwitchImageFlag(uint8_t new_flag)
+{
+    uint16_t i;
+    uint32_t ver_flag;
+
+    /* 读取第一块 */
+    EEPROM_READ(OTA_DATAFLASH_ADD, (uint32_t *)&block_buf[0], 4);
+
+    /* 擦除第一块 */
+    EEPROM_ERASE(OTA_DATAFLASH_ADD, EEPROM_PAGE_SIZE);
+
+    /* 更新Image信息 */
+    block_buf[0] = new_flag;
+
+    /* 编程DataFlash */
+    EEPROM_WRITE(OTA_DATAFLASH_ADD, (uint32_t *)&block_buf[0], 4);
+}
+
+/*********************************************************************
+ * @fn      App_trans_model_reveived
+ *
+ * @brief   透传模型收到数据
+ *
+ * @param   pValue - pointer to data that was changed
+ *          len - length of data
+ *          addr - 数据来源地址
+ *
+ * @return  none
+ */
+void App_trans_model_reveived(uint8_t *pValue, uint16_t len, uint16_t addr )
+{
+    tmos_memcpy(&app_mesh_manage, pValue, len);
+    switch(app_mesh_manage.data.buf[0])
+    {
+        // 判断是否为删除命令
+        case CMD_DELETE_NODE:
+        {
+            if(len != DELETE_NODE_DATA_LEN)
+            {
+                APP_DBG("Delete node data err!");
+                return;
+            }
+            int status;
+            APP_DBG("receive delete cmd, send ack and start delete node delay");
+            app_mesh_manage.delete_node_ack.cmd = CMD_DELETE_NODE_ACK;
+            app_mesh_manage.delete_node_ack.status = STATUS_SUCCESS;
+            status = vendor_model_srv_send(addr, app_mesh_manage.data.buf, DELETE_NODE_ACK_DATA_LEN);
+            if(status)
+            {
+                APP_DBG("send ack failed %d", status);
+            }
+            // 即将删除自身，先发送CMD_DELETE_NODE_INFO命令
+            APP_DBG("send to all node to let them delete stored info ");
+            app_mesh_manage.delete_node_info.cmd = CMD_DELETE_NODE_INFO;
+            status = vendor_model_srv_send(BLE_MESH_ADDR_ALL_NODES,
+                                            app_mesh_manage.data.buf, DELETE_NODE_INFO_DATA_LEN);
+            if(status)
+            {
+                APP_DBG("send ack failed %d", status);
+            }
+            tmos_start_task(App_TaskID, APP_DELETE_LOCAL_NODE_EVT, APP_DELETE_LOCAL_NODE_DELAY);
+            break;
+        }
+
+        // 判断是否为应用层自定义删除命令应答
+        case CMD_DELETE_NODE_ACK:
+        {
+            if(len != DELETE_NODE_ACK_DATA_LEN)
+            {
+                APP_DBG("Delete node ack data err!");
+                return;
+            }
+            tmos_stop_task(App_TaskID, APP_DELETE_NODE_TIMEOUT_EVT);
+            APP_DBG("Delete node complete");
+            vendor_message_srv_trans_reset();
+            // 通知主机(如果已连接)
+            peripheralChar4Notify(app_mesh_manage.data.buf, PROVISION_ACK_DATA_LEN);
+            break;
+        }
+
+        // 判断是否为有节点被删除，需要删除存储的节点信息
+        case CMD_DELETE_NODE_INFO:
+        {
+            if(len != DELETE_NODE_INFO_DATA_LEN)
+            {
+                APP_DBG("Delete node info data err!");
+                return;
+            }
+            delete_node_address = addr;
+            tmos_start_task(App_TaskID, APP_DELETE_NODE_INFO_EVT, APP_DELETE_NODE_INFO_DELAY);
+            break;
+        }
+
+        // 判断是否为查询节点信息命令
+        case CMD_ASK_STATUS:
+        {
+            if(len != ASK_STATUS_DATA_LEN)
+            {
+                APP_DBG("ask status data err!");
+                return;
+            }
+            int status;
+            app_mesh_manage.ask_status_ack.cmd = CMD_ASK_STATUS_ACK;
+            app_mesh_manage.ask_status_ack.status = STATUS_SUCCESS; //用户自定义状态码
+            status = vendor_model_srv_send(addr, app_mesh_manage.data.buf, ASK_STATUS_ACK_DATA_LEN);
+            if(status)
+            {
+                APP_DBG("send ack failed %d", status);
+            }
+            break;
+        }
+
+        // 判断是否为查询节点信息命令应答
+        case CMD_ASK_STATUS_ACK:
+        {
+            if(len != ASK_STATUS_ACK_DATA_LEN)
+            {
+                APP_DBG("ask status data err!");
+                return;
+            }
+            tmos_stop_task(App_TaskID, APP_ASK_STATUS_NODE_TIMEOUT_EVT);
+            APP_DBG("ask status complete");
+            vendor_message_srv_trans_reset();
+            // 通知主机(如果已连接)
+            peripheralChar4Notify(app_mesh_manage.data.buf, ASK_STATUS_ACK_DATA_LEN);
+            break;
+        }
+
+        case CMD_TRANSFER:
+        {
+            if(len < TRANSFER_DATA_LEN)
+            {
+                APP_DBG("transfer data err!");
+                return;
+            }
+            int status;
+            uint16 dst_addr;
+            dst_addr = app_mesh_manage.transfer.addr[0]|(app_mesh_manage.transfer.addr[1]<<8);
+            APP_DBG("Receive trans data, len: %d",len);
+            app_trans_process(app_mesh_manage.transfer.data, len-TRANSFER_DATA_LEN, addr, dst_addr);
+            // 判断是单播地址还是群发组地址
+            if( BLE_MESH_ADDR_IS_UNICAST(dst_addr) )
+            {
+                // 收到单播信息，这里演示原路把收到的数据第一字节加一返回
+                app_mesh_manage.transfer_receive.cmd = CMD_TRANSFER_RECEIVE;
+                app_mesh_manage.transfer_receive.data[0]++;
+                status = vendor_model_srv_send(addr, app_mesh_manage.data.buf, len);
+                if(status)
+                {
+                    APP_DBG("send failed %d", status);
+                }
+            }
+            else
+            {
+                // 收到群组信息
+            }
+            break;
+        }
+
+        case CMD_TRANSFER_RECEIVE:
+        {
+            if(len < TRANSFER_RECEIVE_DATA_LEN)
+            {
+                APP_DBG("transfer receive data err!");
+                return;
+            }
+            vendor_message_srv_trans_reset();
+            // 通知主机(如果已连接)
+            peripheralChar4Notify(app_mesh_manage.data.buf, len);
+            break;
+        }
+
+        case CMD_IMAGE_INFO:
+        {
+            if(len != IMAGE_INFO_DATA_LEN)
+            {
+                APP_DBG("image info data err!");
+                return;
+            }
+            int status;
+            // 清除codeflash
+            status = FLASH_ROM_ERASE(IMAGE_B_START_ADD, IMAGE_B_SIZE);
+            // 填充 image info
+            app_mesh_manage.image_info_ack.cmd = CMD_IMAGE_INFO_ACK;
+            /* IMAGE_SIZE */
+            app_mesh_manage.image_info_ack.image_size[0] = (uint8_t)(IMAGE_SIZE & 0xff);
+            app_mesh_manage.image_info_ack.image_size[1] = (uint8_t)((IMAGE_SIZE >> 8) & 0xff);
+            app_mesh_manage.image_info_ack.image_size[2] = (uint8_t)((IMAGE_SIZE >> 16) & 0xff);
+            app_mesh_manage.image_info_ack.image_size[3] = (uint8_t)((IMAGE_SIZE >> 24) & 0xff);
+            /* BLOCK SIZE */
+            app_mesh_manage.image_info_ack.block_size[0] = (uint8_t)(FLASH_BLOCK_SIZE & 0xff);
+            app_mesh_manage.image_info_ack.block_size[1] = (uint8_t)((FLASH_BLOCK_SIZE >> 8) & 0xff);
+            /* CHIP ID */
+            app_mesh_manage.image_info_ack.chip_id[0] = CHIP_ID&0xFF;
+            app_mesh_manage.image_info_ack.chip_id[1] = (CHIP_ID<<8)&0xFF;
+            /* STATUS */
+            app_mesh_manage.image_info_ack.status = status;
+            status = vendor_model_srv_send(addr, app_mesh_manage.data.buf, IMAGE_INFO_ACK_DATA_LEN);
+            if(status)
+            {
+                APP_DBG("image info ack failed %d", status);
+            }
+            break;
+        }
+
+        case CMD_IMAGE_INFO_ACK:
+        {
+            if(len != IMAGE_INFO_ACK_DATA_LEN)
+            {
+                APP_DBG("image info ack data err!");
+                return;
+            }
+            tmos_stop_task(App_TaskID, APP_OTA_UPDATE_TIMEOUT_EVT);
+            vendor_message_srv_trans_reset();
+            // 通知主机(如果已连接)
+            peripheralChar4Notify(app_mesh_manage.data.buf, IMAGE_INFO_ACK_DATA_LEN);
+            break;
+        }
+
+        case CMD_UPDATE:
+        {
+            if(len < UPDATE_DATA_LEN)
+            {
+                APP_DBG("update data err!");
+                return;
+            }
+            int status;
+            uint32_t OpParaDataLen = 0;
+            uint32_t OpAdd = 0;
+            /* flash的数据临时存储 */
+            __attribute__((aligned(8))) uint8_t flash_buf[216];
+            // 写flash
+            OpParaDataLen = len-UPDATE_DATA_LEN;
+            OpAdd = (uint32_t)(app_mesh_manage.update.update_addr[0]);
+            OpAdd |= ((uint32_t)(app_mesh_manage.update.update_addr[1]) << 8);
+            OpAdd = OpAdd * 8;
+
+            OpAdd += IMAGE_A_SIZE;
+
+            PRINT("IAP_PROM: %08x len:%d \r\n", (int)OpAdd, (int)OpParaDataLen);
+            tmos_memcpy(flash_buf, app_mesh_manage.update.data, OpParaDataLen);
+            /* 当前是ImageA，直接编程 */
+            status = FLASH_ROM_WRITE(OpAdd, flash_buf, (uint16_t)OpParaDataLen);
+            if(status)
+            {
+                PRINT("IAP_PROM err \r\n");
+            }
+
+            app_mesh_manage.update_ack.cmd = CMD_UPDATE_ACK;
+            app_mesh_manage.update_ack.status = status;
+            status = vendor_model_srv_send(addr, app_mesh_manage.data.buf, UPDATE_ACK_DATA_LEN);
+            if(status)
+            {
+                APP_DBG("update ack failed %d", status);
+            }
+            break;
+        }
+
+        case CMD_UPDATE_ACK:
+        {
+            if(len != UPDATE_ACK_DATA_LEN)
+            {
+                APP_DBG("update ack data err!");
+                return;
+            }
+            tmos_stop_task(App_TaskID, APP_OTA_UPDATE_TIMEOUT_EVT);
+            vendor_message_srv_trans_reset();
+            // 通知主机(如果已连接)
+            peripheralChar4Notify(app_mesh_manage.data.buf, UPDATE_ACK_DATA_LEN);
+            break;
+        }
+
+
+        case CMD_VERIFY:
+        {
+            if(len < VERIFY_DATA_LEN)
+            {
+                APP_DBG("verify data err!");
+                return;
+            }
+            int status;
+            // 校验flash
+            uint32_t OpParaDataLen = 0;
+            uint32_t OpAdd = 0;
+            __attribute__((aligned(8))) uint8_t flash_buf[216];
+            // 写flash
+            OpParaDataLen = len-VERIFY_DATA_LEN;
+            OpAdd = (uint32_t)(app_mesh_manage.verify.update_addr[0]);
+            OpAdd |= ((uint32_t)(app_mesh_manage.verify.update_addr[1]) << 8);
+            OpAdd = OpAdd * 8;
+
+            OpAdd += IMAGE_A_SIZE;
+
+            PRINT("IAP_VERIFY: %08x len:%d \r\n", (int)OpAdd, (int)OpParaDataLen);
+            tmos_memcpy(flash_buf, app_mesh_manage.verify.data, OpParaDataLen);
+
+            /* 当前是ImageA，直接编程 */
+            status = FLASH_ROM_VERIFY(OpAdd, flash_buf, (uint16_t)OpParaDataLen);
+            if(status)
+            {
+                PRINT("IAP_VERIFY err \r\n");
+            }
+
+            app_mesh_manage.verify_ack.cmd = CMD_VERIFY_ACK;
+            app_mesh_manage.verify_ack.status = status;
+            status = vendor_model_srv_send(addr, app_mesh_manage.data.buf, VERIFY_ACK_DATA_LEN);
+            if(status)
+            {
+                APP_DBG("verify ack failed %d", status);
+            }
+            break;
+        }
+
+        case CMD_VERIFY_ACK:
+        {
+            if(len != VERIFY_ACK_DATA_LEN)
+            {
+                APP_DBG("verify ack data err!");
+                return;
+            }
+            tmos_stop_task(App_TaskID, APP_OTA_UPDATE_TIMEOUT_EVT);
+            vendor_message_srv_trans_reset();
+            // 通知主机(如果已连接)
+            peripheralChar4Notify(app_mesh_manage.data.buf, VERIFY_ACK_DATA_LEN);
+            break;
+        }
+
+        case CMD_END:
+        {
+            if(len != END_DATA_LEN)
+            {
+                APP_DBG("end data err!");
+                return;
+            }
+            int status;
+            PRINT("IAP_END \r\n");
+
+            /* 关闭当前所有使用中断，或者方便一点直接全部关闭 */
+            SYS_DisableAllIrq(NULL);
+
+            /* 修改DataFlash，切换至ImageIAP */
+            SwitchImageFlag(IMAGE_IAP_FLAG);
+
+            /* 等待打印完成 ，复位*/
+            mDelaymS(10);
+            SYS_ResetExecute();
+            break;
+        }
+
+        case CMD_SET_SUB:
+        {
+            if(len != SET_SUB_DATA_LEN)
+            {
+                APP_DBG("set sub data err!");
+                return;
+            }
+            int status;
+            uint16_t sub_addr;
+            uint16_t *match;
+            sub_addr = app_mesh_manage.set_sub.sub_addr[0]|(app_mesh_manage.set_sub.sub_addr[1]<<8);
+            if( BLE_MESH_ADDR_IS_GROUP(sub_addr) )
+            {
+                if( app_mesh_manage.set_sub.add_flag )
+                {
+                    match = App_model_find_group( &vnd_models[0], BLE_MESH_ADDR_UNASSIGNED);
+                    if( match )
+                    {
+                        // 本地添加订阅地址
+                        *match = (uint16_t)sub_addr;
+                        bt_mesh_store_mod_sub(&vnd_models[0]);
+                        status = STATUS_SUCCESS;
+                        APP_DBG("lcoal sub addr added");
+                    }
+                    else
+                    {
+                        status = STATUS_NOMEM;
+                    }
+                }
+                else
+                {
+                    match = App_model_find_group( &vnd_models[0], sub_addr);
+                    if( match )
+                    {
+                        // 本地删除订阅地址
+                        *match = (uint16_t)BLE_MESH_ADDR_UNASSIGNED;
+                        bt_mesh_store_mod_sub(&vnd_models[0]);
+                        status = STATUS_SUCCESS;
+                        APP_DBG("lcoal sub addr deleted");
+                    }
+                    else
+                    {
+                        status = STATUS_INVALID;
+                    }
+                }
+            }
+            else
+            {
+                status = STATUS_INVALID;
+            }
+            app_mesh_manage.set_sub_ack.cmd = CMD_SET_SUB_ACK;
+            app_mesh_manage.set_sub_ack.status = status; //用户自定义状态码
+            status = vendor_model_srv_send(addr, app_mesh_manage.data.buf, SET_SUB_ACK_DATA_LEN);
+            if(status)
+            {
+                APP_DBG("set sub ack failed %d", status);
+            }
+            break;
+        }
+
+        case CMD_SET_SUB_ACK:
+        {
+            if(len != SET_SUB_ACK_DATA_LEN)
+            {
+                APP_DBG("set sub ack data err!");
+                return;
+            }
+            tmos_stop_task(App_TaskID, APP_SET_SUB_TIMEOUT_EVT);
+            vendor_message_srv_trans_reset();
+            // 通知主机(如果已连接)
+            peripheralChar4Notify(app_mesh_manage.data.buf, SET_SUB_ACK_DATA_LEN);
+            break;
+        }
+
+        default:
+        {
+            APP_DBG("Invalid CMD ");
+            break;
+        }
+    }
 }
 
 /*********************************************************************
@@ -768,8 +1368,44 @@ static uint16_t App_ProcessEvent(uint8_t task_id, uint16_t events)
 void App_peripheral_reveived(uint8_t *pValue, uint16_t len)
 {
     tmos_memcpy(&app_mesh_manage, pValue, len);
+    APP_DBG("CMD: %x", app_mesh_manage.data.buf[0]);
     switch(app_mesh_manage.data.buf[0])
     {
+        // 配网信息命令
+        case CMD_PROVISION_INFO:
+        {
+            if(len != PROVISION_INFO_DATA_LEN)
+            {
+                APP_DBG("Privisioning info data err!");
+                return;
+            }
+            // 判断是设置还是查询
+            if( app_mesh_manage.provision_info.set_flag )
+            {
+                self_prov_iv_index = app_mesh_manage.provision_info.iv_index[0]|
+                    app_mesh_manage.provision_info.iv_index[1]<<8|
+                    app_mesh_manage.provision_info.iv_index[2]<<16|
+                    app_mesh_manage.provision_info.iv_index[3]<<24;
+                self_prov_flags = app_mesh_manage.provision_info.flag;
+                APP_DBG("set iv 0x%x, flag %d ",self_prov_iv_index,self_prov_flags);
+                app_mesh_manage.provision_info_ack.status = STATUS_SUCCESS;
+            }
+            else
+            {
+                uint32_t iv_index = bt_mesh_iv_index_get();
+                app_mesh_manage.provision_info_ack.iv_index[0] = iv_index&0xFF;
+                app_mesh_manage.provision_info_ack.iv_index[1] = (iv_index>>8)&0xFF;
+                app_mesh_manage.provision_info_ack.iv_index[2] = (iv_index>>16)&0xFF;
+                app_mesh_manage.provision_info_ack.iv_index[3] = (iv_index>>24)&0xFF;
+                app_mesh_manage.provision_info_ack.flag = bt_mesh_net_flags_get(self_prov_net_idx);
+                APP_DBG("ask iv 0x%x, flag %d ",iv_index,app_mesh_manage.provision_info_ack.flag);
+                app_mesh_manage.provision_info_ack.status = STATUS_SUCCESS;
+            }
+            app_mesh_manage.provision_info_ack.cmd = CMD_PROVISION_INFO_ACK;
+            peripheralChar4Notify(app_mesh_manage.data.buf, PROVISION_INFO_ACK_DATA_LEN);
+            break;
+        }
+
         // 配网命令 包含 1字节命令码+16字节网络密钥+2字节网络地址
         case CMD_PROVISION:
         {
@@ -794,8 +1430,9 @@ void App_peripheral_reveived(uint8_t *pValue, uint16_t len)
                 return;
             }
             uint16 remote_addr;
-            uint8_t status;
+            int status;
             remote_addr = app_mesh_manage.delete_node.addr[0]|(app_mesh_manage.delete_node.addr[1]<<8);
+            APP_DBG("CMD_DELETE_NODE %x ",remote_addr);
             status = vendor_model_srv_send(remote_addr, app_mesh_manage.data.buf, DELETE_NODE_DATA_LEN);
             if(status)
             {
@@ -803,8 +1440,167 @@ void App_peripheral_reveived(uint8_t *pValue, uint16_t len)
             }
             else
             {
-                // 定时三秒，未收到应答就超时
-                tmos_start_task(App_TaskID, APP_DELETE_NODE_TIMEOUT_EVT, 4800);
+                delete_node_address = remote_addr;
+                // 定时，未收到应答就超时
+                tmos_start_task(App_TaskID, APP_DELETE_NODE_TIMEOUT_EVT, APP_CMD_TIMEOUT);
+            }
+            break;
+        }
+
+        case CMD_ASK_STATUS:
+        {
+            if(len != ASK_STATUS_DATA_LEN)
+            {
+                APP_DBG("ask status data err!");
+                return;
+            }
+            uint16 remote_addr;
+            int status;
+            remote_addr = app_mesh_manage.ask_status.addr[0]|(app_mesh_manage.ask_status.addr[1]<<8);
+            APP_DBG("CMD_ASK_STATUS %x ",remote_addr);
+            status = vendor_model_srv_send(remote_addr, app_mesh_manage.data.buf, ASK_STATUS_DATA_LEN);
+            if(status)
+            {
+                APP_DBG("ask_status failed %d", status);
+            }
+            else
+            {
+                ask_status_node_address = remote_addr;
+                // 定时，未收到应答就超时
+                tmos_start_task(App_TaskID, APP_ASK_STATUS_NODE_TIMEOUT_EVT, APP_CMD_TIMEOUT);
+            }
+            break;
+        }
+
+        case CMD_TRANSFER:
+        {
+            if(len < TRANSFER_DATA_LEN)
+            {
+                APP_DBG("transfer data err!");
+                return;
+            }
+            uint16 remote_addr;
+            int status;
+            remote_addr = app_mesh_manage.transfer.addr[0]|(app_mesh_manage.transfer.addr[1]<<8);
+            APP_DBG("CMD_TRANSFER %x ",remote_addr);
+            status = vendor_model_srv_send(remote_addr, app_mesh_manage.data.buf, len);
+            if(status)
+            {
+                APP_DBG("transfer failed %d", status);
+            }
+            break;
+        }
+
+        case CMD_IMAGE_INFO:
+        {
+            if(len != IMAGE_INFO_DATA_LEN)
+            {
+                APP_DBG("image info data err!");
+                return;
+            }
+            uint16 remote_addr;
+            int status;
+            remote_addr = app_mesh_manage.image_info.addr[0]|(app_mesh_manage.image_info.addr[1]<<8);
+            APP_DBG("CMD_IMAGE_INFO %x ",remote_addr);
+            status = vendor_model_srv_send(remote_addr, app_mesh_manage.data.buf, IMAGE_INFO_DATA_LEN);
+            if(status)
+            {
+                APP_DBG("image info failed %d", status);
+                break;
+            }
+            else
+            {
+                ota_update_node_address = remote_addr;
+                tmos_start_task(App_TaskID, APP_OTA_UPDATE_TIMEOUT_EVT, APP_CMD_TIMEOUT);
+            }
+            break;
+        }
+
+        case CMD_UPDATE:
+        {
+            if(len < UPDATE_DATA_LEN)
+            {
+                APP_DBG("update data err!");
+                return;
+            }
+            uint16 remote_addr;
+            int status;
+            APP_DBG("CMD_UPDATE len: %d", len);
+            remote_addr = app_mesh_manage.transfer.addr[0]|(app_mesh_manage.transfer.addr[1]<<8);
+            status = vendor_model_srv_send(remote_addr, app_mesh_manage.data.buf, len);
+            if(status)
+            {
+                APP_DBG("update failed %d", status);
+            }
+            else
+            {
+                ota_update_node_address = remote_addr;
+                tmos_start_task(App_TaskID, APP_OTA_UPDATE_TIMEOUT_EVT, APP_CMD_TIMEOUT);
+            }
+            break;
+        }
+
+        case CMD_VERIFY:
+        {
+            if(len < VERIFY_DATA_LEN)
+            {
+                APP_DBG("verify data err!");
+                return;
+            }
+            uint16 remote_addr;
+            int status;
+            remote_addr = app_mesh_manage.verify.addr[0]|(app_mesh_manage.verify.addr[1]<<8);
+            status = vendor_model_srv_send(remote_addr, app_mesh_manage.data.buf, len);
+            if(status)
+            {
+                APP_DBG("verify failed %d", status);
+            }
+            else
+            {
+                ota_update_node_address = remote_addr;
+                tmos_start_task(App_TaskID, APP_OTA_UPDATE_TIMEOUT_EVT, APP_CMD_TIMEOUT);
+            }
+            break;
+        }
+
+        case CMD_END:
+        {
+            if(len != END_DATA_LEN)
+            {
+                APP_DBG("end data err!");
+                return;
+            }
+            uint16 remote_addr;
+            int status;
+            remote_addr = app_mesh_manage.end.addr[0]|(app_mesh_manage.end.addr[1]<<8);
+            status = vendor_model_srv_send(remote_addr, app_mesh_manage.data.buf, END_DATA_LEN);
+            if(status)
+            {
+                APP_DBG("end failed %d", status);
+            }
+            break;
+        }
+
+        case CMD_SET_SUB:
+        {
+            if(len != SET_SUB_DATA_LEN)
+            {
+                APP_DBG("set sub data err!");
+                return;
+            }
+            uint16 remote_addr;
+            int status;
+            remote_addr = app_mesh_manage.set_sub.addr[0]|(app_mesh_manage.set_sub.addr[1]<<8);
+            APP_DBG("CMD_SET_SUB %x ",remote_addr);
+            status = vendor_model_srv_send(remote_addr, app_mesh_manage.data.buf, SET_SUB_DATA_LEN);
+            if(status)
+            {
+                APP_DBG("set sub failed %d", status);
+            }
+            else
+            {
+                set_sub_node_address = remote_addr;
+                tmos_start_task(App_TaskID, APP_SET_SUB_TIMEOUT_EVT, APP_CMD_TIMEOUT);
             }
             break;
         }
@@ -817,11 +1613,17 @@ void App_peripheral_reveived(uint8_t *pValue, uint16_t len)
                 APP_DBG("local reset data err!");
                 return;
             }
+            APP_DBG("Local mesh reset");
             self_prov_addr = 0;
             bt_mesh_reset();
             break;
         }
 
+        default:
+        {
+            APP_DBG("Invalid CMD ");
+            break;
+        }
     }
 }
 
