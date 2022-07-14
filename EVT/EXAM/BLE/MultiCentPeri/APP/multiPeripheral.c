@@ -406,8 +406,8 @@ static uint16_t connect0_ProcessEvent(uint8_t task_id, uint16_t events)
     if(events & SBP_PHY_UPDATE_EVT)
     {
         // start phy update
-        PRINT("PHY Update %x...\n", GAPRole_UpdatePHY(peripheralConnList[CONNECT0_ITEM].connHandle, 0, GAP_PHY_BIT_LE_2M,
-                                                      GAP_PHY_BIT_LE_2M, 0));
+        PRINT("PHY Update %x...\n", GAPRole_UpdatePHY(peripheralConnList[CONNECT0_ITEM].connHandle, 
+                    0, GAP_PHY_BIT_LE_2M, GAP_PHY_BIT_LE_2M, GAP_PHY_OPTIONS_NOPRE));
 
         return (events ^ SBP_PHY_UPDATE_EVT);
     }
@@ -463,8 +463,8 @@ static uint16_t connect1_ProcessEvent(uint8_t task_id, uint16_t events)
     if(events & SBP_PHY_UPDATE_EVT)
     {
         // start phy update
-        PRINT("PHY Update %x...\n", GAPRole_UpdatePHY(peripheralConnList[CONNECT1_ITEM].connHandle, 0, GAP_PHY_BIT_LE_2M,
-                                                      GAP_PHY_BIT_LE_2M, 0));
+        PRINT("PHY Update %x...\n", GAPRole_UpdatePHY(peripheralConnList[CONNECT1_ITEM].connHandle, 
+                    0, GAP_PHY_BIT_LE_2M, GAP_PHY_BIT_LE_2M, GAP_PHY_OPTIONS_NOPRE));
 
         return (events ^ SBP_PHY_UPDATE_EVT);
     }
@@ -519,8 +519,8 @@ static uint16_t connect2_ProcessEvent(uint8_t task_id, uint16_t events)
     if(events & SBP_PHY_UPDATE_EVT)
     {
         // start phy update
-        PRINT("PHY Update %x...\n", GAPRole_UpdatePHY(peripheralConnList[CONNECT2_ITEM].connHandle, 0, GAP_PHY_BIT_LE_2M,
-                                                      GAP_PHY_BIT_LE_2M, 0));
+        PRINT("PHY Update %x...\n", GAPRole_UpdatePHY(peripheralConnList[CONNECT2_ITEM].connHandle, 
+                    0, GAP_PHY_BIT_LE_2M, GAP_PHY_BIT_LE_2M, GAP_PHY_OPTIONS_NOPRE));
 
         return (events ^ SBP_PHY_UPDATE_EVT);
     }
