@@ -31,9 +31,11 @@ http://wch.cn
   |      |      |      |-- UART1：串口1收发例程
   |      |      |      |-- USB
   |      |      |      |      |-- Device
+  |      |      |      |      |      |-- COM：USB模拟CDC设备例程
   |      |      |      |      |      |-- VendorDefinedDev：模拟自定义USB设备（CH372设备）例程，提供8个非0通道(上传+下传)，实现数据先下传，然后数据内容取反上传
   |      |      |      |      |      |-- CompoundDev：USB模拟键鼠例程，支持增加数据上传；USB唤醒功能，USB HID类命令。 
   |      |      |      |      |      |-- CompoundU2Dev：USB2模拟键鼠例程，支持增加数据上传；USB唤醒功能，USB HID类命令。 
+  |      |      |      |      |      |-- HID_CompliantDev：USB模拟HID兼容设备例程
   |      |      |      |      |-- Host
   |      |      |      |      |      |-- HostEnum：USB常见设备hid键鼠，hub的枚举数据上下传演示等
   |      |      |      |      |      |-- HostU2Enum：USB2常见设备hid键鼠，hub的枚举数据上下传演示等
@@ -59,7 +61,7 @@ http://wch.cn
   |      |      |      |      |-- MultiCentPeri：多主机多从机例程，支持同时连接三个主机三个从机
   |      |      |      |      |-- MultiCentral：主机多连接例程，主动扫描周围设备，连接至给定的三个从机设备地址，寻找自定义服务及特征，执行读写命令，需与从机例程配合使用,并将从机设备地址修改为该例程目标地址，三个从机设备地址默认为 (84:C2:E4:03:02:02)、(84:C2:E4:03:02:03)、(84:C2:E4:03:02:04)
   |      |      |      |      |-- Observer：观察者角色例程，定时扫描，如果扫描结果不为空，则打印扫描到的广播地址
-  |      |      |      |      |-- DirectTest：直接测试例程，测试指定通信频道发送数据包
+  |      |      |      |      |-- Direct_Test_Mode：DTM测试例程序，结合RF测试工具使用
   |      |      |      |      |-- RF_PHY：非标准无线收发例程
   |      |      |      |      |-- RF_PHY_Hop：非标准无线跳频收发例程
   |      |      |      |      |-- MESH
@@ -73,7 +75,9 @@ http://wch.cn
   |      |      |      |      |      |-- adv_vendor_friend：厂商自定义模型例程的基础上，支持朋友节点功能
   |      |      |      |      |      |-- adv_vendor_low_power：厂商自定义模型例程的基础上，支持低功耗节点功能，需与朋友节点配合使用
   |      |      |      |      |      |-- adv_vendor_self_provision：厂商自定义模型例程的基础上，支持本地自配网，适配无配网者或简化配网流程等特殊应用场景
-  |      |      |      |      |      |-- adv_vendor_self_provision_with_peripheral：厂商自定义模型例程的基础上，支持手机BLE调试助手连接控制，通过BLE接收配网信息并将自身配网，适用于终端控制组网应用，可自行拟定通信协议实现手机控制mesh网络中所有设备。
+  |      |      |      |      |      |-- adv_vendor_self_provision_IAP：MESH备份无线升级IAP例程，检测当前代码标志，判断是否搬运备份区代码到用户区并运行用户区代码
+  |      |      |      |      |      |-- adv_vendor_self_provision_JumpIAP：MESH备份无线升级跳转IAP例程，放在代码起始地址，负责跳转到IAP程序
+  |      |      |      |      |      |-- adv_vendor_self_provision_with_peripheral：MESH备份无线升级用户例程，厂商自定义模型例程的基础上，支持手机BLE调试助手连接控制，通过BLE接收配网信息并将自身配网，适用于终端控制组网应用，可自行拟定通信协议实现手机控制mesh网络中所有设备。
   |      |      |      |      |      |-- self_provisioner_vendor：厂商自定义模型自配网发起者例程，配合adv_vendor使用，自动配网周围未配网设备，并将其加入自身mesh网络，默认支持配网6个设备。默认配置设备绑定1个APPKEY,用于有应答传输和无应答透传，配置设备绑定1个订阅地址，用于群发无应答消息
   |      |      |      |      |      |-- self_provisioner_vendor_with_peripheral：厂商自定义模型自配网发起者例程的基础上，支持手机BLE调试助手连接控制，中转手机与mesh网络的通信，可自行拟定通信协议实现手机控制mesh网络中所有设备。
   |      |      |      |      |      |-- MESH_LIB：MESH协议栈库文件及其头文件

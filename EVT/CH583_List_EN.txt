@@ -31,9 +31,11 @@ Directory
   |      |      |      |-- UART1: UART1 receive/transmit routine
   |      |      |      |-- USB
   |      |      |      |      |-- Device
+  |      |      |      |      |      |-- COM£ºUSB simulate CDC device routines
   |      |      |      |      |      |-- VendorDefinedDev: simulate custom USB devices (CH372 device) routine, provide eight non-zero channels (upload + download), implement that data is first downloaded, and then the data content is reversed and uploaded
   |      |      |      |      |      |-- CompoundDev: simulate keyboard/mouse routine, support HID class commands 
   |      |      |      |      |      |-- CompoundU2Dev: USB2 simulate keyboard/mouse routine, support HID class commands 
+  |      |      |      |      |      |-- HID_CompliantDev£ºUSB simulate HID compliant device routines
   |      |      |      |      |-- Host
   |      |      |      |      |      |-- HostEnum:  simple enumeration procedure routine for USB devices
   |      |      |      |      |      |-- HostU2Enum: USB2 simple enumeration procedure routine for USB devices
@@ -58,7 +60,7 @@ Directory
   |      |      |      |      |-- HID_Touch: BLE touch routine, simulate a touch pencil device,  upload touch value regularly after connected to the central
   |      |      |      |      |-- MultiCentral: multicentral routine, actively scan surrounding devices, conect to the specified three peripheral addresses, search custom services and characteristics, execute read/write commands, peripheral routine is needed, and modify the peripheral address to this routine target address, the addresses of these peripherals are (84:C2:E4:03:02:02), (84:C2:E4:03:02:03) and (84:C2:E4:03:02:04) by default
   |      |      |      |      |-- Observer: observer routine, scan regularly, print the scanned broadcast address if the scanning result is not empty
-  |      |      |      |      |-- DirectTest: direct test routine, test data packets sent by specified communication channel
+  |      |      |      |      |-- Direct_Test_Mode£ºDTM test routine, combined with RF test tools
   |      |      |      |      |-- RF_PHY: non-standard wireless transceiver routines
   |      |      |      |      |-- RF_PHY_Hop: non-standard wireless frequency hopping transceiver routine
   |      |      |      |      |-- MESH
@@ -72,7 +74,9 @@ Directory
   |      |      |      |      |      |-- adv_vendor_friend: based on vendor-defined model routine, support friend node function
   |      |      |      |      |      |-- adv_vendor_low_power: On the basis of the vendor custom model routine, support low-power node functions and should be used with friend nodes
   |      |      |      |      |      |-- adv_vendor_self_provision: On the basis of the vendor custom model routine, support local provision
-  |      |      |      |      |      |-- adv_vendor_self_provision_with_peripheral: On the basis of the vendor custom model routine, supports the connection control of the mobile phone BLE debugging assistant, receives the distribution network information through BLE and distributes the network itself. It is suitable for terminal control networking applications. It can formulate the communication protocol by itself to realize the mobile phone control all devices in the mesh network.
+  |      |      |      |      |      |-- adv_vendor_self_provision_IAP£ºMESH backup wireless upgrade IAP routine, detect the current code flag, judge whether to move the backup area code to the user area and run the user area code
+  |      |      |      |      |      |-- adv_vendor_self_provision_JumpIAP£ºMESH backup wireless upgrade jump IAP routines, placed at the start address of the code,  for jumping to the IAP program
+  |      |      |      |      |      |-- adv_vendor_self_provision_with_peripheral: MESH backup wireless upgrade user routine, On the basis of the vendor custom model routine, supports the connection control of the mobile phone BLE debugging assistant, receives the distribution network information through BLE and distributes the network itself. It is suitable for terminal control networking applications. It can formulate the communication protocol by itself to realize the mobile phone control all devices in the mesh network.
   |      |      |      |      |      |-- self_provisioner_vendor: vendor-defined model self-provisioning network initiator routine, used with adv_vendor, automatically provision network to the surrounding devices without network, and add it to its own mesh network, support provision network to six devices by default . The default configuration device is bound with single APPKEY, which is used for response transmission and non-response transparent transmission, and the configuration device is bound with single subscription address, which is used for mass sending of unanswered messages
   |      |      |      |      |      |-- self_provisioner_vendor_with_peripheral: Based on the vendor-defined model self-provisioning network initiator routine, can be connected and controlled by BLE debugging tool on the mobile phone, transfer the communication between the mobile phone and the mesh network, and can draw up the communication protocol to implement that all devices in mesh network can be controlled the mobile phone.
   |      |      |      |      |      |-- MESH_LIB: MESH protocol stack library file and header file
