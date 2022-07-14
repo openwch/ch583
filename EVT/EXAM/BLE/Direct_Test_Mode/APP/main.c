@@ -3,7 +3,7 @@
  * Author             : WCH
  * Version            : V1.0
  * Date               : 2020/08/06
- * Description        : 直接测试程序主函数及任务系统初始化
+ * Description        : Direct test mode
  * Copyright (c) 2021 Nanjing Qinheng Microelectronics Co., Ltd.
  * SPDX-License-Identifier: Apache-2.0
  *******************************************************************************/
@@ -12,7 +12,8 @@
 /* 头文件包含 */
 #include "CONFIG.h"
 #include "HAL.h"
-#include "directtest.h"
+#include "test_dtm.h"
+#include "uart.h"
 
 /*********************************************************************
  * GLOBAL TYPEDEFS
@@ -31,6 +32,7 @@ const uint8_t MacAddr[6] = {0x84, 0xC2, 0xE4, 0x03, 0x02, 0x02};
  * @return  none
  */
 __HIGH_CODE
+__attribute__((noinline))
 void Main_Circulation()
 {
     while(1)
@@ -64,8 +66,9 @@ int main(void)
     PRINT("%s\n", VER_LIB);
     CH58X_BLEInit();
     HAL_Init();
+    uart_task_init();
+    test_dtm_init();
     GAPRole_CentralInit();
-    TEST_Init();
     Main_Circulation();
 }
 
