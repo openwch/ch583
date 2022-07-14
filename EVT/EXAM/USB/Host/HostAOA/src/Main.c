@@ -132,7 +132,7 @@ uint8_t TouchStartAOA(void)
 {
     uint8_t len, s, i, Num;
     //获取协议版本号
-    CopySetupReqPkg((uint8_t *)GetProtocol);
+    CopySetupReqPkg(GetProtocol);
     s = HostCtrlTransfer(Com_Buffer, &len); // 执行控制传输
     if(s != ERR_SUCCESS)
     {
@@ -145,7 +145,7 @@ uint8_t TouchStartAOA(void)
     for(i = 0; i < 6; i++)
     {
         Num = Sendlen[i];
-        CopySetupReqPkg((uint8_t *)&SetStringID[8 * i]);
+        CopySetupReqPkg(&SetStringID[8 * i]);
         s = HostCtrlTransfer(&StringID[Num], &len); // 执行控制传输
         if(s != ERR_SUCCESS)
         {
@@ -153,7 +153,7 @@ uint8_t TouchStartAOA(void)
         }
     }
 
-    CopySetupReqPkg((uint8_t *)TouchAOAMode);
+    CopySetupReqPkg(TouchAOAMode);
     s = HostCtrlTransfer(Com_Buffer, &len); // 执行控制传输
     if(s != ERR_SUCCESS)
     {
