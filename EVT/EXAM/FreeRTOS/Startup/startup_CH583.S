@@ -1,10 +1,13 @@
 /********************************** (C) COPYRIGHT *******************************
-* File Name          : startup_ch57x.s
-* Author             : WCH
-* Version            : V1.0.0
-* Date               : 2021/02/25
-* Description        : 
-*******************************************************************************/
+ * File Name          : startup_ch58x.s
+ * Author             : WCH
+ * Version            : V1.0.0
+ * Date               : 2021/05/10
+ * Description        : CH583 FreeRTOS启动文件
+ * Copyright (c) 2021 Nanjing Qinheng Microelectronics Co., Ltd.
+ * SPDX-License-Identifier: Apache-2.0
+ *******************************************************************************/
+.extern unified_interrupt_handler
 
 	.section	.init,"ax",@progbits
 	.global	_start
@@ -19,46 +22,46 @@ _vector_base:
 
     .word   0
     .word   0
-    .word   NMI_Handler                 /* NMI Handler */
-    .word   HardFault_Handler           /* Hard Fault Handler */
-    .word   0xF5F9BDA9
-    .word   Ecall_M_Mode_Handler        /* 5 */
+    .word   NMI_Handler                 			/* NMI Handler */
+    .word   HardFault_Handler           			/* Hard Fault Handler */
+    .word   0xF5F9BDA9								/* boot option, can't modify */
+    .word   Ecall_M_Mode_Handler        			/* 5 */
     .word   0
     .word   0
-    .word   Ecall_U_Mode_Handler		/* 8 */
-    .word   Break_Point_Handler			/* 9 */
+    .word   Ecall_U_Mode_Handler					/* 8 */
+    .word   Break_Point_Handler						/* 9 */
     .word   0
     .word   0
-    .word   SysTick_Handler            /* SysTick Handler */
+    .word   unified_interrupt_handler         		/* SysTick Handler */
     .word   0
-    .word   SW_Handler                 /* SW Handler */
+    .word   SW_Handler                 				/* SW Handler */
     .word   0
     /* External Interrupts */
-    .word   TMR0_IRQHandler            /* 0:  TMR0 */
-    .word   GPIOA_IRQHandler           /* GPIOA */
-    .word   GPIOB_IRQHandler           /* GPIOB */
-    .word   SPI0_IRQHandler            /* SPI0 */
-    .word   BB_IRQHandler              /* BLEB */
-    .word   LLE_IRQHandler             /* BLEL */
-    .word   USB_IRQHandler             /* USB */
-    .word   USB2_IRQHandler			   /* USB2 */
-    .word   TMR1_IRQHandler            /* TMR1 */
-    .word   TMR2_IRQHandler            /* TMR2 */
-    .word   UART0_IRQHandler           /* UART0 */
-    .word   UART1_IRQHandler           /* UART1 */
-    .word   RTC_IRQHandler             /* RTC */
-    .word   ADC_IRQHandler             /* ADC */
-    .word   I2C_IRQHandler 			   /* I2C */
-    .word   PWMX_IRQHandler            /* PWMX */
-    .word   TMR3_IRQHandler            /* TMR3 */
-    .word   UART2_IRQHandler           /* UART2 */
-    .word   UART3_IRQHandler           /* UART3 */
-    .word   WDOG_BAT_IRQHandler        /* WDOG_BAT */
+    .word   unified_interrupt_handler           	/* 0:  TMR0 */
+    .word   unified_interrupt_handler         		/* GPIOA */
+    .word   unified_interrupt_handler           	/* GPIOB */
+    .word   unified_interrupt_handler            	/* SPI0 */
+    .word   unified_interrupt_handler              	/* BLEB */
+    .word   unified_interrupt_handler             	/* BLEL */
+    .word   unified_interrupt_handler             	/* USB */
+    .word   unified_interrupt_handler				/* USB2 */
+    .word   unified_interrupt_handler          		/* TMR1 */
+    .word   unified_interrupt_handler            	/* TMR2 */
+    .word   unified_interrupt_handler           	/* UART0 */
+    .word   unified_interrupt_handler           	/* UART1 */
+    .word   unified_interrupt_handler             	/* RTC */
+    .word   unified_interrupt_handler             	/* ADC */
+    .word   unified_interrupt_handler 			 	/* I2C */
+    .word   unified_interrupt_handler            	/* PWMX */
+    .word   unified_interrupt_handler            	/* TMR3 */
+    .word   unified_interrupt_handler           	/* UART2 */
+    .word   unified_interrupt_handler           	/* UART3 */
+    .word   unified_interrupt_handler        		/* WDOG_BAT */
 
     .option rvc;
 
-    .section    .vector_handler, "ax", @progbits
-    .weak   NMI_Handler
+	.section    .vector_handler, "ax", @progbits
+	.weak   NMI_Handler
     .weak   HardFault_Handler
     .weak   Ecall_M_Mode_Handler
     .weak   Ecall_U_Mode_Handler
@@ -164,11 +167,11 @@ handle_reset:
 	li t0, 0x1f
 	csrw 0xbc0, t0
 
-	/* 使用freertos不可打开嵌套中断、硬件压栈功能 */
-	/* li t0, 0x3
-	csrw 0x804, t0 */
+	/* 打开硬件压栈，关闭中断嵌套 */
+	li t0, 0x01
+	csrw 0x804, t0
 	
-	/* 在freertos中打开中断 */
+	/* 使用机器模式，在freertos中打开中断 */
     li t0, 0x1800
     csrs mstatus, t0
 

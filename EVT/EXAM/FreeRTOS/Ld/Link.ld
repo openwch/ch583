@@ -2,7 +2,7 @@ ENTRY( _start )
 
 MEMORY
 {
-	FLASH (rx) : ORIGIN = 0x00000000, LENGTH = 200K
+	FLASH (rx) : ORIGIN = 0x00000000, LENGTH = 448K
 	RAM (xrw) : ORIGIN = 0x20000000, LENGTH = 32K
 }
 
@@ -35,6 +35,9 @@ SECTIONS
         PROVIDE(_highcode_vma_start = .);
         *(.vector);
 		KEEP(*(SORT_NONE(.vector_handler)))
+		. = ALIGN(4);
+		KEEP(*(wch_user_vectors))
+		. = ALIGN(4);
         *(.highcode);
         *(.highcode.*);
 		. = ALIGN(4); 
@@ -49,7 +52,7 @@ SECTIONS
 		*(.text.*)
 		*(.rodata)
 		*(.rodata*)
-  *(.sdata2.*)
+  		*(.sdata2.*)
 		*(.glue_7)
 		*(.glue_7t)
 		*(.gnu.linkonce.t.*)
