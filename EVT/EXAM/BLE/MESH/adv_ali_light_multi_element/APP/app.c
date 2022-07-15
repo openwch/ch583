@@ -266,7 +266,7 @@ static void link_close(bt_mesh_prov_bearer_t bearer, uint8_t reason)
  * @brief   配网完成回调，重新开始广播
  *
  * @param   net_idx     - 网络key的index
- * @param   addr        - link关闭原因网络地址
+ * @param   addr        - 网络地址
  * @param   flags       - 是否处于key refresh状态
  * @param   iv_index    - 当前网络iv的index
  *
@@ -668,6 +668,7 @@ void App_Init()
 {
     App_TaskID = TMOS_ProcessEventRegister(App_ProcessEvent);
 
+    als_vendor_init(vnd_models);
     blemesh_on_sync();
     HAL_KeyInit();
     HalKeyConfig(keyPress);

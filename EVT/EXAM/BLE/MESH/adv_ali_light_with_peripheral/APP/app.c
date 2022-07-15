@@ -213,7 +213,7 @@ static void link_close(bt_mesh_prov_bearer_t bearer, uint8_t reason)
          IOT设备需要自行给所有Element的所有model绑定下发的AppKey，并根据产品类型为各个
          model订阅相应的组播地址（具体品类组播地址请参阅各产品软件规范）。蓝牙Mesh设备
          完成配网后需要进行消息上报，上报消息包括该设备所有支持的可上报的属性。*/
-PRINT("EJFF\n");
+
         /* For Light Subscription group address */
         root_models[2].groups[0] = (uint16_t)0xC000;
         root_models[2].groups[1] = (uint16_t)0xCFFF;
@@ -254,7 +254,7 @@ PRINT("EJFF\n");
  * @brief   配网完成回调，重新开始广播
  *
  * @param   net_idx     - 网络key的index
- * @param   addr        - link关闭原因网络地址
+ * @param   addr        - 网络地址
  * @param   flags       - 是否处于key refresh状态
  * @param   iv_index    - 当前网络iv的index
  *
@@ -641,6 +641,7 @@ void App_Init(void)
     Peripheral_Init();
     App_TaskID = TMOS_ProcessEventRegister(App_ProcessEvent);
 
+    als_vendor_init(vnd_models);
     blemesh_on_sync();
     HAL_KeyInit();
     HalKeyConfig(keyPress);

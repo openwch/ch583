@@ -16,7 +16,6 @@ extern "C" {
 #endif
 
 #include "MESH_LIB.h"
-#define MSG_PIN    GPIO_Pin_12
 
 /**
  * @brief   存储收到的命令码所对应处理函数的结构体数组

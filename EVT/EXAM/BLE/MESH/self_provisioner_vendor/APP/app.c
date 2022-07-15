@@ -140,7 +140,7 @@ uint16_t vnd_model_cli_groups[CONFIG_MESH_MOD_GROUP_COUNT_DEF] = {BLE_MESH_ADDR_
 // 自定义模型加载
 struct bt_mesh_model vnd_models[] = {
     BLE_MESH_MODEL_VND_CB(CID_WCH, BLE_MESH_MODEL_ID_WCH_CLI, vnd_model_cli_op, NULL, vnd_model_cli_keys,
-                          vnd_model_cli_groups, &vendor_model_cli, &bt_mesh_vendor_model_cli_cb),
+                          vnd_model_cli_groups, &vendor_model_cli, NULL),
 };
 
 // 模型组成 elements
@@ -1103,6 +1103,7 @@ void App_Init(void)
 {
     App_TaskID = TMOS_ProcessEventRegister(App_ProcessEvent);
 
+    vendor_model_cli_init(vnd_models);
     blemesh_on_sync();
 
     HAL_KeyInit();

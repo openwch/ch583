@@ -217,13 +217,13 @@ typedef union
     {
         uint8_t cmd;                       /* 命令码 CMD_TRANSFER */
         uint8_t addr[ADDRESS_LEN];         /* 发送地址 */
-        uint8_t data[APP_MAX_TX_SIZE - 4]; /* 数据内容*/
+        uint8_t data[APP_MAX_TX_SIZE - 3]; /* 数据内容*/
     } transfer;                            /* 发送数据命令 */
     struct
     {
         uint8_t cmd;                       /* 命令码 CMD_TRANSFER_ACK */
         uint8_t addr[ADDRESS_LEN];         /* 发送地址 */
-        uint8_t data[APP_MAX_TX_SIZE - 4]; /* 数据内容*/
+        uint8_t data[APP_MAX_TX_SIZE - 3]; /* 数据内容*/
     } transfer_receive;                    /* 发送数据命令应答 */
     struct
     {
@@ -244,7 +244,7 @@ typedef union
         uint8_t cmd;                             /* 命令码 CMD_UPDATE */
         uint8_t addr[ADDRESS_LEN];               /* 发送地址 */
         uint8_t update_addr[UPDATE_ADDRESS_LEN]; /* 升级地址 */
-        uint8_t data[APP_MAX_TX_SIZE - 6];       /* 升级数据内容*/
+        uint8_t data[APP_MAX_TX_SIZE - 5];       /* 升级数据内容*/
     } update;                                    /* OTA升级数据命令 */
     struct
     {
@@ -258,7 +258,7 @@ typedef union
         uint8_t cmd;                             /* 命令码 CMD_VERIFY */
         uint8_t addr[ADDRESS_LEN];               /* 发送地址 */
         uint8_t update_addr[UPDATE_ADDRESS_LEN]; /* 升级地址 */
-        uint8_t data[APP_MAX_TX_SIZE - 6];       /* 升级数据内容*/
+        uint8_t data[APP_MAX_TX_SIZE - 5];       /* 升级数据内容*/
     } verify;                                    /* OTA验证数据命令 */
     struct
     {
@@ -296,7 +296,7 @@ typedef union
     } local_reset_ack;  /* 本地恢复出厂设置命令应答 */
     struct
     {
-        uint8_t buf[APP_MAX_TX_SIZE - 1]; /* 数据内容*/
+        uint8_t buf[APP_MAX_TX_SIZE]; /* 数据内容*/
     } data;
 } app_mesh_manage_t;
 

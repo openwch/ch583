@@ -650,7 +650,7 @@ static void adv_cli_write_send(void)
  *
  * @return  always SUCCESS
  */
-static int vendor_model_cli_init(struct bt_mesh_model *model)
+int vendor_model_cli_init(struct bt_mesh_model *model)
 {
     vendor_model_cli = model->user_data;
     vendor_model_cli->model = model;
@@ -690,9 +690,5 @@ static uint16_t vendor_model_cli_ProcessEvent(uint8_t task_id, uint16_t events)
     // Discard unknown events
     return 0;
 }
-
-const struct bt_mesh_model_cb bt_mesh_vendor_model_cli_cb = {
-    .init = vendor_model_cli_init,
-};
 
 /******************************** endfile @ main ******************************/

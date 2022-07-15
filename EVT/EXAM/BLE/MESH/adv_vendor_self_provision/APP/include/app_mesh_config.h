@@ -46,7 +46,7 @@ extern "C" {
 #define CONFIG_MESH_RPL_COUNT_MAX              (128)
 
 // RPL缓存循环使用，开启后网络中节点数量不受RPL限制，但NVS将不存储RPL数据
-#define CONFIG_MESH_ALLOW_RPL_CYCLE            (FALSE)
+#define CONFIG_MESH_ALLOW_RPL_CYCLE            (TRUE)
 
 // IV Update State Timer 基于96H的分频系数
 #define CONFIG_MESH_IVU_DIVIDER_MIN            (1)

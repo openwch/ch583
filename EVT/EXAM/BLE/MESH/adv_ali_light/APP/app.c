@@ -591,6 +591,7 @@ void App_Init(void)
 {
     App_TaskID = TMOS_ProcessEventRegister(App_ProcessEvent);
 
+    als_vendor_init(vnd_models);
     blemesh_on_sync();
     HAL_KeyInit();
     HalKeyConfig(keyPress);
