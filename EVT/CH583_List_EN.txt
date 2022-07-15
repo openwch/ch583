@@ -94,6 +94,7 @@ Directory
   |      |      |      |      |-- HAL: Hardware-related files shared by routines
   |      |      |      |      |-- LIB: BLE protocol stack library file and header file
   |      |      |      |      |-- Qinheng Low Energy Bluetooth Software Development Reference Manual.pdf
+  |      |      |      |      |-- WCH Bluetooth Over-the-Air Upgrade (BLE OTA).PDF
   |      |      |      |      |-- BLE Certification: Product: WCH CH58x QDID: 179771
   |      |      |-- PUB: CH583EVT evaluation board schematic and manual
   |
