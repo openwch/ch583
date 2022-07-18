@@ -142,6 +142,16 @@ uint8_t vendor_cli_tid_get(void);
  */
 void vendor_message_cli_trans_reset(void);
 
+/**
+ * @brief   厂商模型初始化
+ *
+ * @param   model       - 指向厂商模型结构体
+ *
+ * @return  always SUCCESS
+ */
+int vendor_model_cli_init(struct bt_mesh_model *model);
+
+
 #ifdef __cplusplus
 }
 #endif

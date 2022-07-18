@@ -12,6 +12,59 @@
 #include "iap.h"
 
 /*********************************************************************
+ * @fn      SetSysClock
+ *
+ * @brief   配置系统运行时钟60Mhz, 0x48
+ *
+ * @param   sc      - 系统时钟源选择 refer to SYS_CLKTypeDef
+ *
+ * @return  none
+ */
+__HIGH_CODE
+void mySetSysClock()
+{
+    uint32_t i;
+    R8_SAFE_ACCESS_SIG = SAFE_ACCESS_SIG1;
+    R8_SAFE_ACCESS_SIG = SAFE_ACCESS_SIG2;
+    SAFEOPERATE;
+    R8_PLL_CONFIG &= ~(1 << 5); //
+    R8_SAFE_ACCESS_SIG = 0;
+    // PLL div
+    if(!(R8_HFCK_PWR_CTRL & RB_CLK_PLL_PON))
+    {
+        R8_SAFE_ACCESS_SIG = SAFE_ACCESS_SIG1;
+        R8_SAFE_ACCESS_SIG = SAFE_ACCESS_SIG2;
+        SAFEOPERATE;
+        R8_HFCK_PWR_CTRL |= RB_CLK_PLL_PON; // PLL power on
+        for(i = 0; i < 2000; i++)
+        {
+            __nop();
+            __nop();
+        }
+    }
+    R8_SAFE_ACCESS_SIG = SAFE_ACCESS_SIG1;
+    R8_SAFE_ACCESS_SIG = SAFE_ACCESS_SIG2;
+    SAFEOPERATE;
+    R16_CLK_SYS_CFG = (1 << 6) | (CLK_SOURCE_PLL_60MHz & 0x1f);
+    __nop();
+    __nop();
+    __nop();
+    __nop();
+    R8_SAFE_ACCESS_SIG = 0;
+    R8_SAFE_ACCESS_SIG = SAFE_ACCESS_SIG1;
+    R8_SAFE_ACCESS_SIG = SAFE_ACCESS_SIG2;
+    SAFEOPERATE;
+    R8_FLASH_CFG = 0X52;
+    R8_SAFE_ACCESS_SIG = 0;
+    //更改FLASH clk的驱动能力
+    R8_SAFE_ACCESS_SIG = SAFE_ACCESS_SIG1;
+    R8_SAFE_ACCESS_SIG = SAFE_ACCESS_SIG2;
+    SAFEOPERATE;
+    R8_PLL_CONFIG |= 1 << 7;
+    R8_SAFE_ACCESS_SIG = 0;
+}
+
+/*********************************************************************
  * @fn      Main_Circulation
  *
  * @brief   IAP主循环,程序放ram中运行，提升速度.
@@ -56,7 +109,7 @@ int main()
     uint16_t i;
     uint8_t  s;
 
-    SetSysClock(); //为了精简程序体积，该函数比普通库的初始化函数有修改，只可以将时钟设置为60M
+    mySetSysClock(); //为了精简程序体积，该函数比普通库的初始化函数有修改，只可以将时钟设置为60M
 
 #if USE_EEPROM_FLAG
     EEPROM_READ(IAP_FLAG_DATAFLASH_ADD, &p_image_flash, 4);

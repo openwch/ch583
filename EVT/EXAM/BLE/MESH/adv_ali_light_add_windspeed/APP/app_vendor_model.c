@@ -245,7 +245,8 @@ uint16_t vnd_model_srv_keys[CONFIG_MESH_MOD_KEY_COUNT_DEF] = {BLE_MESH_KEY_UNUSE
 uint16_t vnd_model_srv_groups[CONFIG_MESH_MOD_GROUP_COUNT_DEF] = {BLE_MESH_ADDR_UNASSIGNED};
 
 struct bt_mesh_model vnd_models[] = {
-    BLE_MESH_MODEL_VND_CB(CID_ALI_GENIE, 0x0000, vnd_model_op, NULL, vnd_model_srv_keys, vnd_model_srv_groups, NULL, &bt_mesh_als_vendor_model_cb),
+    BLE_MESH_MODEL_VND_CB(CID_ALI_GENIE, 0x0000, vnd_model_op, NULL, vnd_model_srv_keys, vnd_model_srv_groups, NULL,
+        NULL),
 };
 
 /*********************************************************************
@@ -652,11 +653,11 @@ void send_windspeed_indicate(struct indicate_param *param)
  *
  * @brief   阿里 厂家模型 初始化
  *
- * @param   model   - 回调模型参数
+ * @param   model -  回调模型参数
  *
- * @return  none
+ * @return  always success
  */
-static int als_vendor_init(struct bt_mesh_model *model)
+int als_vendor_init(struct bt_mesh_model *model)
 {
     uint32_t ran;
 
@@ -708,8 +709,5 @@ static uint16_t als_vendor_model_ProcessEvent(uint8_t task_id, uint16_t events)
     return 0;
 }
 
-const struct bt_mesh_model_cb bt_mesh_als_vendor_model_cb = {
-    .init = als_vendor_init,
-};
 
 /******************************** endfile @ main ******************************/

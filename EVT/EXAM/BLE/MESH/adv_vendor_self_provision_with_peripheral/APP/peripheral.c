@@ -53,7 +53,7 @@
 #define DEFAULT_DESIRED_SLAVE_LATENCY        0
 
 // Supervision timeout value (units of 10ms, 100=1s)
-#define DEFAULT_DESIRED_CONN_TIMEOUT         100
+#define DEFAULT_DESIRED_CONN_TIMEOUT         500
 
 // Company Identifier: WCH
 #define WCH_COMPANY_ID                       0x07D7
@@ -82,25 +82,10 @@ static uint8_t Peripheral_TaskID = INVALID_TASK_ID; // Task ID for internal task
 // GAP - SCAN RSP data (max size = 31 bytes)
 static uint8_t scanRspData[] = {
     // complete name
-    0x12, // length of this data
+    0x02, // length of this data
     GAP_ADTYPE_LOCAL_NAME_COMPLETE,
-    'S',
-    'i',
-    'm',
-    'p',
-    'l',
-    'e',
-    ' ',
-    'P',
-    'e',
-    'r',
-    'i',
-    'p',
-    'h',
-    'e',
-    'r',
-    'a',
-    'l',
+    'T',
+
     // connection interval range
     0x05, // length of this data
     GAP_ADTYPE_SLAVE_CONN_INTERVAL_RANGE,
@@ -130,7 +115,14 @@ static uint8_t advertData[] = {
     0x03,                  // length of this data
     GAP_ADTYPE_16BIT_MORE, // some of the UUID's, but not all
     LO_UINT16(SIMPLEPROFILE_SERV_UUID),
-    HI_UINT16(SIMPLEPROFILE_SERV_UUID)
+    HI_UINT16(SIMPLEPROFILE_SERV_UUID),
+
+    0x05,                  // length of this data
+    GAP_ADTYPE_MANUFACTURER_SPECIFIC,
+    0xD7,
+    0x07,
+    0x00,
+    0x00
 };
 
 // GAP GATT Attributes
@@ -539,7 +531,9 @@ static void peripheralStateNotificationCB(gapRole_States_t newState, gapRoleEven
         case GAPROLE_WAITING:
             if(pEvent->gap.opcode == GAP_END_DISCOVERABLE_DONE_EVENT)
             {
+                uint8_t  advertising_enable = TRUE;
                 PRINT("Waiting for advertising..\n");
+                GAPRole_SetParameter(GAPROLE_ADVERT_ENABLED, sizeof(uint8_t), &advertising_enable);
             }
             else if(pEvent->gap.opcode == GAP_LINK_TERMINATED_EVENT)
             {
@@ -577,10 +571,7 @@ static void peripheralStateNotificationCB(gapRole_States_t newState, gapRoleEven
  *
  * @brief   Perform a periodic application task. This function gets
  *          called every five seconds as a result of the SBP_PERIODIC_EVT
- *          TMOS event. In this example, the value of the third
- *          characteristic in the SimpleGATTProfile service is retrieved
- *          from the profile, and then copied into the value of the
- *          the fourth characteristic.
+ *          TMOS event.
  *
  * @param   none
  *
@@ -588,8 +579,7 @@ static void peripheralStateNotificationCB(gapRole_States_t newState, gapRoleEven
  */
 static void performPeriodicTask(void)
 {
-    uint8_t notiData[SIMPLEPROFILE_CHAR4_LEN] = {0x88};
-    peripheralChar4Notify(notiData, SIMPLEPROFILE_CHAR4_LEN);
+
 }
 
 /*********************************************************************
@@ -605,12 +595,16 @@ static void performPeriodicTask(void)
 void peripheralChar4Notify(uint8_t *pValue, uint16_t len)
 {
     attHandleValueNoti_t noti;
-    noti.len = len;
-    noti.pValue = GATT_bm_alloc(peripheralConnList.connHandle, ATT_HANDLE_VALUE_NOTI, noti.len, NULL, 0);
-    tmos_memcpy(noti.pValue, pValue, noti.len);
-    if(simpleProfile_Notify(peripheralConnList.connHandle, &noti) != SUCCESS)
+    if(peripheralConnList.connHandle != GAP_CONNHANDLE_INIT)
     {
-        GATT_bm_free((gattMsg_t *)&noti, ATT_HANDLE_VALUE_NOTI);
+        noti.len = len;
+        noti.pValue = GATT_bm_alloc(peripheralConnList.connHandle, ATT_HANDLE_VALUE_NOTI, noti.len, NULL, 0);
+        tmos_memcpy(noti.pValue, pValue, noti.len);
+        if(simpleProfile_Notify(peripheralConnList.connHandle, &noti) != SUCCESS)
+        {
+            PRINT("Notify ERR \n");
+            GATT_bm_free((gattMsg_t *)&noti, ATT_HANDLE_VALUE_NOTI);
+        }
     }
 }
 
@@ -649,6 +643,58 @@ static void simpleProfileChangeCB(uint8_t paramID, uint8_t *pValue, uint16_t len
         default:
             // should not reach here!
             break;
+    }
+}
+
+/*********************************************************************
+ * @fn      Peripheral_AdvertData_Privisioned
+ *
+ * @brief   修改广播数据内配网标志.
+ *
+ * @param   privisioned - 是否已配网
+ *
+ * @return  none
+ */
+void Peripheral_AdvertData_Privisioned(uint8_t privisioned)
+{
+    uint8_t  advertising_enable;
+    if(privisioned)
+    {
+        advertData[11]=0x01;
+        advertData[12]=0x00;
+    }
+    else
+    {
+        advertData[11]=0x00;
+        advertData[12]=0x00;
+    }
+    GAPRole_GetParameter(GAPROLE_ADVERT_ENABLED, &advertising_enable);
+    if(advertising_enable)
+    {
+        advertising_enable = FALSE;
+        GAPRole_SetParameter(GAPROLE_ADVERT_ENABLED, sizeof(uint8_t), &advertising_enable);
+        GAPRole_SetParameter(GAPROLE_ADVERT_DATA, sizeof(advertData), advertData);
+        advertising_enable = TRUE;
+        GAPRole_SetParameter(GAPROLE_ADVERT_ENABLED, sizeof(uint8_t), &advertising_enable);
+    }
+    else
+    {
+        GAPRole_SetParameter(GAPROLE_ADVERT_DATA, sizeof(advertData), advertData);
+    }
+}
+
+/*********************************************************************
+ * @fn      Peripheral_TerminateLink
+ *
+ * @brief   断开连接.
+ *
+ * @return  none
+ */
+void Peripheral_TerminateLink(void)
+{
+    if(peripheralConnList.connHandle != GAP_CONNHANDLE_INIT)
+    {
+        GAPRole_TerminateLink(peripheralConnList.connHandle);
     }
 }
 

@@ -220,7 +220,7 @@ static void ObserverEventCB(gapRoleEvent_t *pEvent)
 
         case GAP_DEVICE_INFO_EVENT:
         {
-            ObserverAddDeviceInfo(pEvent->deviceInfo.addr, pEvent->deviceInfo.addrType);
+//            ObserverAddDeviceInfo(pEvent->deviceInfo.addr, pEvent->deviceInfo.addrType);
         }
         break;
 
@@ -240,8 +240,8 @@ static void ObserverEventCB(gapRoleEvent_t *pEvent)
                 uint8           state;
                 tmos_memcpy(sync.addr, PeerAddrDef, B_ADDR_LEN);
                 sync.addrType = pEvent->deviceExtAdvInfo.addrType;
-                sync.advertising_SID = 15;
-                sync.options = 0;
+                sync.advertising_SID = 8;
+                sync.options = DUPLICATE_FILTERING_INITIALLY_ENABLED;
                 sync.skip = 0;
                 sync.syncCTEType = 0;
                 sync.syncTimeout = 80; // 800ms

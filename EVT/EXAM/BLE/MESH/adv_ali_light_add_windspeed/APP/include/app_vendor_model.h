@@ -134,6 +134,15 @@ void send_windspeed_indicate(struct indicate_param *param);
 
 void bt_mesh_indicate_reset(void);
 
+/**
+ * @brief   阿里 厂家模型 初始化
+ *
+ * @param   model -  回调模型参数
+ *
+ * @return  always success
+ */
+int als_vendor_init(struct bt_mesh_model *model);
+
 #ifdef __cplusplus
 }
 #endif

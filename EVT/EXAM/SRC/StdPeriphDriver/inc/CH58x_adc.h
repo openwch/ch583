@@ -28,9 +28,13 @@ typedef enum
     CH_EXTIN_3,       // ADC 外部模拟通道 3
     CH_EXTIN_4,       // ADC 外部模拟通道 4
     CH_EXTIN_5,       // ADC 外部模拟通道 5
-    CH_EXTIN_8 = 8,   // ADC 外部模拟通道 8
+    CH_EXTIN_6,       // ADC 外部模拟通道 6
+    CH_EXTIN_7,       // ADC 外部模拟通道 7
+    CH_EXTIN_8,       // ADC 外部模拟通道 8
     CH_EXTIN_9,       // ADC 外部模拟通道 9
-    CH_EXTIN_12 = 12, // ADC 外部模拟通道 12
+    CH_EXTIN_10,      // ADC 外部模拟通道 10
+    CH_EXTIN_11,      // ADC 外部模拟通道 11
+    CH_EXTIN_12,      // ADC 外部模拟通道 12
     CH_EXTIN_13,      // ADC 外部模拟通道 13
 
     CH_INTE_VBAT = 14,  // ADC 内部电池检测通道
@@ -191,13 +195,13 @@ void ADC_AutoConverCycle(uint8_t cycle);
 void ADC_DMACfg(uint8_t s, uint16_t startAddr, uint16_t endAddr, ADC_DMAModeTypeDef m);
 
 /**
- * @brief   获取当前采样的温度值（℃）
+ * @brief   Convert ADC value to temperature(Celsius)
  *
- * @param   ts_v    - 当前温度传感器采样输出
+ * @param   adc_val - adc value
  *
- * @return  转换后的温度值（℃）
+ * @return  temperature (Celsius)
  */
-int ADC_GetCurrentTS(uint16_t ts_v);
+int adc_to_temperature_celsius(uint16_t adc_val);
 
 /**
  * @brief   获取ADC转换值

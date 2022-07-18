@@ -1,8 +1,8 @@
 /********************************** (C) COPYRIGHT *******************************
  * File Name          : mesh_lib.h
  * Author             : WCH
- * Version            : V1.53
- * Date               : 2022/04/25
+ * Version            : V1.6
+ * Date               : 2022/07/04
  * Description        :
  * Copyright (c) 2021 Nanjing Qinheng Microelectronics Co., Ltd.
  *******************************************************************************/
@@ -118,7 +118,7 @@ typedef signed int ssize_t;
 #endif
 
 /******************************************************************************/
-#define  VER_MESH_FILE            "MESH_LIB_V1.53"
+#define  VER_MESH_FILE            "MESH_LIB_V1.6"
 extern const uint8_t VER_MESH_LIB[];
 
 // Global_Error_Code

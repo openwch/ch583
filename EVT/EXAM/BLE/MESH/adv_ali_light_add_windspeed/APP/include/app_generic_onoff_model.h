@@ -18,12 +18,30 @@ extern "C" {
 #include "MESH_LIB.h"
 #define MSG_PIN    GPIO_Pin_12
 
-BOOL read_led_state(uint32_t led_pin);
-
 extern const struct bt_mesh_model_op gen_onoff_op[];
 
+/**
+ * @brief   获取当前灯状态.
+ *
+ * @param   led_pin - 引脚.
+ *
+ * @return  灯状态
+ */
+BOOL read_led_state(uint32_t led_pin);
+
+/**
+ * @brief   设置当前灯状态.
+ *
+ * @param   led_pin - 引脚.
+ * @param   on      - 状态.
+ */
 void set_led_state(uint32_t led_pin, BOOL on);
 
+/**
+ * @brief   翻转当前灯状态
+ *
+ * @param   led_pin - 引脚.
+ */
 void toggle_led_state(uint32_t led_pin);
 
 #ifdef __cplusplus

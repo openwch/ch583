@@ -147,6 +147,7 @@ void Broadcaster_Init()
     {
         // Device starts advertising upon initialization
         uint8 initial_advertising_enable = TRUE;
+        uint8 initial_periodic_advertising_enable = TRUE | (1<<1);
         uint8 initial_adv_event_type = GAP_ADTYPE_EXT_NONCONN_NONSCAN_UNDIRECT;
         // Set the GAP Role Parameters
         GAPRole_SetParameter(GAPROLE_ADVERT_ENABLED, sizeof(uint8), &initial_advertising_enable);
@@ -154,7 +155,7 @@ void Broadcaster_Init()
         GAPRole_SetParameter(GAPROLE_SCAN_RSP_DATA, sizeof(scanRspData), scanRspData);
         GAPRole_SetParameter(GAPROLE_ADVERT_DATA, sizeof(advertData), advertData);
         GAPRole_SetParameter(GAPROLE_PERIODIC_ADVERT_DATA, sizeof(periodicAdvertData), periodicAdvertData);
-        GAPRole_SetParameter(GAPROLE_PERIODIC_ADVERT_ENABLED, sizeof(uint8), &initial_advertising_enable);
+        GAPRole_SetParameter(GAPROLE_PERIODIC_ADVERT_ENABLED, sizeof(uint8), &initial_periodic_advertising_enable);
     }
 
     {
@@ -170,7 +171,7 @@ void Broadcaster_Init()
         GAP_SetParamValue(TGAP_PERIODIC_ADV_PROPERTIES, GAP_PERI_PROPERTIES_INCLUDE_TXPOWER);
         GAP_SetParamValue(TGAP_ADV_SECONDARY_PHY, GAP_PHY_VAL_LE_1M);
         GAP_SetParamValue(TGAP_ADV_SECONDARY_MAX_SKIP, 0);
-        GAP_SetParamValue(TGAP_ADV_ADVERTISING_SID, 15);
+        GAP_SetParamValue(TGAP_ADV_ADVERTISING_SID, 8);
 
         // Enable scan req notify
         GAP_SetParamValue(TGAP_ADV_SCAN_REQ_NOTIFY, ENABLE);

@@ -12,6 +12,7 @@
 #include "CONFIG.h"
 #include "MESH_LIB.h"
 #include "app_mesh_config.h"
+#include "app_generic_onoff_model.h"
 #include "app_generic_lightness_model.h"
 #include "app_vendor_model.h"
 

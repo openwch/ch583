@@ -45,7 +45,7 @@ uint32_t CH58X_LowPower(uint32_t time)
     if(!RTCTigFlag)
     {
         LowPower_Sleep(RB_PWR_RAM2K | RB_PWR_RAM30K | RB_PWR_EXTEND);
-        if(!RTCTigFlag) // 注意如果使用了RTC以外的唤醒方式，需要注意此时32M晶振未稳定
+        if(RTCTigFlag) // 注意如果使用了RTC以外的唤醒方式，需要注意此时32M晶振未稳定
         {
             time += WAKE_UP_RTC_MAX_TIME;
             if(time > 0xA8C00000)

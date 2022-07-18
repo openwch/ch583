@@ -32,11 +32,11 @@ void Lib_Calibration_LSI(void)
 /*******************************************************************************
  * @fn      Lib_Read_Flash
  *
- * @brief   Lib 操作Flash回调
+ * @brief   Callback function used for BLE lib.
  *
- * @param   addr.
- * @param   num.
- * @param   pBuf.
+ * @param   addr - Read start address
+ * @param   num - Number of units to read (unit: 4 bytes)
+ * @param   pBuf - Buffer to store read data
  *
  * @return  None.
  */
@@ -49,17 +49,17 @@ uint32_t Lib_Read_Flash(uint32_t addr, uint32_t num, uint32_t *pBuf)
 /*******************************************************************************
  * @fn      Lib_Write_Flash
  *
- * @brief   Lib 操作Flash回调
+ * @brief   Callback function used for BLE lib.
  *
- * @param   addr.
- * @param   num.
- * @param   pBuf.
+ * @param   addr - Write start address
+ * @param   num - Number of units to write (unit: 4 bytes)
+ * @param   pBuf - Buffer with data to be written
  *
  * @return  None.
  */
 uint32_t Lib_Write_Flash(uint32_t addr, uint32_t num, uint32_t *pBuf)
 {
-    EEPROM_ERASE(addr, EEPROM_PAGE_SIZE * 2);
+    EEPROM_ERASE(addr, num * 4);
     EEPROM_WRITE(addr, pBuf, num * 4);
     return 0;
 }

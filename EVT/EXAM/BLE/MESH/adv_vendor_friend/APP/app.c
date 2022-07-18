@@ -23,6 +23,8 @@
 #define SELENCE_ADV_ON    0x01
 #define SELENCE_ADV_OF    0x00
 
+#define APP_WAIT_ADD_APPKEY_DELAY     1600*10
+
 #define APP_DELETE_LOCAL_NODE_DELAY   3200
 // shall not less than APP_DELETE_LOCAL_NODE_DELAY
 #define APP_DELETE_NODE_INFO_DELAY    3200
@@ -60,7 +62,7 @@ static void prov_reset(void);
 
 static struct bt_mesh_cfg_srv cfg_srv = {
     .relay = BLE_MESH_RELAY_ENABLED,
-    .beacon = BLE_MESH_BEACON_DISABLED,
+    .beacon = BLE_MESH_BEACON_ENABLED,
 #if(CONFIG_BLE_MESH_FRIEND)
     .frnd = BLE_MESH_FRIEND_ENABLED,
 #endif
@@ -122,7 +124,7 @@ uint16_t vnd_model_srv_groups[CONFIG_MESH_MOD_GROUP_COUNT_DEF] = {BLE_MESH_ADDR_
 // 自定义模型加载
 struct bt_mesh_model vnd_models[] = {
     BLE_MESH_MODEL_VND_CB(CID_WCH, BLE_MESH_MODEL_ID_WCH_SRV, vnd_model_srv_op, NULL, vnd_model_srv_keys,
-                          vnd_model_srv_groups, &vendor_model_srv, &bt_mesh_vendor_model_srv_cb),
+                          vnd_model_srv_groups, &vendor_model_srv, NULL),
 };
 
 // 模型组成 elements
@@ -156,6 +158,7 @@ static const struct bt_mesh_prov app_prov = {
 app_mesh_manage_t app_mesh_manage;
 
 uint16_t delete_node_info_address=0;
+uint8_t settings_load_over = FALSE;
 
 /*********************************************************************
  * GLOBAL TYPEDEFS
@@ -212,6 +215,7 @@ static void link_open(bt_mesh_prov_bearer_t bearer)
  */
 static void link_close(bt_mesh_prov_bearer_t bearer, uint8_t reason)
 {
+    APP_DBG("");
     if(reason != CLOSE_REASON_SUCCESS)
         APP_DBG("reason %x", reason);
 }
@@ -231,6 +235,10 @@ static void link_close(bt_mesh_prov_bearer_t bearer, uint8_t reason)
 static void prov_complete(uint16_t net_idx, uint16_t addr, uint8_t flags, uint32_t iv_index)
 {
     APP_DBG("net_idx %x, addr %x", net_idx, addr);
+    if(settings_load_over || (vnd_models[0].keys[0]==BLE_MESH_KEY_UNUSED))
+    {
+        tmos_start_task(App_TaskID, APP_DELETE_LOCAL_NODE_EVT, APP_WAIT_ADD_APPKEY_DELAY);
+    }
 }
 
 /*********************************************************************
@@ -269,14 +277,20 @@ static void cfg_srv_rsp_handler( const cfg_srv_status_t *val )
     if(val->cfgHdr.opcode == OP_APP_KEY_ADD)
     {
         APP_DBG("App Key Added");
+        // 配置成功，刷新删除任务
+        tmos_start_task(App_TaskID, APP_DELETE_LOCAL_NODE_EVT, APP_WAIT_ADD_APPKEY_DELAY);
     }
     else if(val->cfgHdr.opcode == OP_MOD_APP_BIND)
     {
         APP_DBG("Vendor Model Binded");
+        // 配置成功，刷新删除任务
+        tmos_start_task(App_TaskID, APP_DELETE_LOCAL_NODE_EVT, APP_WAIT_ADD_APPKEY_DELAY);
     }
     else if(val->cfgHdr.opcode == OP_MOD_SUB_ADD)
     {
         APP_DBG("Vendor Model Subscription Set");
+        // 配置结束，取消删除任务
+        tmos_stop_task(App_TaskID, APP_DELETE_LOCAL_NODE_EVT);
     }
     else
     {
@@ -440,7 +454,7 @@ void keyPress(uint8_t keys)
     {
         default:
         {
-            uint8_t status;
+            int status;
             uint8_t data[8] = {0, 1, 2, 3, 4, 5, 6, 7};
             // 发往配网者节点
             status = vendor_model_srv_send(0x0001, data, 8);
@@ -552,6 +566,7 @@ void blemesh_on_sync(void)
 
 #if(CONFIG_BLE_MESH_SETTINGS)
     settings_load();
+    settings_load_over = TRUE;
 #endif /* SETTINGS */
 
     if(bt_mesh_is_provisioned())
@@ -577,6 +592,7 @@ void App_Init()
 {
     App_TaskID = TMOS_ProcessEventRegister(App_ProcessEvent);
 
+    vendor_model_srv_init(vnd_models);
     blemesh_on_sync();
     HAL_KeyInit();
     HalKeyConfig(keyPress);

@@ -686,7 +686,7 @@ static void adv_srv_trans_send(void)
  *
  * @return  always SUCCESS
  */
-static int vendor_model_srv_init(struct bt_mesh_model *model)
+int vendor_model_srv_init(struct bt_mesh_model *model)
 {
     vendor_model_srv = model->user_data;
     vendor_model_srv->model = model;
@@ -730,7 +730,4 @@ static uint16_t vendor_model_srv_ProcessEvent(uint8_t task_id, uint16_t events)
     return 0;
 }
 
-const struct bt_mesh_model_cb bt_mesh_vendor_model_srv_cb = {
-    .init = vendor_model_srv_init,
-};
 /******************************** endfile @ main ******************************/

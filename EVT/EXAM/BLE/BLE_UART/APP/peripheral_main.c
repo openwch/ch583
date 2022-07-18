@@ -35,6 +35,7 @@ extern void app_uart_init(void);
  * Return         : None
  *******************************************************************************/
 __HIGH_CODE
+__attribute__((noinline))
 void Main_Circulation()
 {
     while(1)

@@ -4,7 +4,8 @@
 * Version            : V1.0
 * Date               : 2018/12/10
 * Description        : 自定义包含五种不同属性的服务，包含可读、可写、通知、可读可写、安全可读
-
+ * Copyright (c) 2021 Nanjing Qinheng Microelectronics Co., Ltd.
+ * SPDX-License-Identifier: Apache-2.0
 *******************************************************************************/
 
 /*********************************************************************
@@ -348,7 +349,7 @@ bStatus_t SimpleProfile_RegisterAppCBs(simpleProfileCBs_t *appCallbacks)
  *
  * @return  bStatus_t
  */
-bStatus_t SimpleProfile_SetParameter(uint8_t param, uint8_t len, void *value)
+bStatus_t SimpleProfile_SetParameter(uint8_t param, uint16_t len, void *value)
 {
     bStatus_t ret = SUCCESS;
     switch(param)

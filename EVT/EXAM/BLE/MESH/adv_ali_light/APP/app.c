@@ -52,7 +52,7 @@ static void prov_reset(void);
 
 static struct bt_mesh_cfg_srv cfg_srv = {
     .relay = BLE_MESH_RELAY_ENABLED,
-    .beacon = BLE_MESH_BEACON_DISABLED,
+    .beacon = BLE_MESH_BEACON_ENABLED,
 #if(CONFIG_BLE_MESH_FRIEND)
     .frnd = BLE_MESH_FRIEND_ENABLED,
 #endif
@@ -591,6 +591,7 @@ void App_Init(void)
 {
     App_TaskID = TMOS_ProcessEventRegister(App_ProcessEvent);
 
+    als_vendor_init(vnd_models);
     blemesh_on_sync();
     HAL_KeyInit();
     HalKeyConfig(keyPress);

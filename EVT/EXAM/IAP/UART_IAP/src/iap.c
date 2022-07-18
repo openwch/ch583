@@ -1,9 +1,12 @@
-/*
- * iap.c
- *
- *  Created on: Mar 16, 2022
- *      Author: OWNER
- */
+/********************************** (C) COPYRIGHT *******************************
+ * File Name          : iap.c
+ * Author             : WCH
+ * Version            : V1.0
+ * Date               : 2022/03/15
+ * Description        : UART IAP例程
+ * Copyright (c) 2021 Nanjing Qinheng Microelectronics Co., Ltd.
+ * SPDX-License-Identifier: Apache-2.0
+ *******************************************************************************/
 #include "iap.h"
 
 /* 更新权限，必须先擦除后，且擦除地址需要和APP对应地址一致才可赋予更新权限 */
