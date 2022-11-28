@@ -23,18 +23,14 @@ __HIGH_CODE
 void SetSysClock(SYS_CLKTypeDef sc)
 {
     uint32_t i;
-    R8_SAFE_ACCESS_SIG = SAFE_ACCESS_SIG1;
-    R8_SAFE_ACCESS_SIG = SAFE_ACCESS_SIG2;
-    SAFEOPERATE;
+    sys_safe_access_enable();
     R8_PLL_CONFIG &= ~(1 << 5); //
-    R8_SAFE_ACCESS_SIG = 0;
+    sys_safe_access_disable();
     if(sc & 0x20)
     { // HSE div
         if(!(R8_HFCK_PWR_CTRL & RB_CLK_XT32M_PON))
         {
-            R8_SAFE_ACCESS_SIG = SAFE_ACCESS_SIG1;
-            R8_SAFE_ACCESS_SIG = SAFE_ACCESS_SIG2;
-            SAFEOPERATE;
+            sys_safe_access_enable();
             R8_HFCK_PWR_CTRL |= RB_CLK_XT32M_PON; // HSE power on
             for(i = 0; i < 1200; i++)
             {
@@ -43,29 +39,24 @@ void SetSysClock(SYS_CLKTypeDef sc)
             }
         }
 
-        R8_SAFE_ACCESS_SIG = SAFE_ACCESS_SIG1;
-        R8_SAFE_ACCESS_SIG = SAFE_ACCESS_SIG2;
-        SAFEOPERATE;
+        sys_safe_access_enable();
         R16_CLK_SYS_CFG = (0 << 6) | (sc & 0x1f);
         __nop();
         __nop();
         __nop();
         __nop();
-        R8_SAFE_ACCESS_SIG = 0;
-        R8_SAFE_ACCESS_SIG = SAFE_ACCESS_SIG1;
-        R8_SAFE_ACCESS_SIG = SAFE_ACCESS_SIG2;
+        sys_safe_access_disable();
+        sys_safe_access_enable();
         SAFEOPERATE;
         R8_FLASH_CFG = 0X51;
-        R8_SAFE_ACCESS_SIG = 0;
+        sys_safe_access_disable();
     }
 
     else if(sc & 0x40)
     { // PLL div
         if(!(R8_HFCK_PWR_CTRL & RB_CLK_PLL_PON))
         {
-            R8_SAFE_ACCESS_SIG = SAFE_ACCESS_SIG1;
-            R8_SAFE_ACCESS_SIG = SAFE_ACCESS_SIG2;
-            SAFEOPERATE;
+            sys_safe_access_enable();
             R8_HFCK_PWR_CTRL |= RB_CLK_PLL_PON; // PLL power on
             for(i = 0; i < 2000; i++)
             {
@@ -73,45 +64,35 @@ void SetSysClock(SYS_CLKTypeDef sc)
                 __nop();
             }
         }
-        R8_SAFE_ACCESS_SIG = SAFE_ACCESS_SIG1;
-        R8_SAFE_ACCESS_SIG = SAFE_ACCESS_SIG2;
-        SAFEOPERATE;
+        sys_safe_access_enable();
         R16_CLK_SYS_CFG = (1 << 6) | (sc & 0x1f);
         __nop();
         __nop();
         __nop();
         __nop();
-        R8_SAFE_ACCESS_SIG = 0;
+        sys_safe_access_disable();
         if(sc == CLK_SOURCE_PLL_80MHz)
         {
-            R8_SAFE_ACCESS_SIG = SAFE_ACCESS_SIG1;
-            R8_SAFE_ACCESS_SIG = SAFE_ACCESS_SIG2;
-            SAFEOPERATE;
+            sys_safe_access_enable();
             R8_FLASH_CFG = 0X02;
-            R8_SAFE_ACCESS_SIG = 0;
+            sys_safe_access_disable();
         }
         else
         {
-            R8_SAFE_ACCESS_SIG = SAFE_ACCESS_SIG1;
-            R8_SAFE_ACCESS_SIG = SAFE_ACCESS_SIG2;
-            SAFEOPERATE;
+            sys_safe_access_enable();
             R8_FLASH_CFG = 0X52;
-            R8_SAFE_ACCESS_SIG = 0;
+            sys_safe_access_disable();
         }
     }
     else
     {
-        R8_SAFE_ACCESS_SIG = SAFE_ACCESS_SIG1;
-        R8_SAFE_ACCESS_SIG = SAFE_ACCESS_SIG2;
-        SAFEOPERATE;
+        sys_safe_access_enable();
         R16_CLK_SYS_CFG |= RB_CLK_SYS_MOD;
     }
     //更改FLASH clk的驱动能力
-    R8_SAFE_ACCESS_SIG = SAFE_ACCESS_SIG1;
-    R8_SAFE_ACCESS_SIG = SAFE_ACCESS_SIG2;
-    SAFEOPERATE;
+    sys_safe_access_enable();
     R8_PLL_CONFIG |= 1 << 7;
-    R8_SAFE_ACCESS_SIG = 0;
+    sys_safe_access_disable();
 }
 
 /*********************************************************************
@@ -176,11 +157,9 @@ __HIGH_CODE
 void SYS_ResetExecute(void)
 {
     FLASH_ROM_SW_RESET();
-    R8_SAFE_ACCESS_SIG = SAFE_ACCESS_SIG1;
-    R8_SAFE_ACCESS_SIG = SAFE_ACCESS_SIG2;
-    SAFEOPERATE;
+    sys_safe_access_enable();
     R8_RST_WDOG_CTRL |= RB_SOFTWARE_RESET;
-    R8_SAFE_ACCESS_SIG = 0;
+    sys_safe_access_disable();
 }
 
 /*********************************************************************
@@ -242,18 +221,20 @@ uint32_t SYS_GetSysTickCnt(void)
  */
 void WWDG_ITCfg(FunctionalState s)
 {
-    R8_SAFE_ACCESS_SIG = SAFE_ACCESS_SIG1;
-    R8_SAFE_ACCESS_SIG = SAFE_ACCESS_SIG2;
-    SAFEOPERATE;
+    uint8_t ctrl = R8_RST_WDOG_CTRL;
+
     if(s == DISABLE)
     {
-        R8_RST_WDOG_CTRL &= ~RB_WDOG_INT_EN;
+        ctrl &= ~RB_WDOG_INT_EN;
     }
     else
     {
-        R8_RST_WDOG_CTRL |= RB_WDOG_INT_EN;
+        ctrl |= RB_WDOG_INT_EN;
     }
-    R8_SAFE_ACCESS_SIG = 0;
+
+    sys_safe_access_enable();
+    R8_RST_WDOG_CTRL = ctrl;
+    sys_safe_access_disable();
 }
 
 /*********************************************************************
@@ -267,18 +248,20 @@ void WWDG_ITCfg(FunctionalState s)
  */
 void WWDG_ResetCfg(FunctionalState s)
 {
-    R8_SAFE_ACCESS_SIG = SAFE_ACCESS_SIG1;
-    R8_SAFE_ACCESS_SIG = SAFE_ACCESS_SIG2;
-    SAFEOPERATE;
+    uint8_t ctrl = R8_RST_WDOG_CTRL;
+
     if(s == DISABLE)
     {
-        R8_RST_WDOG_CTRL &= ~RB_WDOG_RST_EN;
+        ctrl &= ~RB_WDOG_RST_EN;
     }
     else
     {
-        R8_RST_WDOG_CTRL |= RB_WDOG_RST_EN;
+        ctrl |= RB_WDOG_RST_EN;
     }
-    R8_SAFE_ACCESS_SIG = 0;
+
+    sys_safe_access_enable();
+    R8_RST_WDOG_CTRL = ctrl;
+    sys_safe_access_disable();
 }
 
 /*********************************************************************
@@ -292,11 +275,9 @@ void WWDG_ResetCfg(FunctionalState s)
  */
 void WWDG_ClearFlag(void)
 {
-    R8_SAFE_ACCESS_SIG = SAFE_ACCESS_SIG1;
-    R8_SAFE_ACCESS_SIG = SAFE_ACCESS_SIG2;
-    SAFEOPERATE;
+    sys_safe_access_enable();
     R8_RST_WDOG_CTRL |= RB_WDOG_INT_FLAG;
-    R8_SAFE_ACCESS_SIG = 0;
+    sys_safe_access_disable();
 }
 
 /*********************************************************************
@@ -314,12 +295,11 @@ __attribute__((weak))
 void HardFault_Handler(void)
 {
     FLASH_ROM_SW_RESET();
-    R8_SAFE_ACCESS_SIG = SAFE_ACCESS_SIG1;
-    R8_SAFE_ACCESS_SIG = SAFE_ACCESS_SIG2;
-    SAFEOPERATE;
+    sys_safe_access_enable();
     R16_INT32K_TUNE = 0xFFFF;
+    sys_safe_access_enable();
     R8_RST_WDOG_CTRL |= RB_SOFTWARE_RESET;
-    R8_SAFE_ACCESS_SIG = 0;
+    sys_safe_access_disable();
     while(1);
 }
 
@@ -336,7 +316,9 @@ __HIGH_CODE
 void mDelayuS(uint16_t t)
 {
     uint32_t i;
-#if(FREQ_SYS == 60000000)
+#if(FREQ_SYS == 80000000)
+    i = t * 20;
+#elif(FREQ_SYS == 60000000)
     i = t * 15;
 #elif(FREQ_SYS == 48000000)
     i = t * 12;
@@ -356,6 +338,8 @@ void mDelayuS(uint16_t t)
     i = t >> 1;
 #elif(FREQ_SYS == 1000000)
     i = t >> 2;
+#else
+    i = t << 1;
 #endif
     do
     {

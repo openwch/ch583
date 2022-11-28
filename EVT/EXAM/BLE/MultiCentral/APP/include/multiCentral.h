@@ -32,6 +32,7 @@ extern "C" {
 #define START_READ_OR_WRITE_EVT       0x0020
 #define START_READ_RSSI_EVT           0x0040
 #define ESTABLISH_LINK_TIMEOUT_EVT    0x0080
+#define START_WRITE_CCCD_EVT          0x0100
 
 #define CONNECT0_ITEM                 0
 #define CONNECT1_ITEM                 1
@@ -51,6 +52,7 @@ typedef struct
     uint16_t svcStartHdl;         // Discovered service start handle
     uint16_t svcEndHdl;           // Discovered service end handle
     uint16_t charHdl;             // Discovered characteristic handle
+    uint16_t cccHdl;              // client characteristic configuration discovery handle
 } centralConnItem_t;
 
 typedef struct

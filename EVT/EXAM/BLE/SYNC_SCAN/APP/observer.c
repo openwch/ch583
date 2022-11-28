@@ -77,7 +77,7 @@ static uint8 PeerAddrDef[B_ADDR_LEN] = {0x02, 0x02, 0x03, 0xE4, 0xC2, 0x84};
  * LOCAL FUNCTIONS
  */
 static void ObserverEventCB(gapRoleEvent_t *pEvent);
-static void Observer_ProcessOSALMsg(tmos_event_hdr_t *pMsg);
+static void Observer_ProcessTMOSMsg(tmos_event_hdr_t *pMsg);
 static void ObserverAddDeviceInfo(uint8 *pAddr, uint8 addrType);
 
 /*********************************************************************
@@ -102,7 +102,7 @@ static const gapRoleObserverCB_t ObserverRoleCB = {
  *          initialization/setup, table initialization, power up
  *          notification).
  *
- * @param   task_id - the ID assigned by OSAL.  This ID should be
+ * @param   task_id - the ID assigned by TMOS.  This ID should be
  *                    used to send messages and set timers.
  *
  * @return  none
@@ -128,7 +128,7 @@ void Observer_Init()
  *          is called to process all events for the task.  Events
  *          include timers, messages and any other user defined events.
  *
- * @param   task_id  - The OSAL assigned task ID.
+ * @param   task_id  - The TMOS assigned task ID.
  * @param   events - events to process.  This is a bit map and can
  *                   contain more than one event.
  *
@@ -136,7 +136,7 @@ void Observer_Init()
  */
 uint16 Observer_ProcessEvent(uint8 task_id, uint16 events)
 {
-    //  VOID task_id; // OSAL required parameter that isn't used in this function
+    //  VOID task_id; // TMOS required parameter that isn't used in this function
 
     if(events & SYS_EVENT_MSG)
     {
@@ -144,9 +144,9 @@ uint16 Observer_ProcessEvent(uint8 task_id, uint16 events)
 
         if((pMsg = tmos_msg_receive(ObserverTaskId)) != NULL)
         {
-            Observer_ProcessOSALMsg((tmos_event_hdr_t *)pMsg);
+            Observer_ProcessTMOSMsg((tmos_event_hdr_t *)pMsg);
 
-            // Release the OSAL message
+            // Release the TMOS message
             tmos_msg_deallocate(pMsg);
         }
 
@@ -176,7 +176,7 @@ uint16 Observer_ProcessEvent(uint8 task_id, uint16 events)
 }
 
 /*********************************************************************
- * @fn      Observer_ProcessOSALMsg
+ * @fn      Observer_ProcessTMOSMsg
  *
  * @brief   Process an incoming task message.
  *
@@ -184,7 +184,7 @@ uint16 Observer_ProcessEvent(uint8 task_id, uint16 events)
  *
  * @return  none
  */
-static void Observer_ProcessOSALMsg(tmos_event_hdr_t *pMsg)
+static void Observer_ProcessTMOSMsg(tmos_event_hdr_t *pMsg)
 {
     switch(pMsg->event)
     {
@@ -236,18 +236,19 @@ static void ObserverEventCB(gapRoleEvent_t *pEvent)
             if(tmos_memcmp(PeerAddrDef, pEvent->deviceExtAdvInfo.addr, B_ADDR_LEN) &&
                pEvent->deviceExtAdvInfo.periodicAdvInterval != 0)
             {
-                gapCreateSync_t sync;
+                gapCreateSync_t sync = {0};
                 uint8           state;
+
                 tmos_memcpy(sync.addr, PeerAddrDef, B_ADDR_LEN);
                 sync.addrType = pEvent->deviceExtAdvInfo.addrType;
                 sync.advertising_SID = 8;
                 sync.options = DUPLICATE_FILTERING_INITIALLY_ENABLED;
-                sync.skip = 0;
-                sync.syncCTEType = 0;
                 sync.syncTimeout = 80; // 800ms
                 state = GAPRole_CreateSync(&sync);
                 PRINT("GAPRole_CreateSync %d return %d...\n ", pEvent->deviceExtAdvInfo.periodicAdvInterval, state);
-                tmos_start_task(ObserverTaskId, START_SYNC_TIMEOUT_EVT, DEFAULT_CREAT_SYNC_TIMEOUT);
+                if (state == SUCCESS) {
+                    tmos_start_task(ObserverTaskId, START_SYNC_TIMEOUT_EVT, DEFAULT_CREAT_SYNC_TIMEOUT);
+                }
             }
             PRINT("GAP_EXT_ADV_DEVICE_INFO_EVENT...\n");
         }
@@ -260,6 +261,8 @@ static void ObserverEventCB(gapRoleEvent_t *pEvent)
                 GAPRole_ObserverCancelDiscovery();
                 tmos_stop_task(ObserverTaskId, START_SYNC_TIMEOUT_EVT);
                 PRINT("GAP_SYNC_ESTABLISHED...\n");
+                PRINT("sync handle: %#x\n", pEvent->syncEstEvt.syncHandle);
+                PRINT("sync interval: %d\n", pEvent->syncEstEvt.periodicInterval);
             }
         }
         break;

@@ -35,9 +35,11 @@ unified_interrupt_handler:
 	jal user_interrupt_handler
 
 #if ENABLE_INTERRUPT_NEST
-	csrc 0x804, 0x02					/* disable interrupt nests. */
+	csrc mstatus, 8						/* disable interrupt in machine mode. */
 	nop									/* wait for 3 grade pipeline. */
 	nop
+	nop
+	csrc 0x804, 0x02					/* disable interrupt nests. */
 	nop
 #endif
 

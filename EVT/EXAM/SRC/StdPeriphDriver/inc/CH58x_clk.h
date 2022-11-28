@@ -163,9 +163,9 @@ typedef enum
 typedef enum
 {
     /* 校准精度越高，耗时越长 */
-    Level_32 = 3, // 用时 1.2ms 1000ppm (32M 主频)  1100ppm (64M 主频)
-    Level_64,     // 用时 2.2ms 800ppm  (32M 主频)  1000ppm (64M 主频)
-    Level_128,    // 用时 4.2ms 600ppm  (32M 主频)  800ppm  (64M 主频)
+    Level_32 = 3, // 用时 1.2ms 1000ppm (32M 主频)  1100ppm (60M 主频)
+    Level_64,     // 用时 2.2ms 800ppm  (32M 主频)  1000ppm (60M 主频)
+    Level_128,    // 用时 4.2ms 600ppm  (32M 主频)  800ppm  (60M 主频)
 
 } Cali_LevelTypeDef;
 

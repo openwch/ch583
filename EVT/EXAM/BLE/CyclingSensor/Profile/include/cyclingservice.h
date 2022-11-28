@@ -122,8 +122,6 @@ typedef void (*cyclingServiceCB_t)(uint8_t event, uint32_t *pNewCummVal);
  *
  * @brief   collect the TMOS task ID.
  *
- * @param   task_id - TMOS task ID.
- *
  * @return  none
  */
 extern void CyclingService_Init(void);

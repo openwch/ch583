@@ -596,11 +596,12 @@ static void friend_state(uint16_t lpn_addr, uint8_t state)
  *
  * @brief   朋友关系建立回调
  *
- * @param   state       - 回调状态
+ * @param   friend_addr - 朋友节点地址
+ *          state       - 回调状态
  *
  * @return  none
  */
-static void lpn_state(uint8_t state)
+static void lpn_state(uint16_t friend_addr, uint8_t state)
 {
     if(state == LPN_FRIENDSHIP_ESTABLISHED)
     {
