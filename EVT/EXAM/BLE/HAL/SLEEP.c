@@ -24,15 +24,25 @@
 uint32_t CH58X_LowPower(uint32_t time)
 {
 #if(defined(HAL_SLEEP)) && (HAL_SLEEP == TRUE)
-    uint32_t tmp, irq_status;
-
+    uint32_t time_sleep, time_curr;
+    unsigned long irq_status;
+    
     SYS_DisableAllIrq(&irq_status);
-    tmp = RTC_GetCycle32k();
-    if((time < tmp) || ((time - tmp) < 30))
-    { // 检测睡眠的最短时间
+    time_curr = RTC_GetCycle32k();
+    // 检测睡眠时间
+    if (time < time_curr) {
+        time_sleep = time + (RTC_TIMER_MAX_VALUE - time_curr);
+    } else {
+        time_sleep = time - time_curr;
+    }
+    
+    // 若睡眠时间小于最小睡眠时间或大于最大睡眠时间，则不睡眠
+    if ((time_sleep < SLEEP_RTC_MIN_TIME) || 
+        (time_sleep > SLEEP_RTC_MAX_TIME)) {
         SYS_RecoverIrq(irq_status);
         return 2;
     }
+
     RTC_SetTignTime(time);
     SYS_RecoverIrq(irq_status);
   #if(DEBUG == Debug_UART1) // 使用其他串口输出打印信息需要修改这行代码
@@ -77,12 +87,11 @@ uint32_t CH58X_LowPower(uint32_t time)
 void HAL_SleepInit(void)
 {
 #if(defined(HAL_SLEEP)) && (HAL_SLEEP == TRUE)
-    R8_SAFE_ACCESS_SIG = SAFE_ACCESS_SIG1;
-    R8_SAFE_ACCESS_SIG = SAFE_ACCESS_SIG2;
-    SAFEOPERATE;
+    sys_safe_access_enable();
     R8_SLP_WAKE_CTRL |= RB_SLP_RTC_WAKE; // RTC唤醒
+    sys_safe_access_enable();
     R8_RTC_MODE_CTRL |= RB_RTC_TRIG_EN;  // 触发模式
-    R8_SAFE_ACCESS_SIG = 0;              //
+    sys_safe_access_disable();              //
     PFIC_EnableIRQ(RTC_IRQn);
 #endif
 }

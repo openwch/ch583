@@ -81,6 +81,8 @@ struct bt_hci_cmd_hdr {
 /* Obtain OCF from OpCode */
 #define BT_OCF(opcode)                          ((opcode) & ((1<<10) - 1U))
 
+#define BT_HCI_OP_RESET                         BT_OP(BT_OGF_BASEBAND, 0x0003)
+
 #define BT_HCI_OP_LE_TEST_END                   BT_OP(BT_OGF_LE, 0x001f)
 struct bt_hci_rp_le_test_end {
 	uint8_t  status;

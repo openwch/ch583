@@ -6,7 +6,7 @@
 	
 	2.本移植例程默认使用了硬件压栈（不可关闭），未使用中断嵌套，中断函数最好使用__attribute__((section(".highcode")))修饰，保证运行速度。
 	
-	3.使能中断嵌套会导致每个中断执行会多约8个指令周期，中断嵌套使能通过工程右键 -> properties -> c/c++ Build -> settings -> tool settings -> GNU RISC-V Cross Assembler -> Preprocessor 右边输入框Defined symbols中的 ENABLE_INTERRUPT_NEST=0 修改为 ENABLE_INTERRUPT_NEST=1 即可。
+	3.使能中断嵌套会导致每个中断执行会多约10个指令周期，中断嵌套使能通过工程右键 -> properties -> c/c++ Build -> settings -> tool settings -> GNU RISC-V Cross Assembler -> Preprocessor 右边输入框Defined symbols中的 ENABLE_INTERRUPT_NEST=0 修改为 ENABLE_INTERRUPT_NEST=1 即可。
 	
 	4.用户中断函数不需要再使用__attribute__((interrupt("WCH-Interrupt-fast")))或者__attribute__((interrupt()))修饰，中断入口已统一为汇编函数，在汇编函数中调用用户中断函数。库自带的HardFault中断除外，用户只需要修改自己编写的中断函数即可。
 	

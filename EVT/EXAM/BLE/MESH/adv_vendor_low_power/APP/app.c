@@ -62,7 +62,7 @@ static void prov_reset(void);
 
 static struct bt_mesh_cfg_srv cfg_srv = {
     .relay = BLE_MESH_RELAY_DISABLED,
-    .beacon = BLE_MESH_BEACON_ENABLED,
+    .beacon = BLE_MESH_BEACON_DISABLED,
 #if(CONFIG_BLE_MESH_FRIEND)
     .frnd = BLE_MESH_FRIEND_ENABLED,
 #endif
@@ -306,15 +306,16 @@ static void cfg_srv_rsp_handler( const cfg_srv_status_t *val )
  *
  * @brief   朋友关系建立回调
  *
- * @param   state       - 回调状态
+ * @param   frd_addr    - 朋友节点地址
+ *          state       - 回调状态
  *
  * @return  none
  */
-static void lpn_state(uint8_t state)
+static void lpn_state(uint16_t frd_addr, uint8_t state)
 {
     if(state == LPN_FRIENDSHIP_ESTABLISHED)
     {
-        APP_DBG("lpn friendship established");
+        APP_DBG("lpn friendship established %d",frd_addr);
     }
     else if(state == LPN_FRIENDSHIP_TERMINATED)
     {

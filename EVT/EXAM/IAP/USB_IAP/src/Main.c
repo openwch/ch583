@@ -24,17 +24,13 @@ __HIGH_CODE
 void mySetSysClock()
 {
     uint32_t i;
-    R8_SAFE_ACCESS_SIG = SAFE_ACCESS_SIG1;
-    R8_SAFE_ACCESS_SIG = SAFE_ACCESS_SIG2;
-    SAFEOPERATE;
+    sys_safe_access_enable();
     R8_PLL_CONFIG &= ~(1 << 5); //
-    R8_SAFE_ACCESS_SIG = 0;
+    sys_safe_access_disable();
     // PLL div
     if(!(R8_HFCK_PWR_CTRL & RB_CLK_PLL_PON))
     {
-        R8_SAFE_ACCESS_SIG = SAFE_ACCESS_SIG1;
-        R8_SAFE_ACCESS_SIG = SAFE_ACCESS_SIG2;
-        SAFEOPERATE;
+        sys_safe_access_enable();
         R8_HFCK_PWR_CTRL |= RB_CLK_PLL_PON; // PLL power on
         for(i = 0; i < 2000; i++)
         {
@@ -42,26 +38,20 @@ void mySetSysClock()
             __nop();
         }
     }
-    R8_SAFE_ACCESS_SIG = SAFE_ACCESS_SIG1;
-    R8_SAFE_ACCESS_SIG = SAFE_ACCESS_SIG2;
-    SAFEOPERATE;
+    sys_safe_access_enable();
     R16_CLK_SYS_CFG = (1 << 6) | (CLK_SOURCE_PLL_60MHz & 0x1f);
     __nop();
     __nop();
     __nop();
     __nop();
-    R8_SAFE_ACCESS_SIG = 0;
-    R8_SAFE_ACCESS_SIG = SAFE_ACCESS_SIG1;
-    R8_SAFE_ACCESS_SIG = SAFE_ACCESS_SIG2;
-    SAFEOPERATE;
+    sys_safe_access_disable();
+    sys_safe_access_enable();
     R8_FLASH_CFG = 0X52;
-    R8_SAFE_ACCESS_SIG = 0;
+    sys_safe_access_disable();
     //更改FLASH clk的驱动能力
-    R8_SAFE_ACCESS_SIG = SAFE_ACCESS_SIG1;
-    R8_SAFE_ACCESS_SIG = SAFE_ACCESS_SIG2;
-    SAFEOPERATE;
+    sys_safe_access_enable();
     R8_PLL_CONFIG |= 1 << 7;
-    R8_SAFE_ACCESS_SIG = 0;
+    sys_safe_access_disable();
 }
 
 /*********************************************************************

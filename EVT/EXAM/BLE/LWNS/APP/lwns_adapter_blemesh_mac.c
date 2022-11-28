@@ -225,7 +225,7 @@ void lwns_init(void)
     }
     lwns_adapter_taskid = TMOS_ProcessEventRegister(lwns_adapter_ProcessEvent);
     lwns_phyoutput_taskid = TMOS_ProcessEventRegister(lwns_phyoutput_ProcessEvent);
-    tmos_start_task(lwns_phyoutput_taskid, LWNS_HTIMER_PERIOD_EVT, MS1_TO_SYSTEM_TIME(LWNS_HTIMER_PERIOD_MS));
+    tmos_start_reload_task(lwns_phyoutput_taskid, LWNS_HTIMER_PERIOD_EVT, MS1_TO_SYSTEM_TIME(LWNS_HTIMER_PERIOD_MS));
     tmos_memset(blemesh_phy_manage_list, 0, sizeof(blemesh_phy_manage_list)); //清除发送管理结构体
     ble_phy_send_cnt = 0;                                                     //清空发送次数计数
     RF_Shut();
@@ -347,7 +347,7 @@ static uint16_t lwns_adapter_ProcessEvent(uint8_t task_id, uint16_t events)
         RF_SetChannel(ble_phy_channelmap[ble_phy_channelmap_receive_seq]); //周期性更改发送通道
         RF_Rx(NULL, 0, USER_RF_RX_TX_TYPE, USER_RF_RX_TX_TYPE);            //重新打开接收
         tmos_start_task(lwns_adapter_taskid, LWNS_PHY_RX_CHANGE_CHANNEL_EVT, MS1_TO_SYSTEM_TIME(LWNS_MAC_PERIOD_MS));
-        return ((events & (~LWNS_PHY_RX_OPEN_EVT)) ^ LWNS_PHY_RX_CHANGE_CHANNEL_EVT ); //停止可能已经置位的、可能会打开接收的任务
+        return (events & (~(LWNS_PHY_RX_CHANGE_CHANNEL_EVT | LWNS_PHY_RX_OPEN_EVT)));//停止可能已经置位的、可能会打开接收的任务
     }
     if(events & LWNS_PHY_RX_OPEN_EVT)
     { //重新打开接收事件
@@ -390,7 +390,6 @@ static uint16_t lwns_phyoutput_ProcessEvent(uint8_t task_id, uint16_t events)
     if(events & LWNS_HTIMER_PERIOD_EVT)
     {
         lwns_htimer_update();                                                                                      //htimer更新。
-        tmos_start_task(lwns_phyoutput_taskid, LWNS_HTIMER_PERIOD_EVT, MS1_TO_SYSTEM_TIME(LWNS_HTIMER_PERIOD_MS)); //周期性更新
         return (events ^ LWNS_HTIMER_PERIOD_EVT);
     }
     if(events & LWNS_PHY_OUTPUT_PREPARE_EVT)
@@ -520,7 +519,7 @@ void lwns_start()
     RF_SetChannel(ble_phy_channelmap[ble_phy_channelmap_receive_seq]); //周期性更改发送通道
     RF_Rx(NULL, 0, USER_RF_RX_TX_TYPE, USER_RF_RX_TX_TYPE);            //打开RF接收，如果需要低功耗管理，在其他地方打开。
     tmos_start_task(lwns_adapter_taskid, LWNS_PHY_RX_CHANGE_CHANNEL_EVT, MS1_TO_SYSTEM_TIME(LWNS_MAC_PERIOD_MS));
-    tmos_start_task(lwns_phyoutput_taskid, LWNS_HTIMER_PERIOD_EVT, MS1_TO_SYSTEM_TIME(LWNS_HTIMER_PERIOD_MS));
+    tmos_start_reload_task(lwns_phyoutput_taskid, LWNS_HTIMER_PERIOD_EVT, MS1_TO_SYSTEM_TIME(LWNS_HTIMER_PERIOD_MS));
 }
 
 #endif /* LWNS_USE_BLEMESH_MAC */

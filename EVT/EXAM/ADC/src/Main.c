@@ -10,7 +10,7 @@
 
 #include "CH58x_common.h"
 
-uint16_t abcBuff[40];
+uint16_t adcBuff[40];
 
 volatile uint8_t adclen;
 volatile uint8_t DMA_end = 0;
@@ -52,11 +52,11 @@ int main()
     ADC_InterTSSampInit();
     for(i = 0; i < 20; i++)
     {
-        abcBuff[i] = ADC_ExcutSingleConver(); // 连续采样20次
+        adcBuff[i] = ADC_ExcutSingleConver(); // 连续采样20次
     }
     for(i = 0; i < 20; i++)
     {
-        PRINT("%d \n", adc_to_temperature_celsius(abcBuff[i]));
+        PRINT("%d \n", adc_to_temperature_celsius(adcBuff[i]));
     }
 
     /* 单通道采样：选择adc通道0做采样，对应 PA4引脚， 带数据校准功能 */
@@ -71,60 +71,62 @@ int main()
 
     for(i = 0; i < 20; i++)
     {
-        abcBuff[i] = ADC_ExcutSingleConver() + RoughCalib_Value; // 连续采样20次
+        adcBuff[i] = ADC_ExcutSingleConver() + RoughCalib_Value; // 连续采样20次
     }
     for(i = 0; i < 20; i++)
     {
-        PRINT("%d \n", abcBuff[i]); // 注意：由于ADC内部偏差的存在，当采样电压在所选增益范围极限附近的时候，可能会出现数据溢出的现象
+        PRINT("%d \n", adcBuff[i]); // 注意：由于ADC内部偏差的存在，当采样电压在所选增益范围极限附近的时候，可能会出现数据溢出的现象
     }
 
     /* DMA单通道采样：选择adc通道0做采样，对应 PA4引脚 */
+    PRINT("\n3.Single channel DMA sampling...\n");
     GPIOA_ModeCfg(GPIO_Pin_4, GPIO_ModeIN_Floating);
     ADC_ExtSingleChSampInit(SampleFreq_3_2, ADC_PGA_0);
     ADC_ChannelCfg(0);
     ADC_AutoConverCycle(192); // 采样周期为 (256-192)*16个系统时钟
-    ADC_DMACfg(ENABLE, (uint16_t)(uint32_t)&abcBuff[0], (uint16_t)(uint32_t)&abcBuff[40], ADC_Mode_Single);
+    ADC_DMACfg(ENABLE, (uint16_t)(uint32_t)&adcBuff[0], (uint16_t)(uint32_t)&adcBuff[40], ADC_Mode_Single);
     PFIC_EnableIRQ(ADC_IRQn);
     ADC_StartDMA();
     while(!DMA_end);
     DMA_end = 0;
-    PRINT("ADC DMA end \n");
+    ADC_DMACfg(DISABLE, 0, 0, 0);
+
     for(i = 0; i < 40; i++)
     {
-        PRINT("%d \n", abcBuff[i]);
+        PRINT("%d \n", adcBuff[i]);
     }
 
     /* 差分通道采样：选择adc通道0做采样，对应 PA4(AIN0)、PA12(AIN2) */
-    PRINT("\n3.Diff channel sampling...\n");
+    PRINT("\n4.Diff channel sampling...\n");
     GPIOA_ModeCfg(GPIO_Pin_4 | GPIO_Pin_12, GPIO_ModeIN_Floating);
     ADC_ExtDiffChSampInit(SampleFreq_3_2, ADC_PGA_0);
     ADC_ChannelCfg(0);
     for(i = 0; i < 20; i++)
     {
-        abcBuff[i] = ADC_ExcutSingleConver(); // 连续采样20次
+        adcBuff[i] = ADC_ExcutSingleConver(); // 连续采样20次
     }
     for(i = 0; i < 20; i++)
     {
-        PRINT("%d \n", abcBuff[i]);
+        PRINT("%d \n", adcBuff[i]);
     }
 
     /* TouchKey采样：选择adc通道 2 做采样，对应 PA12 */
-    PRINT("\n4.TouchKey sampling...\n");
+    PRINT("\n5.TouchKey sampling...\n");
     GPIOA_ModeCfg(GPIO_Pin_12, GPIO_ModeIN_Floating);
     TouchKey_ChSampInit();
     ADC_ChannelCfg(2);
 
     for(i = 0; i < 20; i++)
     {
-        abcBuff[i] = TouchKey_ExcutSingleConver(0x10, 0); // 连续采样20次
+        adcBuff[i] = TouchKey_ExcutSingleConver(0x10, 0); // 连续采样20次
     }
     for(i = 0; i < 20; i++)
     {
-        PRINT("%d \n", abcBuff[i]);
+        PRINT("%d \n", adcBuff[i]);
     }
 
     /* 单通道采样：中断方式,选择adc通道1做采样，对应 PA5引脚， 不带数据校准功能 */
-    PRINT("\n5.Single channel sampling in interrupt mode...\n");
+    PRINT("\n6.Single channel sampling in interrupt mode...\n");
     GPIOA_ModeCfg(GPIO_Pin_5, GPIO_ModeIN_Floating);
     ADC_ExtSingleChSampInit(SampleFreq_3_2, ADC_PGA_0);
     ADC_ChannelCfg(1);
@@ -137,7 +139,7 @@ int main()
     PFIC_DisableIRQ(ADC_IRQn);
     for(i = 0; i < 20; i++)
     {
-        PRINT("%d \n", abcBuff[i]);
+        PRINT("%d \n", adcBuff[i]);
     }
 
     while(1);
@@ -157,7 +159,7 @@ void ADC_IRQHandler(void) //adc中断服务程序
     if(ADC_GetDMAStatus())
     {
         ADC_StopDMA();
-        R16_ADC_DMA_BEG = ((uint32_t)abcBuff) & 0xffff;
+        R16_ADC_DMA_BEG = ((uint32_t)adcBuff) & 0xffff;
         ADC_ClearDMAFlag();
         DMA_end = 1;
     }
@@ -166,7 +168,7 @@ void ADC_IRQHandler(void) //adc中断服务程序
         ADC_ClearITFlag();
         if(adclen < 20)
         {
-            abcBuff[adclen] = ADC_ReadConverValue();
+            adcBuff[adclen] = ADC_ReadConverValue();
             ADC_StartUp(); // 作用清除中断标志并开启新一轮采样
         }
         adclen++;

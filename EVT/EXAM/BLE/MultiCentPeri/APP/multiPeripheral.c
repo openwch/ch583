@@ -636,6 +636,7 @@ static void Peripheral_LinkEstablished(gapRoleEvent_t *pEvent)
         peripheralConnList[connItem].connInterval = event->connInterval;
         peripheralConnList[connItem].connSlaveLatency = event->connLatency;
         peripheralConnList[connItem].connTimeout = event->connTimeout;
+        peripheralMTU = ATT_MTU_SIZE;
 
         // Set timer for periodic event
         tmos_start_task(peripheralConnList[connItem].taskID, SBP_PERIODIC_EVT, SBP_PERIODIC_EVT_PERIOD);
@@ -875,6 +876,11 @@ static void performPeriodicTask(uint16_t connHandle)
 static void peripheralChar4Notify(uint16_t connHandle, uint8_t *pValue, uint16_t len)
 {
     attHandleValueNoti_t noti;
+    if(len > (peripheralMTU - 3))
+    {
+        PRINT("Too large noti\n");
+        return;
+    }
     noti.len = len;
     noti.pValue = GATT_bm_alloc(connHandle, ATT_HANDLE_VALUE_NOTI, noti.len, NULL, 0);
     tmos_memcpy(noti.pValue, pValue, noti.len);

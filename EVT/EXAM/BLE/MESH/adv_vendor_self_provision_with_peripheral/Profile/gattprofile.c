@@ -115,7 +115,7 @@ static uint8_t simpleProfileChar4[SIMPLEPROFILE_CHAR4_LEN] = {0};
 // instantiation of the Client Characteristic Configuration. Reads of the
 // Client Characteristic Configuration only shows the configuration for
 // that client and writes only affect the configuration of that client.
-static gattCharCfg_t simpleProfileChar4Config[4];
+static gattCharCfg_t simpleProfileChar4Config[PERIPHERAL_MAX_CONNECTION];
 
 // Simple Profile Characteristic 4 User Description
 static uint8_t simpleProfileChar4UserDesp[] = "Characteristic 4\0";

@@ -225,7 +225,7 @@ void lwns_init(void)
     }
     lwns_adapter_taskid = TMOS_ProcessEventRegister(lwns_adapter_ProcessEvent);
     lwns_phyoutput_taskid = TMOS_ProcessEventRegister(lwns_phyoutput_ProcessEvent);
-    tmos_start_task(lwns_phyoutput_taskid, LWNS_PHY_PERIOD_EVT, MS1_TO_SYSTEM_TIME(LWNS_MAC_PERIOD_MS));
+    tmos_start_reload_task(lwns_phyoutput_taskid, LWNS_PHY_PERIOD_EVT, MS1_TO_SYSTEM_TIME(LWNS_MAC_PERIOD_MS));
     tmos_memset(csma_phy_manage_list, 0, sizeof(csma_phy_manage_list)); //清除发送管理结构体
     ble_phy_manage_state = BLE_PHY_MANAGE_STATE_FREE;                   //清除phy状态
     RF_Shut();
@@ -403,7 +403,6 @@ static uint16_t lwns_phyoutput_ProcessEvent(uint8_t task_id, uint16_t events)
                 }
             }
         }
-        tmos_start_task(lwns_phyoutput_taskid, LWNS_PHY_PERIOD_EVT, MS1_TO_SYSTEM_TIME(LWNS_MAC_PERIOD_MS)); //每个周期毫秒检测一次有误数据要发送，并且更新htimer。
         return (events ^ LWNS_PHY_PERIOD_EVT);
     }
     if(events & LWNS_PHY_OUTPUT_EVT)
@@ -506,7 +505,7 @@ void lwns_start()
 {
     RF_Shut();
     RF_Rx(NULL, 0, USER_RF_RX_TX_TYPE, USER_RF_RX_TX_TYPE); //打开RF接收，如果需要低功耗管理，在其他地方打开。
-    tmos_start_task(lwns_phyoutput_taskid, LWNS_PHY_PERIOD_EVT, MS1_TO_SYSTEM_TIME(LWNS_MAC_PERIOD_MS));
+    tmos_start_reload_task(lwns_phyoutput_taskid, LWNS_PHY_PERIOD_EVT, MS1_TO_SYSTEM_TIME(LWNS_MAC_PERIOD_MS));
 }
 
 #endif /* LWNS_USE_CSMA_MAC */

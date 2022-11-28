@@ -6,7 +6,7 @@
 	
 	2.用户中断函数不需要再使用__attribute__((interrupt("WCH-Interrupt-fast")))或者__attribute__((interrupt()))修饰，中断入口已统一为汇编函数，在汇编函数中调用用户中断函数。库自带的HardFault中断除外，用户只需要修改自己编写的中断函数即可。
 	
-	3.使能中断嵌套会导致每个中断执行会多约8个指令周期，中断嵌套使能通过工程右键 -> properties -> c/c++ Build -> settings -> tool settings -> GNU RISC-V Cross Assembler -> Preprocessor 右边输入框Defined symbols中的 ENABLE_INTERRUPT_NEST=0 修改为 ENABLE_INTERRUPT_NEST=1 即可。
+	3.使能中断嵌套会导致每个中断执行会多约10个指令周期，中断嵌套使能通过工程右键 -> properties -> c/c++ Build -> settings -> tool settings -> GNU RISC-V Cross Assembler -> Preprocessor 右边输入框Defined symbols中的 ENABLE_INTERRUPT_NEST=0 修改为 ENABLE_INTERRUPT_NEST=1 即可。
 	
 	4.CH583系列上电运行默认的栈为编译后剩余的RAM空间。所有统一入口的中断会把栈修改为LD文件中提供的_eusrstack，所以中断中可以使用的最大栈空间为RAM剩余空间。所以请一定要预留RAM空间给栈使用。
 	

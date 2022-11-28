@@ -9,6 +9,7 @@ Program=true
 Verify=true
 Reset=true
 
+
 Vendor=WCH
 MCU=CH582M
 Mcu Type=CH58x

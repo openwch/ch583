@@ -121,10 +121,9 @@ void USB2_DevTransProcess(void)
                     len = R8_USB2_RX_LEN;
                     if(SetupReqCode == 0x09)
                     {
-                        if(pU2EP0_DataBuf[0])
-                            PRINT("Light on Num Lock LED!\n");
-                        else if(pU2EP0_DataBuf[0] == 0)
-                            PRINT("Light off Num Lock LED!\n");
+                        PRINT("[%s] Num Lock\t", (pEP0_DataBuf[0] & (1<<0)) ? "*" : " ");
+                        PRINT("[%s] Caps Lock\t", (pEP0_DataBuf[0] & (1<<1)) ? "*" : " ");
+                        PRINT("[%s] Scroll Lock\n", (pEP0_DataBuf[0] & (1<<2)) ? "*" : " ");
                     }
                 }
                 break;

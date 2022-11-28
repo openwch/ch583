@@ -155,11 +155,10 @@ uint8_t UserOptionByteClose_SWD(void)
 void UserOptionByte_Active(void)
 {
     FLASH_ROM_SW_RESET();
-    R8_SAFE_ACCESS_SIG = SAFE_ACCESS_SIG1;
-    R8_SAFE_ACCESS_SIG = SAFE_ACCESS_SIG2;
-    SAFEOPERATE;
+    sys_safe_access_enable();
     R16_INT32K_TUNE = 0xFFFF;
+    sys_safe_access_enable();
     R8_RST_WDOG_CTRL |= RB_SOFTWARE_RESET;
-    R8_SAFE_ACCESS_SIG = 0;
+    sys_safe_access_disable();
     while(1);
 }

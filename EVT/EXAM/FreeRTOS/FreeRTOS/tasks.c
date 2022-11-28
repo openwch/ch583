@@ -3017,6 +3017,7 @@ BaseType_t xTaskIncrementTick( void )
 
 #endif /* configUSE_APPLICATION_TASK_TAG */
 /*-----------------------------------------------------------*/
+
 __HIGH_CODE
 void vTaskSwitchContext( void )
 {

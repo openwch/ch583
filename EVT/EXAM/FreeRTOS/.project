@@ -20,18 +20,6 @@
     <nature>org.eclipse.cdt.managedbuilder.core.managedBuildNature</nature>
     <nature>org.eclipse.cdt.managedbuilder.core.ScannerConfigNature</nature>
   </natures>
-  <linkedResources>
-    <link>
-      <name>StdPeriphDriver</name>
-      <type>2</type>
-      <locationURI>PARENT-1-PROJECT_LOC/SRC/StdPeriphDriver</locationURI>
-    </link>
-    <link>
-      <name>RVMSIS</name>
-      <type>2</type>
-      <location>PARENT-1-PROJECT_LOC/SRC/RVMSIS</location>
-    </link>
-  </linkedResources>
   <filteredResources>
     <filter>
       <id>1642487898854</id>
@@ -43,4 +31,16 @@
       </matcher>
     </filter>
   </filteredResources>
+  <linkedResources>
+    <link>
+      <name>StdPeriphDriver</name>
+      <type>2</type>
+      <location>PARENT-1-PROJECT_LOC/SRC/StdPeriphDriver</location>
+    </link>
+    <link>
+      <name>RVMSIS</name>
+      <type>2</type>
+      <location>PARENT-1-PROJECT_LOC/SRC/RVMSIS</location>
+    </link>
+  </linkedResources>
 </projectDescription>
