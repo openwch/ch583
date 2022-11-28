@@ -33,6 +33,7 @@ const uint8_t MacAddr[6] = {0x84, 0xC2, 0xE4, 0x03, 0x02, 0x02};
  * @return  none
  */
 __HIGH_CODE
+__attribute__((noinline))
 void Main_Circulation()
 {
     while(1)

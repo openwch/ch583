@@ -713,7 +713,7 @@ static void centralPasscodeCB(uint8_t *deviceAddr, uint16_t connectionHandle,
     // Display passcode to user
     if(uiOutputs != 0)
     {
-        PRINT("Passcode:%d\n", (int)passcode);
+        PRINT("Passcode:%06d\n", (int)passcode);
     }
     // Send passcode response
     GAPBondMgr_PasscodeRsp(connectionHandle, SUCCESS, passcode);

@@ -13,6 +13,7 @@
  */
 #include "CONFIG.h"
 #include "gattprofile.h"
+#include "app_mesh_config.h"
 
 /*********************************************************************
  * MACROS
@@ -349,7 +350,7 @@ bStatus_t SimpleProfile_RegisterAppCBs(simpleProfileCBs_t *appCallbacks)
  *
  * @return  bStatus_t
  */
-bStatus_t SimpleProfile_SetParameter(uint8_t param, uint8_t len, void *value)
+bStatus_t SimpleProfile_SetParameter(uint8_t param, uint16_t len, void *value)
 {
     bStatus_t ret = SUCCESS;
     switch(param)
@@ -537,23 +538,51 @@ static bStatus_t simpleProfile_ReadAttrCB(uint16_t connHandle, gattAttribute_t *
             // characteristic 4 does not have read permissions, but because it
             //   can be sent as a notification, it is included here
             case SIMPLEPROFILE_CHAR1_UUID:
-                *pLen = SIMPLEPROFILE_CHAR1_LEN;
-                tmos_memcpy(pValue, pAttr->pValue, SIMPLEPROFILE_CHAR1_LEN);
+                if(maxLen > SIMPLEPROFILE_CHAR1_LEN)
+                {
+                    *pLen = SIMPLEPROFILE_CHAR1_LEN;
+                }
+                else
+                {
+                    *pLen = maxLen;
+                }
+                tmos_memcpy(pValue, pAttr->pValue, *pLen);
                 break;
 
             case SIMPLEPROFILE_CHAR2_UUID:
-                *pLen = SIMPLEPROFILE_CHAR2_LEN;
-                tmos_memcpy(pValue, pAttr->pValue, SIMPLEPROFILE_CHAR2_LEN);
+                if(maxLen > SIMPLEPROFILE_CHAR2_LEN)
+                {
+                    *pLen = SIMPLEPROFILE_CHAR2_LEN;
+                }
+                else
+                {
+                    *pLen = maxLen;
+                }
+                tmos_memcpy(pValue, pAttr->pValue, *pLen);
                 break;
 
             case SIMPLEPROFILE_CHAR4_UUID:
-                *pLen = SIMPLEPROFILE_CHAR4_LEN;
-                tmos_memcpy(pValue, pAttr->pValue, SIMPLEPROFILE_CHAR4_LEN);
+                if(maxLen > SIMPLEPROFILE_CHAR4_LEN)
+                {
+                    *pLen = SIMPLEPROFILE_CHAR4_LEN;
+                }
+                else
+                {
+                    *pLen = maxLen;
+                }
+                tmos_memcpy(pValue, pAttr->pValue, *pLen);
                 break;
 
             case SIMPLEPROFILE_CHAR5_UUID:
-                *pLen = SIMPLEPROFILE_CHAR5_LEN;
-                tmos_memcpy(pValue, pAttr->pValue, SIMPLEPROFILE_CHAR5_LEN);
+                if(maxLen > SIMPLEPROFILE_CHAR5_LEN)
+                {
+                    *pLen = SIMPLEPROFILE_CHAR5_LEN;
+                }
+                else
+                {
+                    *pLen = maxLen;
+                }
+                tmos_memcpy(pValue, pAttr->pValue, *pLen);
                 break;
 
             default:
@@ -592,6 +621,7 @@ static bStatus_t simpleProfile_WriteAttrCB(uint16_t connHandle, gattAttribute_t 
     bStatus_t status = SUCCESS;
     uint8_t   notifyApp = 0xFF;
 
+    APP_DBG("simpleProfile_WriteAttrCB len: %d",len);
     // If attribute permissions require authorization to write, return error
     if(gattPermitAuthorWrite(pAttr->permissions))
     {

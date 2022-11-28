@@ -332,8 +332,8 @@ uint16_t Central_ProcessEvent(uint8_t task_id, uint16_t events)
     if(events & START_PHY_UPDATE_EVT)
     {
         // start phy update
-        PRINT("PHY Update %x...\n", GAPRole_UpdatePHY(centralConnHandle, 0, GAP_PHY_BIT_LE_2M,
-                                                      GAP_PHY_BIT_LE_2M, 0));
+        PRINT("PHY Update %x...\n", GAPRole_UpdatePHY(centralConnHandle, 0, 
+                    GAP_PHY_BIT_LE_2M, GAP_PHY_BIT_LE_2M, GAP_PHY_OPTIONS_NOPRE));
 
         return (events ^ START_PHY_UPDATE_EVT);
     }
@@ -644,7 +644,7 @@ static void centralEventCB(gapRoleEvent_t *pEvent)
                 {
                     tmos_start_task(centralTaskId, START_PARAM_UPDATE_EVT, DEFAULT_PARAM_UPDATE_DELAY);
                 }
-                // See if initiate connect parameter update
+                // See if initiate phy update
                 if(centralPhyUpdate)
                 {
                     tmos_start_task(centralTaskId, START_PHY_UPDATE_EVT, DEFAULT_PHY_UPDATE_DELAY);
@@ -783,7 +783,7 @@ static void centralPasscodeCB(uint8_t *deviceAddr, uint16_t connectionHandle,
     // Display passcode to user
     if(uiOutputs != 0)
     {
-        PRINT("Passcode:%d\n", (int)passcode);
+        PRINT("Passcode:%06d\n", (int)passcode);
     }
     // Send passcode response
     GAPBondMgr_PasscodeRsp(connectionHandle, SUCCESS, passcode);

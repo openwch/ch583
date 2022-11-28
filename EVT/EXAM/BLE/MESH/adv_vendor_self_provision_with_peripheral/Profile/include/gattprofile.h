@@ -44,10 +44,10 @@ extern "C" {
 #define SIMPLEPROFILE_SERVICE       0x00000001
 
 // Length of characteristic in bytes ( Default MTU is 23 )
-#define SIMPLEPROFILE_CHAR1_LEN     21
+#define SIMPLEPROFILE_CHAR1_LEN     247
 #define SIMPLEPROFILE_CHAR2_LEN     1
 #define SIMPLEPROFILE_CHAR3_LEN     21
-#define SIMPLEPROFILE_CHAR4_LEN     19
+#define SIMPLEPROFILE_CHAR4_LEN     247
 #define SIMPLEPROFILE_CHAR5_LEN     5
 
 /*********************************************************************
@@ -102,7 +102,7 @@ extern bStatus_t SimpleProfile_RegisterAppCBs(simpleProfileCBs_t *appCallbacks);
  *          data type (example: data type of uint16_t will be cast to
  *          uint16_t pointer).
  */
-extern bStatus_t SimpleProfile_SetParameter(uint8_t param, uint8_t len, void *value);
+extern bStatus_t SimpleProfile_SetParameter(uint8_t param, uint16_t len, void *value);
 
 /*
  * SimpleProfile_GetParameter - Get a Simple GATT Profile parameter.

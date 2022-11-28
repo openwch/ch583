@@ -297,8 +297,9 @@ void LowPower_Halt(void)
 __HIGH_CODE
 void LowPower_Sleep(uint8_t rm)
 {
-    uint8_t  x32Kpw, x32Mpw;
-    uint16_t DCDCState;
+    uint8_t x32Kpw, x32Mpw;
+    uint16_t power_plan;
+
     x32Kpw = R8_XT32K_TUNE;
     x32Mpw = R8_XT32M_TUNE;
     x32Mpw = (x32Mpw & 0xfc) | 0x03; // 150%¶î¶¨µçÁ÷
@@ -317,18 +318,31 @@ void LowPower_Sleep(uint8_t rm)
 
     PFIC->SCTLR |= (1 << 2); //deep sleep
 
-    DCDCState = R16_POWER_PLAN & (RB_PWR_DCDC_EN | RB_PWR_DCDC_PRE);
-    DCDCState |= RB_PWR_PLAN_EN | RB_PWR_MUST_0010 | RB_PWR_CORE | rm;
+    power_plan = R16_POWER_PLAN & (RB_PWR_DCDC_EN | RB_PWR_DCDC_PRE);
+    power_plan |= RB_PWR_PLAN_EN | RB_PWR_MUST_0010 | RB_PWR_CORE | rm;
     __nop();
     R8_SAFE_ACCESS_SIG = SAFE_ACCESS_SIG1;
     R8_SAFE_ACCESS_SIG = SAFE_ACCESS_SIG2;
     SAFEOPERATE;
     R8_SLP_POWER_CTRL |= RB_RAM_RET_LV;
     R8_PLL_CONFIG |= (1 << 5);
-    R16_POWER_PLAN = DCDCState;
-    __WFI();
-    __nop();
-    __nop();
+    R16_POWER_PLAN = power_plan;
+
+    do{
+        __WFI();
+        __nop();
+        __nop();
+        DelayUs(70);
+
+        uint8_t mac[6] = {0};
+
+        GetMACAddress(mac);
+
+        if(mac[5] != 0xff)
+            break;
+
+    }while(1);
+
     R8_SAFE_ACCESS_SIG = SAFE_ACCESS_SIG1;
     R8_SAFE_ACCESS_SIG = SAFE_ACCESS_SIG2;
     SAFEOPERATE;

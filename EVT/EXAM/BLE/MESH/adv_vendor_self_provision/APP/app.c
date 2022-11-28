@@ -85,7 +85,7 @@ static void prov_reset(void);
 
 static struct bt_mesh_cfg_srv cfg_srv = {
     .relay = BLE_MESH_RELAY_ENABLED,
-    .beacon = BLE_MESH_BEACON_DISABLED,
+    .beacon = BLE_MESH_BEACON_ENABLED,
 #if(CONFIG_BLE_MESH_FRIEND)
     .frnd = BLE_MESH_FRIEND_ENABLED,
 #endif
@@ -155,7 +155,7 @@ uint16_t vnd_model_srv_groups[CONFIG_MESH_MOD_GROUP_COUNT_DEF] = {BLE_MESH_ADDR_
 // 自定义模型加载
 struct bt_mesh_model vnd_models[] = {
     BLE_MESH_MODEL_VND_CB(CID_WCH, BLE_MESH_MODEL_ID_WCH_SRV, vnd_model_srv_op, NULL, vnd_model_srv_keys,
-                          vnd_model_srv_groups, &vendor_model_srv, &bt_mesh_vendor_model_srv_cb),
+                          vnd_model_srv_groups, &vendor_model_srv, NULL),
 };
 
 // 模型组成 elements
@@ -547,7 +547,7 @@ void keyPress(uint8_t keys)
         default:
         {
             // 向订阅地址发送数据
-            if(0)
+            if(1)
             {
                 int status;
                 uint8_t data[8] = {0, 1, 2, 3, 4, 5, 6, 7};
@@ -558,7 +558,7 @@ void keyPress(uint8_t keys)
                 }
             }
             // 发送删除节点命令,通过应用层自定协议删除，这里假设删除地址为0x0002的节点
-            if(1)
+            if(0)
             {
                 int status;
                 uint16_t delete_addr = 0x0002;
@@ -712,6 +712,7 @@ void App_Init()
 {
     App_TaskID = TMOS_ProcessEventRegister(App_ProcessEvent);
 
+    vendor_model_srv_init(vnd_models);
     blemesh_on_sync();
     HAL_KeyInit();
     HalKeyConfig(keyPress);

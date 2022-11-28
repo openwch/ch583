@@ -47,18 +47,16 @@ int main()
     /* 配置串口调试 */
     DebugInit();
     PRINT("Start @ChipID=%02X\n", R8_CHIP_ID);
-    /* 温度采样并输出， 包含数据校准 */
+    /* 温度采样并输出 */
     PRINT("\n1.Temperature sampling...\n");
     ADC_InterTSSampInit();
-    RoughCalib_Value = ADC_DataCalib_Rough(); // 用于计算ADC内部偏差，记录到变量 RoughCalib_Value中，注意这个变量需要定义为有符号变量
-
     for(i = 0; i < 20; i++)
     {
-        abcBuff[i] = ADC_ExcutSingleConver() + RoughCalib_Value; // 连续采样20次
+        abcBuff[i] = ADC_ExcutSingleConver(); // 连续采样20次
     }
     for(i = 0; i < 20; i++)
     {
-        PRINT("%d \n", abcBuff[i]);
+        PRINT("%d \n", adc_to_temperature_celsius(abcBuff[i]));
     }
 
     /* 单通道采样：选择adc通道0做采样，对应 PA4引脚， 带数据校准功能 */
@@ -158,9 +156,9 @@ void ADC_IRQHandler(void) //adc中断服务程序
 {
     if(ADC_GetDMAStatus())
     {
-        ADC_ClearDMAFlag();
         ADC_StopDMA();
-        R16_ADC_DMA_BEG = (uint16_t)(uint32_t)&abcBuff[0];
+        R16_ADC_DMA_BEG = ((uint32_t)abcBuff) & 0xffff;
+        ADC_ClearDMAFlag();
         DMA_end = 1;
     }
     if(ADC_GetITStatus())

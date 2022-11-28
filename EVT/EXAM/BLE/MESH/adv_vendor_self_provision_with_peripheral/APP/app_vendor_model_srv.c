@@ -42,51 +42,6 @@ static void     ind_reset(struct bt_mesh_indicate *ind, int err);
 static void     adv_srv_trans_send(void);
 
 /*********************************************************************
- * @fn      read_led_state
- *
- * @brief   ¶ÁÈ¡led×´Ì¬
- *
- * @param   led_pin - Òý½Å
- *
- * @return  led×´Ì¬
- */
-BOOL read_led_state(uint32_t led_pin)
-{
-    return (GPIOB_ReadPortPin(led_pin) > 0) ? 0 : 1;
-}
-
-/*********************************************************************
- * @fn      set_led_state
- *
- * @brief   ÉèÖÃled×´Ì¬
- *
- * @param   led_pin - Òý½Å
- * @param   on      - ×´Ì¬
- *
- * @return  none
- */
-void set_led_state(uint32_t led_pin, BOOL on)
-{
-    GPIOB_ModeCfg(led_pin, GPIO_ModeOut_PP_5mA);
-    on ? GPIOB_ResetBits(led_pin) : GPIOB_SetBits(led_pin);
-}
-
-/*********************************************************************
- * @fn      toggle_led_state
- *
- * @brief   ·­×ªled×´Ì¬
- *
- * @param   led_pin - Òý½Å
- *
- * @return  none
- */
-void toggle_led_state(uint32_t led_pin)
-{
-    GPIOB_ModeCfg(led_pin, GPIO_ModeOut_PP_5mA);
-    GPIOB_InverseBits(led_pin);
-}
-
-/*********************************************************************
  * @fn      vendor_srv_tid_get
  *
  * @brief   TID selection method
@@ -686,7 +641,7 @@ static void adv_srv_trans_send(void)
  *
  * @return  always SUCCESS
  */
-static int vendor_model_srv_init(struct bt_mesh_model *model)
+int vendor_model_srv_init(struct bt_mesh_model *model)
 {
     vendor_model_srv = model->user_data;
     vendor_model_srv->model = model;
@@ -730,7 +685,4 @@ static uint16_t vendor_model_srv_ProcessEvent(uint8_t task_id, uint16_t events)
     return 0;
 }
 
-const struct bt_mesh_model_cb bt_mesh_vendor_model_srv_cb = {
-    .init = vendor_model_srv_init,
-};
 /******************************** endfile @ main ******************************/

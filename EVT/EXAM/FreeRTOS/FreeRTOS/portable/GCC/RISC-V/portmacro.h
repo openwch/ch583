@@ -1,31 +1,12 @@
-/*
- * FreeRTOS Kernel V10.4.6
- * Copyright (C) 2021 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
- *
- * SPDX-License-Identifier: MIT
- *
- * Permission is hereby granted, free of charge, to any person obtaining a copy of
- * this software and associated documentation files (the "Software"), to deal in
- * the Software without restriction, including without limitation the rights to
- * use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of
- * the Software, and to permit persons to whom the Software is furnished to do so,
- * subject to the following conditions:
- *
- * The above copyright notice and this permission notice shall be included in all
- * copies or substantial portions of the Software.
- *
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
- * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS
- * FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR
- * COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER
- * IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
- * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
- *
- * https://www.FreeRTOS.org
- * https://github.com/FreeRTOS
- *
- */
-
+/********************************** (C) COPYRIGHT *******************************
+ * File Name          : portmacro.h
+ * Author             : WCH
+ * Version            : V1.0
+ * Date               : 2022/05/10
+ * Description        : WCH Qingke V4A FreeRTOSÒÆÖ²½Ó¿Ú
+ * Copyright (c) 2021 Nanjing Qinheng Microelectronics Co., Ltd.
+ * SPDX-License-Identifier: Apache-2.0
+ *******************************************************************************/
 
 #ifndef PORTMACRO_H
 #define PORTMACRO_H
@@ -47,20 +28,10 @@ extern "C" {
  */
 
 /* Type definitions. */
-#if __riscv_xlen == 64
-	#define portSTACK_TYPE			uint64_t
-	#define portBASE_TYPE			int64_t
-	#define portUBASE_TYPE			uint64_t
-	#define portMAX_DELAY 			( TickType_t ) 0xffffffffffffffffUL
-	#define portPOINTER_SIZE_TYPE 	uint64_t
-#elif __riscv_xlen == 32
-	#define portSTACK_TYPE	uint32_t
-	#define portBASE_TYPE	int32_t
-	#define portUBASE_TYPE	uint32_t
-	#define portMAX_DELAY ( TickType_t ) 0xffffffffUL
-#else
-	#error Assembler did not define __riscv_xlen
-#endif
+#define portSTACK_TYPE	uint32_t
+#define portBASE_TYPE	int32_t
+#define portUBASE_TYPE	uint32_t
+#define portMAX_DELAY ( TickType_t ) 0xffffffffUL
 
 
 typedef portSTACK_TYPE StackType_t;
@@ -83,6 +54,7 @@ not need to be guarded with a critical section. */
 /* Architecture specifics. */
 #define portSTACK_GROWTH			( -1 )
 #define portTICK_PERIOD_MS			( ( TickType_t ) 1000 / configTICK_RATE_HZ )
+
 #ifdef __riscv64
 	#error This is the RV32 port that has not yet been adapted for 64.
 	#define portBYTE_ALIGNMENT			16
@@ -95,7 +67,7 @@ not need to be guarded with a critical section. */
 /* Scheduler utilities. */
 extern void vTaskSwitchContext( void );
 #define portYIELD()   PFIC_SetPendingIRQ(SWI_IRQn)
-#define portEND_SWITCHING_ISR( xSwitchRequired ) do { if( xSwitchRequired ) vTaskSwitchContext(); } while( 0 )
+#define portEND_SWITCHING_ISR( xSwitchRequired ) do { if( xSwitchRequired ) portYIELD(); } while( 0 )
 #define portYIELD_FROM_ISR( x ) portEND_SWITCHING_ISR( x )
 /*-----------------------------------------------------------*/
 
@@ -106,17 +78,13 @@ extern void vPortExitCritical( void );
 extern portUBASE_TYPE xPortSetInterruptMask(void);
 extern void vPortClearInterruptMask(portUBASE_TYPE uvalue);
 
-#define portSET_INTERRUPT_MASK_FROM_ISR()  xPortSetInterruptMask()
-#define portCLEAR_INTERRUPT_MASK_FROM_ISR( uxSavedStatusValue )  vPortClearInterruptMask(uxSavedStatusValue)
-#define portDISABLE_INTERRUPTS()	__asm volatile( "csrw mstatus,%0" ::"r"(0x1800) )
-#define portENABLE_INTERRUPTS()		__asm volatile( "csrw mstatus,%0" ::"r"(0x1888) )
+#define portSET_INTERRUPT_MASK_FROM_ISR()  0
+#define portCLEAR_INTERRUPT_MASK_FROM_ISR( uxSavedStatusValue )  ( void )(uxSavedStatusValue)
+#define portDISABLE_INTERRUPTS()    __asm volatile( "csrc mstatus, 8" );__nop();__nop();__nop()
+#define portENABLE_INTERRUPTS()     __asm volatile( "csrs mstatus, 8" )
 #define portENTER_CRITICAL()	vPortEnterCritical()
 #define portEXIT_CRITICAL()		vPortExitCritical()
 
-/* switch interrupt sp, sp is saved at first task switch. */
-
-#define GET_INT_SP()   __asm volatile("csrrw sp,mscratch,sp")
-#define FREE_INT_SP()  __asm volatile("csrrw sp,mscratch,sp")
 /*-------------------------------------------------------------*/
 
 /* Architecture specific optimisations. */
@@ -162,29 +130,6 @@ not necessary for to use this port.  They are defined so the common demo files
 
 #define portMEMORY_BARRIER() __asm volatile( "" ::: "memory" )
 /*-----------------------------------------------------------*/
-
-
-/* configCLINT_BASE_ADDRESS is a legacy definition that was replaced by the
-configMTIME_BASE_ADDRESS and configMTIMECMP_BASE_ADDRESS definitions.  For
-backward compatibility derive the newer definitions from the old if the old
-definition is found. */
-#if defined( configCLINT_BASE_ADDRESS ) && !defined( configMTIME_BASE_ADDRESS ) && ( configCLINT_BASE_ADDRESS == 0 )
-	/* Legacy case where configCLINT_BASE_ADDRESS was defined as 0 to indicate
-	there was no CLINT.  Equivalent now is to set the MTIME and MTIMECMP
-	addresses to 0. */
-	#define configMTIME_BASE_ADDRESS 	( 0 )
-	#define configMTIMECMP_BASE_ADDRESS ( 0 )
-#elif defined( configCLINT_BASE_ADDRESS ) && !defined( configMTIME_BASE_ADDRESS )
-	/* Legacy case where configCLINT_BASE_ADDRESS was set to the base address of
-	the CLINT.  Equivalent now is to derive the MTIME and MTIMECMP addresses
-	from the CLINT address. */
-	#define configMTIME_BASE_ADDRESS 	( ( configCLINT_BASE_ADDRESS ) + 0xBFF8UL )
-	#define configMTIMECMP_BASE_ADDRESS ( ( configCLINT_BASE_ADDRESS ) + 0x4000UL )
-#elif !defined( configMTIME_BASE_ADDRESS ) || !defined( configMTIMECMP_BASE_ADDRESS )
-	#error configMTIME_BASE_ADDRESS and configMTIMECMP_BASE_ADDRESS must be defined in FreeRTOSConfig.h.  Set them to zero if there is no MTIME (machine time) clock.  See https://www.FreeRTOS.org/Using-FreeRTOS-on-RISC-V.html
-#endif
-
-
 
 #ifdef __cplusplus
 }

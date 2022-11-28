@@ -65,6 +65,7 @@ void ReadImageFlag(void)
  * @return  none
  */
 __HIGH_CODE
+__attribute__((noinline))
 void Main_Circulation()
 {
     while(1)

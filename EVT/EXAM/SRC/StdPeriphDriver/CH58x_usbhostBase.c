@@ -528,7 +528,7 @@ uint8_t CtrlGetDeviceDescr(void)
     uint8_t len;
 
     UsbDevEndp0Size = DEFAULT_ENDP0_SIZE;
-    CopySetupReqPkg((int8_t *)SetupGetDevDescr);
+    CopySetupReqPkg(SetupGetDevDescr);
     s = HostCtrlTransfer(Com_Buffer, &len); // 执行控制传输
     if(s != ERR_SUCCESS)
     {
@@ -557,7 +557,7 @@ uint8_t CtrlGetConfigDescr(void)
     uint8_t s;
     uint8_t len;
 
-    CopySetupReqPkg((int8_t *)SetupGetCfgDescr);
+    CopySetupReqPkg(SetupGetCfgDescr);
     s = HostCtrlTransfer(Com_Buffer, &len); // 执行控制传输
     if(s != ERR_SUCCESS)
     {
@@ -569,7 +569,7 @@ uint8_t CtrlGetConfigDescr(void)
     }
 
     len = ((PUSB_CFG_DESCR)Com_Buffer)->wTotalLength;
-    CopySetupReqPkg((uint8_t *)SetupGetCfgDescr);
+    CopySetupReqPkg(SetupGetCfgDescr);
     pSetupReq->wLength = len;               // 完整配置描述符的总长度
     s = HostCtrlTransfer(Com_Buffer, &len); // 执行控制传输
     if(s != ERR_SUCCESS)
@@ -599,7 +599,7 @@ uint8_t CtrlSetUsbAddress(uint8_t addr)
 {
     uint8_t s;
 
-    CopySetupReqPkg((int8_t *)SetupSetUsbAddr);
+    CopySetupReqPkg(SetupSetUsbAddr);
     pSetupReq->wValue = addr;         // USB设备地址
     s = HostCtrlTransfer(NULL, NULL); // 执行控制传输
     if(s != ERR_SUCCESS)
@@ -622,7 +622,7 @@ uint8_t CtrlSetUsbAddress(uint8_t addr)
  */
 uint8_t CtrlSetUsbConfig(uint8_t cfg)
 {
-    CopySetupReqPkg((int8_t *)SetupSetUsbConfig);
+    CopySetupReqPkg(SetupSetUsbConfig);
     pSetupReq->wValue = cfg;               // USB设备配置
     return (HostCtrlTransfer(NULL, NULL)); // 执行控制传输
 }
@@ -638,7 +638,7 @@ uint8_t CtrlSetUsbConfig(uint8_t cfg)
  */
 uint8_t CtrlClearEndpStall(uint8_t endp)
 {
-    CopySetupReqPkg((int8_t *)SetupClrEndpStall); // 清除端点的错误
+    CopySetupReqPkg(SetupClrEndpStall); // 清除端点的错误
     pSetupReq->wIndex = endp;                     // 端点地址
     return (HostCtrlTransfer(NULL, NULL));        // 执行控制传输
 }
@@ -654,7 +654,7 @@ uint8_t CtrlClearEndpStall(uint8_t endp)
  */
 uint8_t CtrlSetUsbIntercace(uint8_t cfg)
 {
-    CopySetupReqPkg((int8_t *)SetupSetUsbInterface);
+    CopySetupReqPkg(SetupSetUsbInterface);
     pSetupReq->wValue = cfg;               // USB设备配置
     return (HostCtrlTransfer(NULL, NULL)); // 执行控制传输
 }

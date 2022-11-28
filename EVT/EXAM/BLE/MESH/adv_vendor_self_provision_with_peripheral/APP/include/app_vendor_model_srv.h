@@ -17,8 +17,6 @@ extern "C" {
 
 #include "MESH_LIB.h"
 
-#define MSG_PIN                              GPIO_Pin_12
-
 #define CID_WCH                              0x07D7
 
 #define OP_VENDOR_MESSAGE_TRANSPARENT_CFM    BLE_MESH_MODEL_OP_3(0xCB, CID_WCH)
@@ -160,32 +158,7 @@ struct bt_mesh_vendor_model_srv
     vendor_model_srv_rsp_handler_t handler;
 };
 
-extern const struct bt_mesh_model_cb bt_mesh_vendor_model_srv_cb;
 extern const struct bt_mesh_model_op vnd_model_srv_op[];
-
-/**
- * @brief   读取led状态
- *
- * @param   led_pin - 引脚
- *
- * @return  led状态
- */
-BOOL read_led_state(uint32_t led_pin);
-
-/**
- * @brief   设置led状态
- *
- * @param   led_pin - 引脚
- * @param   on      - 状态
- */
-void set_led_state(uint32_t led_pin, BOOL on);
-
-/**
- * @brief   翻转led状态
- *
- * @param   led_pin - 引脚
- */
-void toggle_led_state(uint32_t led_pin);
 
 /**
  * @brief   indicate,有应答传输数据通道
@@ -220,6 +193,16 @@ uint8_t vendor_srv_tid_get(void);
  * @brief   复位厂商模型服务，取消所有正在发送的流程
  */
 void vendor_message_srv_trans_reset(void);
+
+/**
+ * @brief   厂商模型初始化
+ *
+ * @param   model       - 指向厂商模型结构体
+ *
+ * @return  always SUCCESS
+ */
+int vendor_model_srv_init(struct bt_mesh_model *model);
+
 
 #ifdef __cplusplus
 }

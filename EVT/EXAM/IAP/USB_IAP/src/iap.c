@@ -9,6 +9,9 @@
  *******************************************************************************/
 #include "iap.h"
 
+#undef pSetupReqPak     /* 解决和外设库头文件冲突  */
+#define pSetupReqPak          ((PUSB_SETUP_REQ)EP0_Databuf)
+
 void myDevEP2_IN_Deal(uint8_t s);
 void myDevEP2_OUT_Deal(uint8_t l);
 
@@ -48,8 +51,6 @@ __attribute__((aligned(4)))   uint8_t EP0_Databuf[64 + 64 + 64]; //ep0(64)+ep4_o
 __attribute__((aligned(4)))   uint8_t EP1_Databuf[64 + 64]; //ep1_out(64)+ep1_in(64)
 __attribute__((aligned(4)))   uint8_t EP2_Databuf[64 + 64]; //ep2_out(64)+ep2_in(64)
 __attribute__((aligned(4)))   uint8_t EP3_Databuf[64 + 64]; //ep3_out(64)+ep3_in(64)
-
-#define pSetupReqPak          ((PUSB_SETUP_REQ)EP0_Databuf)
 
 __attribute__((aligned(4)))   uint8_t g_write_buf[256 + 64]; //每次满256字节再写flash，提升速度
 volatile uint16_t g_buf_write_ptr = 0;

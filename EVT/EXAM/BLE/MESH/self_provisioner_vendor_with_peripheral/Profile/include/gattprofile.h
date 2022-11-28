@@ -4,7 +4,8 @@
 * Version            : V1.0
 * Date               : 2018/12/11
 * Description        :
-
+ * Copyright (c) 2021 Nanjing Qinheng Microelectronics Co., Ltd.
+ * SPDX-License-Identifier: Apache-2.0
 *******************************************************************************/
 
 #ifndef GATTPROFILE_H
@@ -101,7 +102,7 @@ extern bStatus_t SimpleProfile_RegisterAppCBs(simpleProfileCBs_t *appCallbacks);
  *          data type (example: data type of uint16_t will be cast to
  *          uint16_t pointer).
  */
-extern bStatus_t SimpleProfile_SetParameter(uint8_t param, uint8_t len, void *value);
+extern bStatus_t SimpleProfile_SetParameter(uint8_t param, uint16_t len, void *value);
 
 /*
  * SimpleProfile_GetParameter - Get a Simple GATT Profile parameter.

@@ -37,6 +37,7 @@ __attribute__((aligned(4))) uint32_t Image_Flag __attribute__((section(".ImageFl
  * @return  none
  */
 __HIGH_CODE
+__attribute__((noinline))
 void Main_Circulation()
 {
     while(1)
