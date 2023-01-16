@@ -4,8 +4,10 @@
  * Version            : V1.0
  * Date               : 2018/12/10
  * Description        : 观察应用程序，初始化扫描参数，然后定时扫描，如果扫描结果不为空，则打印扫描到的广播地址
+ *********************************************************************************
  * Copyright (c) 2021 Nanjing Qinheng Microelectronics Co., Ltd.
- * SPDX-License-Identifier: Apache-2.0
+ * Attention: This software (modified or not) and binary are used for 
+ * microcontroller manufactured by Nanjing Qinheng Microelectronics.
  *******************************************************************************/
 
 /*********************************************************************
@@ -239,12 +241,15 @@ static void ObserverEventCB(gapRoleEvent_t *pEvent)
                 gapCreateSync_t sync = {0};
                 uint8           state;
 
-                tmos_memcpy(sync.addr, PeerAddrDef, B_ADDR_LEN);
+                tmos_memcpy(sync.addr, pEvent->deviceExtAdvInfo.addr, B_ADDR_LEN);
                 sync.addrType = pEvent->deviceExtAdvInfo.addrType;
-                sync.advertising_SID = 8;
+                sync.advertising_SID = pEvent->deviceExtAdvInfo.advertisingSID;
                 sync.options = DUPLICATE_FILTERING_INITIALLY_ENABLED;
-                sync.syncTimeout = 80; // 800ms
+                sync.syncTimeout = (pEvent->deviceExtAdvInfo.periodicAdvInterval * 6 + 7) / 8; //6 times the periodicAdvInterval
+                
+                /* Only one sync can be established at the same time for now */
                 state = GAPRole_CreateSync(&sync);
+
                 PRINT("GAPRole_CreateSync %d return %d...\n ", pEvent->deviceExtAdvInfo.periodicAdvInterval, state);
                 if (state == SUCCESS) {
                     tmos_start_task(ObserverTaskId, START_SYNC_TIMEOUT_EVT, DEFAULT_CREAT_SYNC_TIMEOUT);
@@ -269,7 +274,11 @@ static void ObserverEventCB(gapRoleEvent_t *pEvent)
 
         case GAP_PERIODIC_ADV_DEVICE_INFO_EVENT:
         {
-            PRINT("periodic adv - len %d, data[5] %x...\n", pEvent->devicePeriodicInfo.dataLength, pEvent->devicePeriodicInfo.pEvtData[5]);
+            PRINT("periodic adv - len %d (", pEvent->devicePeriodicInfo.dataLength);
+            for (int i = 0 ; i < pEvent->devicePeriodicInfo.dataLength; i++) {
+                PRINT(" %#x", pEvent->devicePeriodicInfo.pEvtData[i]);
+            }
+            PRINT(" )\n");
         }
         break;
 

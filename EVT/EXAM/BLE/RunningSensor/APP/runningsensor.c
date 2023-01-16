@@ -1,11 +1,14 @@
 /********************************** (C) COPYRIGHT *******************************
-* File Name          : runningsensor.c
-* Author             : WCH
-* Version            : V1.0
-* Date               : 2018/12/12
-* Description        : 跑步传感器应用程序，初始化广播连接参数，然后广播，直至连接主机后，定时上传速度
-
-*******************************************************************************/
+ * File Name          : runningsensor.c
+ * Author             : WCH
+ * Version            : V1.0
+ * Date               : 2018/12/12
+ * Description        : 跑步传感器应用程序，初始化广播连接参数，然后广播，直至连接主机后，定时上传速度
+ *********************************************************************************
+ * Copyright (c) 2021 Nanjing Qinheng Microelectronics Co., Ltd.
+ * Attention: This software (modified or not) and binary are used for 
+ * microcontroller manufactured by Nanjing Qinheng Microelectronics.
+ *******************************************************************************/
 
 /*********************************************************************
  * INCLUDES

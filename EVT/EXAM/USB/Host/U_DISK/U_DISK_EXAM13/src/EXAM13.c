@@ -4,10 +4,12 @@
  * Version            : V1.0
  * Date               : 2020/08/11
  * Description        : C语言的U盘创建长文件名文件例程
- 支持: FAT12/FAT16/FAT32
- 注意包含 CHRV3UFI.LIB/USBHOST.C/DEBUG.C
+ * 支持: FAT12/FAT16/FAT32
+ * 注意包含 CHRV3UFI.LIB/USBHOST.C/DEBUG.C
+ *********************************************************************************
  * Copyright (c) 2021 Nanjing Qinheng Microelectronics Co., Ltd.
- * SPDX-License-Identifier: Apache-2.0
+ * Attention: This software (modified or not) and binary are used for 
+ * microcontroller manufactured by Nanjing Qinheng Microelectronics.
  *******************************************************************************/
 
 /** 不使用U盘文件系统库，需要在工程属性预编译中修改 DISK_LIB_ENABLE=0        */

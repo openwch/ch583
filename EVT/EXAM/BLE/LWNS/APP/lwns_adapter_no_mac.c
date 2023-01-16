@@ -4,8 +4,10 @@
  * Version            : V1.0
  * Date               : 2021/06/20
  * Description        : lwns适配器，不使用mac协议，纯透传
+ *********************************************************************************
  * Copyright (c) 2021 Nanjing Qinheng Microelectronics Co., Ltd.
- * SPDX-License-Identifier: Apache-2.0
+ * Attention: This software (modified or not) and binary are used for 
+ * microcontroller manufactured by Nanjing Qinheng Microelectronics.
  *******************************************************************************/
 #include "lwns_adapter_no_mac.h"
 #include "lwns_sec.h"

@@ -6,8 +6,10 @@
  * Description        : rt-thread nano移植例程，使用硬件压栈，中断嵌套可选，中断函数不再使用修饰
  *                      __attribute__((interrupt("WCH-Interrupt-fast")))，
  *                      中断函数直接按照普通函数定义，只使用HIGHCODE修饰即可。
+ *********************************************************************************
  * Copyright (c) 2021 Nanjing Qinheng Microelectronics Co., Ltd.
- * SPDX-License-Identifier: Apache-2.0
+ * Attention: This software (modified or not) and binary are used for 
+ * microcontroller manufactured by Nanjing Qinheng Microelectronics.
  *******************************************************************************/
 
 #include "CH58x_common.h"

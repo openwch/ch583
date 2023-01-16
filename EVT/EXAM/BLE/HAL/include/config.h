@@ -4,8 +4,10 @@
  * Version            : V1.2
  * Date               : 2022/01/18
  * Description        : 配置说明及默认值，建议在工程配置里的预处理中修改当前值
+ *********************************************************************************
  * Copyright (c) 2021 Nanjing Qinheng Microelectronics Co., Ltd.
- * SPDX-License-Identifier: Apache-2.0
+ * Attention: This software (modified or not) and binary are used for 
+ * microcontroller manufactured by Nanjing Qinheng Microelectronics.
  *******************************************************************************/
 
 /******************************************************************************/

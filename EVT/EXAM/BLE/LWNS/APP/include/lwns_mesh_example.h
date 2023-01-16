@@ -4,8 +4,10 @@
  * Version            : V1.0
  * Date               : 2021/06/28
  * Description        : mesh´«Êä³ÌÐòÀý×Ó
+ *********************************************************************************
  * Copyright (c) 2021 Nanjing Qinheng Microelectronics Co., Ltd.
- * SPDX-License-Identifier: Apache-2.0
+ * Attention: This software (modified or not) and binary are used for 
+ * microcontroller manufactured by Nanjing Qinheng Microelectronics.
  *******************************************************************************/
 #ifndef _LWNS_MESH_EXAMPLE_H_
 #define _LWNS_MESH_EXAMPLE_H_

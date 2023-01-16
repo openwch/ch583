@@ -4,8 +4,10 @@
  * Version            : V1.0
  * Date               : 2018/12/12
  * Description        : 蓝牙触摸应用程序，初始化广播连接参数，然后广播，直至连接主机后，定时上传触摸值
+ *********************************************************************************
  * Copyright (c) 2021 Nanjing Qinheng Microelectronics Co., Ltd.
- * SPDX-License-Identifier: Apache-2.0
+ * Attention: This software (modified or not) and binary are used for 
+ * microcontroller manufactured by Nanjing Qinheng Microelectronics.
  *******************************************************************************/
 
 /*********************************************************************

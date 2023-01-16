@@ -1,11 +1,14 @@
 /********************************** (C) COPYRIGHT *******************************
-* File Name          : observer.c
-* Author             : WCH
-* Version            : V1.0
-* Date               : 2018/12/10
-* Description        : 观察应用程序，初始化扫描参数，然后定时扫描，如果扫描结果不为空，则打印扫描到的广播地址
-
-*******************************************************************************/
+ * File Name          : observer.c
+ * Author             : WCH
+ * Version            : V1.0
+ * Date               : 2018/12/10
+ * Description        : 观察应用程序，初始化扫描参数，然后定时扫描，如果扫描结果不为空，则打印扫描到的广播地址
+ *********************************************************************************
+ * Copyright (c) 2021 Nanjing Qinheng Microelectronics Co., Ltd.
+ * Attention: This software (modified or not) and binary are used for 
+ * microcontroller manufactured by Nanjing Qinheng Microelectronics.
+ *******************************************************************************/
 
 /*********************************************************************
  * INCLUDES
