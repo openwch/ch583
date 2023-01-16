@@ -1,7 +1,8 @@
 /*
  * Copyright (c) 2021 Nanjing Qinheng Microelectronics Co., Ltd.
  *
- * SPDX-License-Identifier: Apache-2.0
+ * Attention: This software (modified or not) and binary are used for 
+ * microcontroller manufactured by Nanjing Qinheng Microelectronics.
  */
 
 /*********************************************************************
@@ -493,17 +494,6 @@ static void Peripheral_LinkTerminated(gapRoleEvent_t *pEvent)
     }
 }
 
-
-/*********************************************************************
- * @fn      centralHciMTUChangeCB
- *
- * @brief   MTU changed callback.
- *
- * @param   maxTxOctets - Max tx octets
- * @param   maxRxOctets - Max rx octets
- *
- * @return  none
- */
 static void AncsParamUpdateCB(uint16_t connHandle, uint16_t connInterval,
         uint16_t connSlaveLatency, uint16_t connTimeout)
 {

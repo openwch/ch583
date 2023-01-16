@@ -4,8 +4,10 @@
  * Version            : V1.1
  * Date               : 2022/01/19
  * Description        :
+ *********************************************************************************
  * Copyright (c) 2021 Nanjing Qinheng Microelectronics Co., Ltd.
- * SPDX-License-Identifier: Apache-2.0
+ * Attention: This software (modified or not) and binary are used for 
+ * microcontroller manufactured by Nanjing Qinheng Microelectronics.
  *******************************************************************************/
 
 /*********************************************************************
@@ -215,12 +217,6 @@ static bStatus_t ble_usb_ReadAttrCB(uint16 connHandle, gattAttribute_t *pAttr,
 {
     bStatus_t status = SUCCESS;
     PRINT("ReadAttrCB\n");
-    // If attribute permissions require authorization to read, return error
-    if(gattPermitAuthorRead(pAttr->permissions))
-    {
-        // Insufficient authorization
-        return (ATT_ERR_INSUFFICIENT_AUTHOR);
-    }
 
     // Make sure it's not a blob operation (no attributes in the profile are long)
     if(pAttr->type.len == ATT_BT_UUID_SIZE)

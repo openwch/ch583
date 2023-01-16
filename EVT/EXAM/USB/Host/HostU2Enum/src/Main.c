@@ -3,9 +3,11 @@
  * Author             : WCH
  * Version            : V1.1
  * Date               : 2022/01/25
- * Description        : USB2è®¾å¤‡æšä¸¾
+ * Description        : USB2Éè±¸Ã¶¾Ù
+ *********************************************************************************
  * Copyright (c) 2021 Nanjing Qinheng Microelectronics Co., Ltd.
- * SPDX-License-Identifier: Apache-2.0
+ * Attention: This software (modified or not) and binary are used for 
+ * microcontroller manufactured by Nanjing Qinheng Microelectronics.
  *******************************************************************************/
 
 #include "CH58x_common.h"
@@ -16,7 +18,7 @@ __attribute__((aligned(4))) uint8_t TxBuffer[MAX_PACKET_SIZE]; // OUT, must even
 /*********************************************************************
  * @fn      main
  *
- * @brief   ä¸»å‡½æ•°
+ * @brief   Ö÷º¯Êı
  *
  * @return  none
  */
@@ -27,7 +29,7 @@ int main()
 
     SetSysClock(CLK_SOURCE_PLL_60MHz);
     DelayMs(5);
-    /* å¼€å¯ç”µå‹ç›‘æ§ */
+    /* ¿ªÆôµçÑ¹¼à¿Ø */
     PowerMonitor(ENABLE, HALevel_2V1);
 
     GPIOA_SetBits(GPIO_Pin_9);
@@ -44,7 +46,7 @@ int main()
     {
         s = ERR_SUCCESS;
         if(R8_USB2_INT_FG & RB_UIF_DETECT)
-        { // å¦‚æœæœ‰USBä¸»æœºæ£€æµ‹ä¸­æ–­åˆ™å¤„ç†
+        { // Èç¹ûÓĞUSBÖ÷»ú¼ì²âÖĞ¶ÏÔò´¦Àí
             R8_USB2_INT_FG = RB_UIF_DETECT;
             s = AnalyzeRootU2Hub();
             if(s == ERR_USB_CONNECT)
@@ -52,42 +54,42 @@ int main()
         }
 
         if(FoundNewU2Dev || s == ERR_USB_CONNECT)
-        { // æœ‰æ–°çš„USBè®¾å¤‡æ’å…¥
+        { // ÓĞĞÂµÄUSBÉè±¸²åÈë
             FoundNewU2Dev = 0;
-            mDelaymS(200);          // ç”±äºUSBè®¾å¤‡åˆšæ’å…¥å°šæœªç¨³å®š,æ•…ç­‰å¾…USBè®¾å¤‡æ•°ç™¾æ¯«ç§’,æ¶ˆé™¤æ’æ‹”æŠ–åŠ¨
-            s = InitRootU2Device(); // åˆå§‹åŒ–USBè®¾å¤‡
+            mDelaymS(200);          // ÓÉÓÚUSBÉè±¸¸Õ²åÈëÉĞÎ´ÎÈ¶¨,¹ÊµÈ´ıUSBÉè±¸Êı°ÙºÁÃë,Ïû³ı²å°Î¶¶¶¯
+            s = InitRootU2Device(); // ³õÊ¼»¯USBÉè±¸
             if(s != ERR_SUCCESS)
             {
                 PRINT("EnumAllRootDev err = %02X\n", (uint16_t)s);
             }
         }
 
-        /* å¦‚æœä¸‹ç«¯è¿æ¥çš„æ˜¯HUBï¼Œåˆ™å…ˆæšä¸¾HUB */
-        s = EnumAllU2HubPort(); // æšä¸¾æ‰€æœ‰ROOT-HUBç«¯å£ä¸‹å¤–éƒ¨HUBåçš„äºŒçº§USBè®¾å¤‡
+        /* Èç¹ûÏÂ¶ËÁ¬½ÓµÄÊÇHUB£¬ÔòÏÈÃ¶¾ÙHUB */
+        s = EnumAllU2HubPort(); // Ã¶¾ÙËùÓĞROOT-HUB¶Ë¿ÚÏÂÍâ²¿HUBºóµÄ¶ş¼¶USBÉè±¸
         if(s != ERR_SUCCESS)
-        { // å¯èƒ½æ˜¯HUBæ–­å¼€äº†
+        { // ¿ÉÄÜÊÇHUB¶Ï¿ªÁË
             PRINT("EnumAllHubPort err = %02X\n", (uint16_t)s);
         }
 
-        /* å¦‚æœè®¾å¤‡æ˜¯é¼ æ ‡ */
-        loc = U2SearchTypeDevice(DEV_TYPE_MOUSE); // åœ¨ROOT-HUBä»¥åŠå¤–éƒ¨HUBå„ç«¯å£ä¸Šæœç´¢æŒ‡å®šç±»å‹çš„è®¾å¤‡æ‰€åœ¨çš„ç«¯å£å·
+        /* Èç¹ûÉè±¸ÊÇÊó±ê */
+        loc = U2SearchTypeDevice(DEV_TYPE_MOUSE); // ÔÚROOT-HUBÒÔ¼°Íâ²¿HUB¸÷¶Ë¿ÚÉÏËÑË÷Ö¸¶¨ÀàĞÍµÄÉè±¸ËùÔÚµÄ¶Ë¿ÚºÅ
         if(loc != 0xFFFF)
-        { // æ‰¾åˆ°äº†,å¦‚æœæœ‰ä¸¤ä¸ªMOUSEå¦‚ä½•å¤„ç†?
+        { // ÕÒµ½ÁË,Èç¹ûÓĞÁ½¸öMOUSEÈçºÎ´¦Àí?
             i = (uint8_t)(loc >> 8);
             len = (uint8_t)loc;
-            SelectU2HubPort(len);                                                 // é€‰æ‹©æ“ä½œæŒ‡å®šçš„ROOT-HUBç«¯å£,è®¾ç½®å½“å‰USBé€Ÿåº¦ä»¥åŠè¢«æ“ä½œè®¾å¤‡çš„USBåœ°å€
-            endp = len ? DevOnU2HubPort[len - 1].GpVar[0] : ThisUsb2Dev.GpVar[0]; // ä¸­æ–­ç«¯ç‚¹çš„åœ°å€,ä½7ç”¨äºåŒæ­¥æ ‡å¿—ä½
+            SelectU2HubPort(len);                                                 // Ñ¡Ôñ²Ù×÷Ö¸¶¨µÄROOT-HUB¶Ë¿Ú,ÉèÖÃµ±Ç°USBËÙ¶ÈÒÔ¼°±»²Ù×÷Éè±¸µÄUSBµØÖ·
+            endp = len ? DevOnU2HubPort[len - 1].GpVar[0] : ThisUsb2Dev.GpVar[0]; // ÖĞ¶Ï¶ËµãµÄµØÖ·,Î»7ÓÃÓÚÍ¬²½±êÖ¾Î»
             if(endp & USB_ENDP_ADDR_MASK)
-            {                                                                                                        // ç«¯ç‚¹æœ‰æ•ˆ
-                s = USB2HostTransact(USB_PID_IN << 4 | endp & 0x7F, endp & 0x80 ? RB_UH_R_TOG | RB_UH_T_TOG : 0, 0); // ä¼ è¾“äº‹åŠ¡,è·å–æ•°æ®,NAKä¸é‡è¯•
+            {                                                                                                        // ¶ËµãÓĞĞ§
+                s = USB2HostTransact(USB_PID_IN << 4 | endp & 0x7F, endp & 0x80 ? RB_UH_R_TOG | RB_UH_T_TOG : 0, 0); // ´«ÊäÊÂÎñ,»ñÈ¡Êı¾İ,NAK²»ÖØÊÔ
                 if(s == ERR_SUCCESS)
                 {
-                    endp ^= 0x80; // åŒæ­¥æ ‡å¿—ç¿»è½¬
+                    endp ^= 0x80; // Í¬²½±êÖ¾·­×ª
                     if(len)
-                        DevOnU2HubPort[len - 1].GpVar[0] = endp; // ä¿å­˜åŒæ­¥æ ‡å¿—ä½
+                        DevOnU2HubPort[len - 1].GpVar[0] = endp; // ±£´æÍ¬²½±êÖ¾Î»
                     else
                         ThisUsb2Dev.GpVar[0] = endp;
-                    len = R8_USB2_RX_LEN; // æ¥æ”¶åˆ°çš„æ•°æ®é•¿åº¦
+                    len = R8_USB2_RX_LEN; // ½ÓÊÕµ½µÄÊı¾İ³¤¶È
                     if(len)
                     {
                         PRINT("Mouse data: ");
@@ -100,35 +102,35 @@ int main()
                 }
                 else if(s != (USB_PID_NAK | ERR_USB_TRANSFER))
                 {
-                    PRINT("Mouse error %02x\n", (uint16_t)s); // å¯èƒ½æ˜¯æ–­å¼€äº†
+                    PRINT("Mouse error %02x\n", (uint16_t)s); // ¿ÉÄÜÊÇ¶Ï¿ªÁË
                 }
             }
             else
             {
                 PRINT("Mouse no interrupt endpoint\n");
             }
-            SetUsb2Speed(1); // é»˜è®¤ä¸ºå…¨é€Ÿ
+            SetUsb2Speed(1); // Ä¬ÈÏÎªÈ«??
         }
 
-        /* å¦‚æœè®¾å¤‡æ˜¯é”®ç›˜ */
-        loc = U2SearchTypeDevice(DEV_TYPE_KEYBOARD); // åœ¨ROOT-HUBä»¥åŠå¤–éƒ¨HUBå„ç«¯å£ä¸Šæœç´¢æŒ‡å®šç±»å‹çš„è®¾å¤‡æ‰€åœ¨çš„ç«¯å£å·
+        /* Èç¹ûÉè±¸ÊÇ¼üÅÌ */
+        loc = U2SearchTypeDevice(DEV_TYPE_KEYBOARD); // ÔÚROOT-HUBÒÔ¼°Íâ²¿HUB¸÷¶Ë¿ÚÉÏËÑË÷Ö¸¶¨ÀàĞÍµÄÉè±¸ËùÔÚµÄ¶Ë¿ÚºÅ
         if(loc != 0xFFFF)
-        { // æ‰¾åˆ°äº†,å¦‚æœæœ‰ä¸¤ä¸ªKeyBoardå¦‚ä½•å¤„ç†?
+        { // ÕÒµ½ÁË,Èç¹ûÓĞÁ½¸öKeyBoardÈçºÎ´¦Àí?
             i = (uint8_t)(loc >> 8);
             len = (uint8_t)loc;
-            SelectU2HubPort(len);                                                 // é€‰æ‹©æ“ä½œæŒ‡å®šçš„ROOT-HUBç«¯å£,è®¾ç½®å½“å‰USBé€Ÿåº¦ä»¥åŠè¢«æ“ä½œè®¾å¤‡çš„USBåœ°å€
-            endp = len ? DevOnU2HubPort[len - 1].GpVar[0] : ThisUsb2Dev.GpVar[0]; // ä¸­æ–­ç«¯ç‚¹çš„åœ°å€,ä½7ç”¨äºåŒæ­¥æ ‡å¿—ä½
+            SelectU2HubPort(len);                                                 // Ñ¡Ôñ²Ù×÷Ö¸¶¨µÄROOT-HUB¶Ë¿Ú,ÉèÖÃµ±Ç°USBËÙ¶ÈÒÔ¼°±»²Ù×÷Éè±¸µÄUSBµØÖ·
+            endp = len ? DevOnU2HubPort[len - 1].GpVar[0] : ThisUsb2Dev.GpVar[0]; // ÖĞ¶Ï¶ËµãµÄµØÖ·,Î»7ÓÃÓÚÍ¬²½±êÖ¾Î»
             if(endp & USB_ENDP_ADDR_MASK)
-            {                                                                                                        // ç«¯ç‚¹æœ‰æ•ˆ
-                s = USB2HostTransact(USB_PID_IN << 4 | endp & 0x7F, endp & 0x80 ? RB_UH_R_TOG | RB_UH_T_TOG : 0, 0); // ä¼ è¾“äº‹åŠ¡,è·å–æ•°æ®,NAKä¸é‡è¯•
+            {                                                                                                        // ¶ËµãÓĞĞ§
+                s = USB2HostTransact(USB_PID_IN << 4 | endp & 0x7F, endp & 0x80 ? RB_UH_R_TOG | RB_UH_T_TOG : 0, 0); // ´«ÊäÊÂÎñ,»ñÈ¡Êı¾İ,NAK²»ÖØÊÔ
                 if(s == ERR_SUCCESS)
                 {
-                    endp ^= 0x80; // åŒæ­¥æ ‡å¿—ç¿»è½¬
+                    endp ^= 0x80; // Í¬²½±êÖ¾·­×ª
                     if(len)
-                        DevOnU2HubPort[len - 1].GpVar[0] = endp; // ä¿å­˜åŒæ­¥æ ‡å¿—ä½
+                        DevOnU2HubPort[len - 1].GpVar[0] = endp; // ±£´æÍ¬²½±êÖ¾Î»
                     else
                         ThisUsb2Dev.GpVar[0] = endp;
-                    len = R8_USB2_RX_LEN; // æ¥æ”¶åˆ°çš„æ•°æ®é•¿åº¦
+                    len = R8_USB2_RX_LEN; // ½ÓÊÕµ½µÄÊı¾İ³¤¶È
                     if(len)
                     {
                         U2SETorOFFNumLock(RxBuffer);
@@ -142,14 +144,14 @@ int main()
                 }
                 else if(s != (USB_PID_NAK | ERR_USB_TRANSFER))
                 {
-                    PRINT("keyboard error %02x\n", (uint16_t)s); // å¯èƒ½æ˜¯æ–­å¼€äº†
+                    PRINT("keyboard error %02x\n", (uint16_t)s); // ¿ÉÄÜÊÇ¶Ï¿ªÁË
                 }
             }
             else
             {
                 PRINT("keyboard no interrupt endpoint\n");
             }
-            SetUsb2Speed(1); // é»˜è®¤ä¸ºå…¨é€Ÿ
+            SetUsb2Speed(1); // Ä¬ÈÏÎªÈ«ËÙ
         }
     }
 }

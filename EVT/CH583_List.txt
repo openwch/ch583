@@ -81,6 +81,7 @@ http://wch.cn
   |      |      |      |      |      |-- self_provisioner_vendor：厂商自定义模型自配网发起者例程，配合adv_vendor使用，自动配网周围未配网设备，并将其加入自身mesh网络，默认支持配网6个设备。默认配置设备绑定1个APPKEY,用于有应答传输和无应答透传，配置设备绑定1个订阅地址，用于群发无应答消息
   |      |      |      |      |      |-- self_provisioner_vendor_with_peripheral：厂商自定义模型自配网发起者例程的基础上，支持手机BLE调试助手连接控制，中转手机与mesh网络的通信，可自行拟定通信协议实现手机控制mesh网络中所有设备。
   |      |      |      |      |      |-- MESH_LIB：MESH协议栈库文件及其头文件
+  |      |      |      |      |      |-- 沁恒MESH APP管理配网应用手册.pdf
   |      |      |      |      |      |-- 沁恒低功耗蓝牙MESH软件开发参考手册.pdf
   |      |      |      |      |-- BackupUpgrade_IAP：备份无线升级IAP例程，检测当前代码标志，判断是否搬运备份区代码到用户区并运行用户区代码
   |      |      |      |      |-- BackupUpgrade_JumpIAP：备份无线升级跳转IAP例程，放在代码起始地址，负责跳转到IAP程序

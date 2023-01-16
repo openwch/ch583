@@ -4,8 +4,10 @@
  * Version            : V1.0
  * Date               : 2022/03/18
  * Description        : 主机多连接例程，主动扫描周围设备，连接至给定的三个从机设备地址
+ *********************************************************************************
  * Copyright (c) 2021 Nanjing Qinheng Microelectronics Co., Ltd.
- * SPDX-License-Identifier: Apache-2.0
+ * Attention: This software (modified or not) and binary are used for 
+ * microcontroller manufactured by Nanjing Qinheng Microelectronics.
  *******************************************************************************/
 
 /*********************************************************************

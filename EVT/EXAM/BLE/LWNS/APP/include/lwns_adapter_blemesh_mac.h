@@ -4,8 +4,10 @@
  * Version            : V1.0
  * Date               : 2021/06/20
  * Description        : lwns适配器，模拟ble sig mesh的mac协议
+ *********************************************************************************
  * Copyright (c) 2021 Nanjing Qinheng Microelectronics Co., Ltd.
- * SPDX-License-Identifier: Apache-2.0
+ * Attention: This software (modified or not) and binary are used for 
+ * microcontroller manufactured by Nanjing Qinheng Microelectronics.
  *******************************************************************************/
 #ifndef _LWNS_ADAPTER_BLEMESH_MAC_H_
 #define _LWNS_ADAPTER_BLEMESH_MAC_H_

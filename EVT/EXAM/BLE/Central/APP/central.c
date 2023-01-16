@@ -6,7 +6,11 @@
 * Description        : 主机例程，主动扫描周围设备，连接至给定的从机设备地址，
 *                      寻找自定义服务及特征，执行读写命令，需与从机例程配合使用,
                        并将从机设备地址修改为该例程目标地址，默认为(84:C2:E4:03:02:02)
-*******************************************************************************/
+ *********************************************************************************
+ * Copyright (c) 2021 Nanjing Qinheng Microelectronics Co., Ltd.
+ * Attention: This software (modified or not) and binary are used for 
+ * microcontroller manufactured by Nanjing Qinheng Microelectronics.
+ *******************************************************************************/
 
 /*********************************************************************
  * INCLUDES
@@ -552,11 +556,7 @@ static void centralRssiCB(uint16_t connHandle, int8_t rssi)
  */
 static void centralHciMTUChangeCB(uint16_t connHandle, uint16_t maxTxOctets, uint16_t maxRxOctets)
 {
-    attExchangeMTUReq_t req;
-
-    req.clientRxMTU = maxRxOctets;
-    GATT_ExchangeMTU(connHandle, &req, centralTaskId);
-    PRINT("exchange mtu:%d\n", maxRxOctets);
+    PRINT(" HCI data length changed, Tx: %d, Rx: %d\n", maxTxOctets, maxRxOctets);
     centralProcedureInProgress = TRUE;
 }
 
@@ -635,6 +635,13 @@ static void centralEventCB(gapRoleEvent_t *pEvent)
                 centralState = BLE_STATE_CONNECTED;
                 centralConnHandle = pEvent->linkCmpl.connectionHandle;
                 centralProcedureInProgress = TRUE;
+               
+                // Update MTU
+                attExchangeMTUReq_t req = {
+                    .clientRxMTU = BLE_BUFF_MAX_LEN - 4,
+                };
+
+                GATT_ExchangeMTU(centralConnHandle, &req, centralTaskId);
 
                 // Initiate service discovery
                 tmos_start_task(centralTaskId, START_SVC_DISCOVERY_EVT, DEFAULT_SVC_DISCOVERY_DELAY);

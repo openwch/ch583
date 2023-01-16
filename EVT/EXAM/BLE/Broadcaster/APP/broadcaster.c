@@ -5,8 +5,10 @@
  * Date               : 2020/08/06
  * Description        : 广播应用程序，初始化广播连接参数，然后处于广播态一直广播
 
+ *********************************************************************************
  * Copyright (c) 2021 Nanjing Qinheng Microelectronics Co., Ltd.
- * SPDX-License-Identifier: Apache-2.0
+ * Attention: This software (modified or not) and binary are used for 
+ * microcontroller manufactured by Nanjing Qinheng Microelectronics.
  *******************************************************************************/
 
 /*********************************************************************

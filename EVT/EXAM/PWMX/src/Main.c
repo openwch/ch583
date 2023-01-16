@@ -4,8 +4,10 @@
  * Version            : V1.0
  * Date               : 2020/08/06
  * Description 		   : PWM4-11¹¦ÄÜÑÝÊ¾
+ *********************************************************************************
  * Copyright (c) 2021 Nanjing Qinheng Microelectronics Co., Ltd.
- * SPDX-License-Identifier: Apache-2.0
+ * Attention: This software (modified or not) and binary are used for 
+ * microcontroller manufactured by Nanjing Qinheng Microelectronics.
  *******************************************************************************/
 
 #include "CH58x_common.h"
