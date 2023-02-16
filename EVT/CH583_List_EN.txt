@@ -53,6 +53,7 @@ Directory
   |      |      |      |      |-- Central: central routine, actively scan surrounding devices, conect to the specified peripheral address, search custom service and characteristic, execute read/write commands, peripheral routine is needed, and modify the peripheral address to the routine target address, (84:C2:E4:03:02:02) by default
   |      |      |      |      |-- HeartRate: heart rate routine, upload heart rate regularly after connected to the central
   |      |      |      |      |-- Peripheral: peripheral role routine, custom including five services with different  attributes, including read attribute, write attribute, notify attribute, read/write attribute, and safe and readable attribute
+  |      |      |      |      |-- peripheral_ancs_client: peripheral role routine, including Apple Notification Center Service
   |      |      |      |      |-- RunningSensor: running sensor routine,upload rate regularly after connected to the central 
   |      |      |      |      |-- HID_Keyboard: BLE keyboard routine, simulate a keyboard device, upload key value regularly after connected to the central
   |      |      |      |      |-- HID_Mouse: BLE mouse routine, simulate a mouse device, upload key value regularly after connected to the central
