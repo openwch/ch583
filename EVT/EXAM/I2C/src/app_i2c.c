@@ -17,7 +17,7 @@
  * Note: 主机与从机的DEBUG接口需要同时打开或关闭，
  * 否则会产生时序问题。
  */
-//#define CONFIG_I2C_DEBUG
+// #define CONFIG_I2C_DEBUG
 
 #ifdef CONFIG_I2C_DEBUG
 #define I2C_DBG(...)    PRINT(__VA_ARGS__)
@@ -80,6 +80,10 @@ int i2c_write_to(uint8_t addr_7bit, const uint8_t *data, uint8_t length,
         return -I2C_STATE;
     }
 
+    if (!length) {
+        return 0;
+    }
+
     i2c_state = I2C_MTX;
     i2c_send_stop = send_stop;
 
@@ -134,6 +138,10 @@ int i2c_read_from(uint8_t addr_7bit, uint8_t *data, uint8_t length,
 
     if (i2c_state != I2C_READY) {
         return -I2C_STATE;
+    }
+
+    if (!length) {
+        return 0;
     }
 
     i2c_state = I2C_MRX;
@@ -299,7 +307,7 @@ void I2C_IRQHandler(void)
             /* address sent, ack received */
             if(event & RB_I2C_ADDR) { 
                 /* ack if more bytes are expected, otherwise nack */
-                if (i2c_master_buffer_index + 1 < i2c_master_buffer_length) {
+                if (i2c_master_buffer_length) {
                     I2C_AcknowledgeConfig(ENABLE);
                     I2C_DBG("  address sent\n");
                     I2C_DBG("  ACK next\n");
