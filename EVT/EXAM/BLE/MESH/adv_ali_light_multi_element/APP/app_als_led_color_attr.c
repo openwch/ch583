@@ -6,7 +6,7 @@
  * Description        :
  *********************************************************************************
  * Copyright (c) 2021 Nanjing Qinheng Microelectronics Co., Ltd.
- * Attention: This software (modified or not) and binary are used for 
+ * Attention: This software (modified or not) and binary are used for
  * microcontroller manufactured by Nanjing Qinheng Microelectronics.
  *******************************************************************************/
 
@@ -24,7 +24,7 @@
 #define ALI_DEF_TTL    (10)
 
 // 模拟led_color值
-int32_t device_led_color_adj = 0;
+uint8_t device_led_color[6] = {0};
 
 /*******************************************************************************
  * Function Name  : read_led_color
@@ -32,10 +32,10 @@ int32_t device_led_color_adj = 0;
  * Input          : None
  * Return         : None
  *******************************************************************************/
-void read_led_color(int32_t *pcolor)
+void read_led_color(uint8_t *pcolor)
 {
-    APP_DBG("device_led_color_adj: %d ", (int32_t)device_led_color_adj);
-    *pcolor = device_led_color_adj;
+    APP_DBG("device_led_color_adj: %d ", device_led_color[0]);
+    tmos_memcpy(pcolor, device_led_color, 6);
 }
 
 /*******************************************************************************
@@ -44,9 +44,9 @@ void read_led_color(int32_t *pcolor)
  * Input          : None
  * Return         : None
  *******************************************************************************/
-void set_led_color(int32_t color)
+void set_led_color(uint8_t *pcolor)
 {
-    device_led_color_adj = color;
+    tmos_memcpy(device_led_color, pcolor, 6);
 }
 
 /*******************************************************************************
@@ -61,16 +61,14 @@ static void gen_led_color_status(struct bt_mesh_model   *model,
 {
     NET_BUF_SIMPLE_DEFINE(msg, 32);
     int     err;
-    int32_t color;
     ////////////////////////////////////////////////////////////////////////
     //  0xD3  0xA8  0x01  |  0x##   |  0x##  0x##       |  0x##  0x## ....//
     //      Opcode        |  TID    | Attribute Type    | Attribute Value //
     ////////////////////////////////////////////////////////////////////////
     bt_mesh_model_msg_init(&msg, OP_VENDOR_MESSAGE_ATTR_STATUS);
     net_buf_simple_add_u8(&msg, als_avail_tid_get());
-    net_buf_simple_add_le16(&msg, ALI_GEN_ATTR_TYPE_LIGHTCOLOR_ADJ);
-    read_led_color(&color);
-    net_buf_simple_add_le32(&msg, color);
+    net_buf_simple_add_le16(&msg, ALI_GEN_ATTR_TYPE_COLOR);
+    net_buf_simple_add_mem(&msg, device_led_color, 6);
 
     APP_DBG("ttl: 0x%02x dst: 0x%04x", ctx->recv_ttl, ctx->recv_dst);
 
@@ -129,13 +127,13 @@ void gen_led_color_set(struct bt_mesh_model   *model,
     APP_DBG("ttl: 0x%02x dst: 0x%04x rssi: %d len %d",
             ctx->recv_ttl, ctx->recv_dst, ctx->recv_rssi, buf->len);
 
-    if((buf->data[1] | (buf->data[2] << 8)) == ALI_GEN_ATTR_TYPE_LIGHTCOLOR_ADJ)
+    if((buf->data[1] | (buf->data[2] << 8)) == ALI_GEN_ATTR_TYPE_COLOR)
     {
-        APP_DBG("%x %x %x %x %x %x ",
-                buf->data[0], buf->data[1], buf->data[2], buf->data[3], buf->data[4], buf->data[5]);
-        int32_t color = (buf->data[3] | (buf->data[4] << 8) | (buf->data[5] << 16) | (buf->data[6] << 24));
+        APP_DBG("%x %x %x %x %x %x %x %x %x",
+                buf->data[0], buf->data[1], buf->data[2], buf->data[3], buf->data[4], buf->data[5]
+              , buf->data[6], buf->data[7], buf->data[8]);
         // 命令为设定值
-        set_led_color(color);
+        set_led_color(&(buf->data[3]));
     }
 
     if(ctx->recv_ttl != ALI_DEF_TTL)
@@ -170,11 +168,13 @@ void gen_led_color_set_unack(struct bt_mesh_model   *model,
 {
     APP_DBG(" ");
 
-    if((buf->data[1] | (buf->data[2] << 8)) == ALI_GEN_ATTR_TYPE_LIGHTCOLOR_ADJ)
+    if((buf->data[1] | (buf->data[2] << 8)) == ALI_GEN_ATTR_TYPE_COLOR)
     {
-        uint32_t color = (buf->data[3] | (buf->data[4] << 8) | (buf->data[5] << 16) | (buf->data[6] << 24));
+        APP_DBG("%x %x %x %x %x %x %x %x %x",
+                buf->data[0], buf->data[1], buf->data[2], buf->data[3], buf->data[4], buf->data[5]
+              , buf->data[6], buf->data[7], buf->data[8]);
         // 命令为设定值
-        set_led_color(color);
+        set_led_color(&(buf->data[3]));
     }
 }
 

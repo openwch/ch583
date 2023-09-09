@@ -1,13 +1,20 @@
 /********************************** (C) COPYRIGHT *******************************
-* File Name          : multiCentral.c
-* Author             : WCH
-* Version            : V1.0
-* Date               : 2018/11/12
-* Description        : 主机多连接例程，主动扫描周围设备，连接至给定的三个从机设备地址，
-*                      寻找自定义服务及特征，执行读写命令，需与从机例程配合使用,
-                       并将从机设备地址修改为该例程目标地址，三个从机设备地址默认为
-                       (84:C2:E4:03:02:02)、(84:C2:E4:03:02:03)、(84:C2:E4:03:02:04)
-*******************************************************************************/
+ * File Name          : multiCentral.c
+ * Author             : WCH
+ * Version            : V1.0
+ * Date               : 2018/11/12
+ * Description        : The master multi-connection routine actively scans the surrounding devices, 
+ *                      connects to the given three slave device addresses, looks for custom services 
+ *                      and characteristics, and executes read and write commands. 
+ *                      It needs to be used in conjunction with the slave routine, and the slave device 
+ *                      address is modified to the routine target address. 
+ *                      The default three slave device addresses are 
+ *                      (84:C2:E4:03:02:02), (84:C2: E4:03:02:03), (84:C2:E4:03:02:04)
+ *********************************************************************************
+ * Copyright (c) 2021 Nanjing Qinheng Microelectronics Co., Ltd.
+ * Attention: This software (modified or not) and binary are used for 
+ * microcontroller manufactured by Nanjing Qinheng Microelectronics.
+ *******************************************************************************/
 
 /*********************************************************************
  * INCLUDES
@@ -321,16 +328,16 @@ uint16_t Central_ProcessEvent(uint8_t task_id, uint16_t events)
         return (events ^ ESTABLISH_LINK_TIMEOUT_EVT);
     }
 
-    // 连接0的任务处理
+    // Task processing of connection 0
     if(task_id == centralConnList[CONNECT0_ITEM].taskID)
     {
         return connect0_ProcessEvent(task_id, events);
     }
-    // 连接1的任务处理
+    // Task processing of connection 1
     else if(task_id == centralConnList[CONNECT1_ITEM].taskID)
     {
     }
-    // 连接2的任务处理
+    // Task processing of connection 2
     else if(task_id == centralConnList[CONNECT2_ITEM].taskID)
     {
     }
@@ -667,7 +674,7 @@ static void centralEventCB(gapRoleEvent_t *pEvent)
             if(pEvent->gap.hdr.status == SUCCESS)
             {
                 uint8_t connItem;
-                // 查询是否有空余连接条目
+                // Query whether there is a vacant connection entry
                 for(connItem = 0; connItem < CENTRAL_MAX_CONNECTION; connItem++)
                 {
                     if(centralConnList[connItem].connHandle == GAP_CONNHANDLE_INIT)
@@ -685,7 +692,7 @@ static void centralEventCB(gapRoleEvent_t *pEvent)
 
                     PRINT("Conn %x - Int %x \n", pEvent->linkCmpl.connectionHandle, pEvent->linkCmpl.connInterval);
 
-                    //  连接0
+                    //  Connection 0
                     if(connItem == CONNECT0_ITEM)
                     {
                         centralConnList[connItem].procedureInProgress = TRUE;
@@ -700,12 +707,12 @@ static void centralEventCB(gapRoleEvent_t *pEvent)
                         tmos_start_task(centralConnList[connItem].taskID, START_READ_RSSI_EVT, DEFAULT_RSSI_PERIOD);
                     }
 
-                    //  连接1
+                    //  Connection 1
                     else if(connItem == CONNECT1_ITEM)
                     {
                     }
 
-                    //  连接2
+                    //  Connection 2
                     else if(connItem == CONNECT2_ITEM)
                     {
                     }
@@ -775,7 +782,25 @@ static void centralEventCB(gapRoleEvent_t *pEvent)
         }
         break;
 
-        default:
+        case GAP_EXT_ADV_DEVICE_INFO_EVENT:
+        {
+            // Display device addr
+            PRINT("Recv ext adv \n");
+            // Add device to list
+            centralAddDeviceInfo(pEvent->deviceExtAdvInfo.addr, pEvent->deviceExtAdvInfo.addrType);
+        }
+        break;
+
+        case GAP_DIRECT_DEVICE_INFO_EVENT:
+        {
+            // Display device addr
+            PRINT("Recv direct adv \n");
+            // Add device to list
+            centralAddDeviceInfo(pEvent->deviceDirectInfo.addr, pEvent->deviceDirectInfo.addrType);
+        }
+        break;
+
+         default:
             break;
     }
 }
@@ -882,7 +907,7 @@ static void centralConnIistStartDiscovery_0(void)
 static void centralGATTDiscoveryEvent(uint8_t connItem, gattMsgEvent_t *pMsg)
 {
     attReadByTypeReq_t req;
-    //  连接0的枚举
+    //  Discover of connection 0
     if(connItem == CONNECT0_ITEM)
     {
         if(centralConnList[connItem].discState == BLE_DISC_STATE_SVC)
@@ -969,11 +994,11 @@ static void centralGATTDiscoveryEvent(uint8_t connItem, gattMsgEvent_t *pMsg)
             centralConnList[connItem].discState = BLE_DISC_STATE_IDLE;
         }
     }
-    //  连接1的枚举
+    //  Discover of connection 1
     else if(connItem == CONNECT1_ITEM)
     {
     }
-    //  连接2的枚举
+    //  Discover of connection 2
     else if(connItem == CONNECT2_ITEM)
     {
     }

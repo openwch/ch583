@@ -4,10 +4,8 @@
  * Version            : V1.0
  * Date               : 2022/05/10
  * Description        : WCH Qingke V4A FreeRTOSÒÆÖ²½Ó¿Ú
- *********************************************************************************
  * Copyright (c) 2021 Nanjing Qinheng Microelectronics Co., Ltd.
- * Attention: This software (modified or not) and binary are used for 
- * microcontroller manufactured by Nanjing Qinheng Microelectronics.
+ * SPDX-License-Identifier: Apache-2.0
  *******************************************************************************/
 
 #ifndef PORTMACRO_H

@@ -224,7 +224,7 @@ void peripheral_ancs_client_init(void)
     }
 
     // Set the GAP Characteristics
-    GGS_SetParameter(GGS_DEVICE_NAME_ATT, GAP_DEVICE_NAME_LEN, attDeviceName);
+    GGS_SetParameter(GGS_DEVICE_NAME_ATT, sizeof(attDeviceName), attDeviceName);
 
     {
         uint16_t advInt = DEFAULT_ADVERTISING_INTERVAL;

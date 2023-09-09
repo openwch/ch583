@@ -12,12 +12,17 @@
 
 #include "CH58x_common.h"
 
+// 支持的最大接口数量
+#define USB_INTERFACE_MAX_NUM       1
+// 接口号的最大值，例程只有一个接口，接口号为0
+#define USB_INTERFACE_MAX_INDEX      0
+
 #define DevEP0SIZE    0x40
 // 设备描述符
-const uint8_t MyDevDescr[] = {0x12,0x01,0x10,0x01,0x00,0x00,0x00,DevEP0SIZE,0x3d,0x41,0x07,0x21,0x00,0x00,0x00,0x00,0x00,0x01};
+const uint8_t MyDevDescr[] = {0x12,0x01,0x10,0x01,0x00,0x00,0x00,DevEP0SIZE,0x3d,0x41,0x07,0x21,0x00,0x00,0x01,0x02,0x00,0x01};
 // 配置描述符
 const uint8_t MyCfgDescr[] = {
-    0x09,0x02,0x29,0x00,0x01,0x01,0x04,0xA0,0x23,               //配置描述符
+    0x09,0x02,0x29,0x00,USB_INTERFACE_MAX_NUM,0x01,0x04,0xA0,0x23,               //配置描述符
     0x09,0x04,0x00,0x00,0x02,0x03,0x00,0x00,0x05,               //接口描述符
     0x09,0x21,0x00,0x01,0x00,0x01,0x22,0x22,0x00,               //HID类描述符
     0x07,0x05,0x81,0x03,0x40,0x00,0x01,              //端点描述符
@@ -41,14 +46,20 @@ const uint8_t HIDDescr[] = {  0x06, 0x00,0xff,
                               0x95, 0x40,                                                   //Report Counet
                               0x91, 0x06,                                                   //Output
                               0xC0};
+// 语言描述符
+const uint8_t MyLangDescr[] = {0x04, 0x03, 0x09, 0x04};
+// 厂家信息
+const uint8_t MyManuInfo[] = {0x0E, 0x03, 'w', 0, 'c', 0, 'h', 0, '.', 0, 'c', 0, 'n', 0};
+// 产品信息
+const uint8_t MyProdInfo[] = {0x0C, 0x03, 'C', 0, 'H', 0, '5', 0, '8', 0, 'x', 0};
 
 /**********************************************************/
 uint8_t        DevConfig, Ready = 0;
 uint8_t        SetupReqCode;
 uint16_t       SetupReqLen;
 const uint8_t *pDescr;
-uint8_t        Report_Value = 0x00;
-uint8_t        Idle_Value = 0x00;
+uint8_t        Report_Value[USB_INTERFACE_MAX_INDEX+1] = {0x00};
+uint8_t        Idle_Value[USB_INTERFACE_MAX_INDEX+1] = {0x00};
 uint8_t        USB_SleepStatus = 0x00; /* USB睡眠状态 */
 
 //HID设备中断传输中上传给主机4字节的数据
@@ -166,23 +177,23 @@ void USB_DevTransProcess(void)  //USB设备传输中断处理
                     switch(SetupReqCode)    //判断命令的序号
                     {
                         case DEF_USB_SET_IDLE: /* 0x0A: SET_IDLE */         //主机想设置HID设备特定输入报表的空闲时间间隔
-                            Idle_Value = EP0_Databuf[3];
+                            Idle_Value[pSetupReqPak->wIndex] = (uint8_t)(pSetupReqPak->wValue>>8);
                             break; //这个一定要有
 
                         case DEF_USB_SET_REPORT: /* 0x09: SET_REPORT */     //主机想设置HID设备的报表描述符
                             break;
 
                         case DEF_USB_SET_PROTOCOL: /* 0x0B: SET_PROTOCOL */ //主机想设置HID设备当前所使用的协议
-                            Report_Value = EP0_Databuf[2];
+                            Report_Value[pSetupReqPak->wIndex] = (uint8_t)(pSetupReqPak->wValue);
                             break;
 
                         case DEF_USB_GET_IDLE: /* 0x02: GET_IDLE */         //主机想读取HID设备特定输入报表的当前的空闲比率
-                            EP0_Databuf[0] = Idle_Value;
+                            EP0_Databuf[0] = Idle_Value[pSetupReqPak->wIndex];
                             len = 1;
                             break;
 
                         case DEF_USB_GET_PROTOCOL: /* 0x03: GET_PROTOCOL */     //主机想获得HID设备当前所使用的协议
-                            EP0_Databuf[0] = Report_Value;
+                            EP0_Databuf[0] = Report_Value[pSetupReqPak->wIndex];
                             len = 1;
                             break;
 
@@ -245,6 +256,18 @@ void USB_DevTransProcess(void)  //USB设备传输中断处理
                             {
                                 switch((pSetupReqPak->wValue) & 0xff)   //根据wValue的值传递字符串信息
                                 {
+                                    case 1:
+                                        pDescr = MyManuInfo;
+                                        len = MyManuInfo[0];
+                                        break;
+                                    case 2:
+                                        pDescr = MyProdInfo;
+                                        len = MyProdInfo[0];
+                                        break;
+                                    case 0:
+                                        pDescr = MyLangDescr;
+                                        len = MyLangDescr[0];
+                                        break;
                                     default:
                                         errflag = 0xFF; // 不支持的字符串描述符
                                         break;

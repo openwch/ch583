@@ -27,7 +27,7 @@ const uint8_t MyLangDescr[] = {0x04, 0x03, 0x09, 0x04};
 // 厂家信息
 const uint8_t MyManuInfo[] = {0x0E, 0x03, 'w', 0, 'c', 0, 'h', 0, '.', 0, 'c', 0, 'n', 0};
 // 产品信息
-const uint8_t MyProdInfo[] = {0x0C, 0x03, 'C', 0, 'H', 0, '5', 0, '7', 0, 'x', 0};
+const uint8_t MyProdInfo[] = {0x0C, 0x03, 'C', 0, 'H', 0, '5', 0, '8', 0, 'x', 0};
 
 /**********************************************************/
 uint8_t        DevConfig;

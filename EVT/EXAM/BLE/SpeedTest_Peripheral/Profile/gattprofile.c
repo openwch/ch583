@@ -3,7 +3,9 @@
  * Author             : WCH
  * Version            : V1.0
  * Date               : 2018/12/10
- * Description        : 自定义包含五种不同属性的服务，包含可读、可写、通知、可读可写、安全可读
+ * Description        : Customize services with five different attributes, 
+ *                      including readable, writable, notification, readable and writable, 
+ *                      safe readable
  *********************************************************************************
  * Copyright (c) 2021 Nanjing Qinheng Microelectronics Co., Ltd.
  * Attention: This software (modified or not) and binary are used for 
@@ -351,7 +353,7 @@ bStatus_t SimpleProfile_RegisterAppCBs(simpleProfileCBs_t *appCallbacks)
  *
  * @return  bStatus_t
  */
-bStatus_t SimpleProfile_SetParameter(uint8_t param, uint8_t len, void *value)
+bStatus_t SimpleProfile_SetParameter(uint8_t param, uint16_t len, void *value)
 {
     bStatus_t ret = SUCCESS;
     switch(param)
@@ -510,7 +512,6 @@ static bStatus_t simpleProfile_ReadAttrCB(uint16_t connHandle, gattAttribute_t *
                                           uint8_t *pValue, uint16_t *pLen, uint16_t offset, uint16_t maxLen, uint8_t method)
 {
     bStatus_t status = SUCCESS;
-
 
     // Make sure it's not a blob operation (no attributes in the profile are long)
     if(offset > 0)

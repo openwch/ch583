@@ -18,6 +18,7 @@ void dbg_printf(const char* format, ...);
 
 /* 记录当前的Image */
 unsigned char CurrImageFlag = 0xff;
+//volatile uint32_t IRQ_STA = 0;
 
 /* flash的数据临时存储 */
 __attribute__((aligned(8))) uint8_t block_buf[16];
@@ -106,6 +107,51 @@ void ReadImageFlag(void)
 }
 
 /*********************************************************************
+ * @fn      app_SetSysClock
+ *
+ * @brief   配置系统运行时钟
+ *
+ * @param   sc      - 系统时钟源选择 refer to SYS_CLKTypeDef
+ *
+ * @return  none
+ */
+__HIGH_CODE
+void app_SetSysClock(void)
+{
+    uint32_t i;
+    sys_safe_access_enable();
+    R8_PLL_CONFIG &= ~(1 << 5); //
+    sys_safe_access_disable();
+    // PLL div
+    if(!(R8_HFCK_PWR_CTRL & RB_CLK_PLL_PON))
+    {
+        sys_safe_access_enable();
+        R8_HFCK_PWR_CTRL |= RB_CLK_PLL_PON; // PLL power on
+        sys_safe_access_disable();
+        for(i = 0; i < 2000; i++)
+        {
+            __nop();
+            __nop();
+        }
+    }
+    sys_safe_access_enable();
+    R16_CLK_SYS_CFG = (1 << 6) | (0x48 & 0x1f);
+    __nop();
+    __nop();
+    __nop();
+    __nop();
+    sys_safe_access_disable();
+
+    sys_safe_access_enable();
+    R8_FLASH_CFG = 0X52;
+    sys_safe_access_disable();
+    //更改FLASH clk的驱动能力
+    sys_safe_access_enable();
+    R8_PLL_CONFIG |= 1 << 7;
+    sys_safe_access_disable();
+}
+
+/*********************************************************************
  * @fn      main
  *
  * @brief   主函数
@@ -117,7 +163,7 @@ int main(void)
 #if(defined(DCDC_ENABLE)) && (DCDC_ENABLE == TRUE)
     PWR_DCDCCfg(ENABLE);
 #endif
-    SetSysClock(CLK_SOURCE_PLL_60MHz);
+    app_SetSysClock();
 #if(defined(HAL_SLEEP)) && (HAL_SLEEP == TRUE)
     GPIOA_ModeCfg(GPIO_Pin_All, GPIO_ModeIN_PU);
     GPIOB_ModeCfg(GPIO_Pin_All, GPIO_ModeIN_PU);

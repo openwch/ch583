@@ -43,6 +43,7 @@ typedef struct
     uint16 connTimeout;
 } peripheralConnItem_t;
 
+extern uint8_t Peripheral_TaskID;
 /*********************************************************************
  * FUNCTIONS
  */

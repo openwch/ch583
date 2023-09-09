@@ -19,9 +19,9 @@ extern "C" {
 
 #include "MESH_LIB.h"
 
-void read_led_color(int32_t *pcolor);
+void read_led_color(uint8_t *pcolor);
 
-void set_led_color(int32_t color);
+void set_led_color(uint8_t *pcolor);
 
 void gen_led_color_get(struct bt_mesh_model   *model,
                        struct bt_mesh_msg_ctx *ctx,

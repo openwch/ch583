@@ -21,7 +21,7 @@ extern "C" {
 
 extern void app_usb_init(void);
 
-extern void USBSendData( uint8_t *SendBuf, uint8_t l);
+extern uint8_t USBSendData(void);
 /*********************************************************************
 *********************************************************************/
 

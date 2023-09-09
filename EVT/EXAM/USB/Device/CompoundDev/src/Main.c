@@ -13,9 +13,15 @@
 #include "CH58x_common.h"
 
 #define DevEP0SIZE    0x40
+
+// 支持的最大接口数量
+#define USB_INTERFACE_MAX_NUM       2
+// 接口号的最大值
+#define USB_INTERFACE_MAX_INDEX      1
+
 // 设备描述符
 const uint8_t MyDevDescr[] = {0x12, 0x01, 0x10, 0x01, 0x00, 0x00, 0x00, DevEP0SIZE, 0x3d, 0x41, 0x07, 0x21, 0x00, 0x00,
-                              0x00, 0x00, 0x00, 0x01};
+                              0x01, 0x02, 0x00, 0x01};
 // 配置描述符
 const uint8_t MyCfgDescr[] = {
     0x09, 0x02, 0x3b, 0x00, 0x02, 0x01, 0x00, 0xA0, 0x32, //配置描述符
@@ -40,7 +46,7 @@ const uint8_t MyLangDescr[] = {0x04, 0x03, 0x09, 0x04};
 // 厂家信息
 const uint8_t MyManuInfo[] = {0x0E, 0x03, 'w', 0, 'c', 0, 'h', 0, '.', 0, 'c', 0, 'n', 0};
 // 产品信息
-const uint8_t MyProdInfo[] = {0x0C, 0x03, 'C', 0, 'H', 0, '5', 0, '7', 0, 'x', 0};
+const uint8_t MyProdInfo[] = {0x0C, 0x03, 'C', 0, 'H', 0, '5', 0, '8', 0, 'x', 0};
 /*HID类报表描述符*/
 const uint8_t KeyRepDesc[] = {0x05, 0x01, 0x09, 0x06, 0xA1, 0x01, 0x05, 0x07, 0x19, 0xe0, 0x29, 0xe7, 0x15, 0x00, 0x25,
                               0x01, 0x75, 0x01, 0x95, 0x08, 0x81, 0x02, 0x95, 0x01, 0x75, 0x08, 0x81, 0x01, 0x95, 0x03,
@@ -57,8 +63,8 @@ uint8_t        DevConfig, Ready;
 uint8_t        SetupReqCode;
 uint16_t       SetupReqLen;
 const uint8_t *pDescr;
-uint8_t        Report_Value = 0x00;
-uint8_t        Idle_Value = 0x00;
+uint8_t        Report_Value[USB_INTERFACE_MAX_INDEX+1] = {0x00};
+uint8_t        Idle_Value[USB_INTERFACE_MAX_INDEX+1] = {0x00};
 uint8_t        USB_SleepStatus = 0x00; /* USB睡眠状态 */
 
 /*鼠标键盘数据*/
@@ -220,24 +226,24 @@ void USB_DevTransProcess(void)
                 {
                     switch(SetupReqCode)
                     {
-                        case DEF_USB_SET_IDLE: /* 0x0A: SET_IDLE */
-                            Idle_Value = EP0_Databuf[3];
+                        case DEF_USB_SET_IDLE: /* 0x0A: SET_IDLE */         //主机想设置HID设备特定输入报表的空闲时间间隔
+                            Idle_Value[pSetupReqPak->wIndex] = (uint8_t)(pSetupReqPak->wValue>>8);
                             break; //这个一定要有
 
-                        case DEF_USB_SET_REPORT: /* 0x09: SET_REPORT */
+                        case DEF_USB_SET_REPORT: /* 0x09: SET_REPORT */     //主机想设置HID设备的报表描述符
                             break;
 
-                        case DEF_USB_SET_PROTOCOL: /* 0x0B: SET_PROTOCOL */
-                            Report_Value = EP0_Databuf[2];
+                        case DEF_USB_SET_PROTOCOL: /* 0x0B: SET_PROTOCOL */ //主机想设置HID设备当前所使用的协议
+                            Report_Value[pSetupReqPak->wIndex] = (uint8_t)(pSetupReqPak->wValue);
                             break;
 
-                        case DEF_USB_GET_IDLE: /* 0x02: GET_IDLE */
-                            EP0_Databuf[0] = Idle_Value;
+                        case DEF_USB_GET_IDLE: /* 0x02: GET_IDLE */         //主机想读取HID设备特定输入报表的当前的空闲比率
+                            EP0_Databuf[0] = Idle_Value[pSetupReqPak->wIndex];
                             len = 1;
                             break;
 
-                        case DEF_USB_GET_PROTOCOL: /* 0x03: GET_PROTOCOL */
-                            EP0_Databuf[0] = Report_Value;
+                        case DEF_USB_GET_PROTOCOL: /* 0x03: GET_PROTOCOL */     //主机想获得HID设备当前所使用的协议
+                            EP0_Databuf[0] = Report_Value[pSetupReqPak->wIndex];
                             len = 1;
                             break;
 

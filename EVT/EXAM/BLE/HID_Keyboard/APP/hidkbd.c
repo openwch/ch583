@@ -96,20 +96,6 @@ static uint8_t hidEmuTaskId = INVALID_TASK_ID;
 
 // GAP Profile - Name attribute for SCAN RSP data
 static uint8_t scanRspData[] = {
-    0x0D,                           // length of this data
-    GAP_ADTYPE_LOCAL_NAME_COMPLETE, // AD Type = Complete local name
-    'H',
-    'I',
-    'D',
-    ' ',
-    'K',
-    'e',
-    'y',
-    'b',
-    'r',
-    'o',
-    'a',
-    'd',  // connection interval range
     0x05, // length of this data
     GAP_ADTYPE_SLAVE_CONN_INTERVAL_RANGE,
     LO_UINT16(DEFAULT_DESIRED_MIN_CONN_INTERVAL), // 100ms
@@ -142,10 +128,26 @@ static uint8_t advertData[] = {
     0x03, // length of this data
     GAP_ADTYPE_APPEARANCE,
     LO_UINT16(GAP_APPEARE_HID_KEYBOARD),
-    HI_UINT16(GAP_APPEARE_HID_KEYBOARD)};
+    HI_UINT16(GAP_APPEARE_HID_KEYBOARD),
+
+    0x0D,                           // length of this data
+    GAP_ADTYPE_LOCAL_NAME_COMPLETE, // AD Type = Complete local name
+    'H',
+    'I',
+    'D',
+    ' ',
+    'K',
+    'e',
+    'y',
+    'b',
+    'r',
+    'o',
+    'a',
+    'd',  // connection interval range
+};
 
 // Device name attribute value
-static CONST uint8_t attDeviceName[GAP_DEVICE_NAME_LEN] = "HID Keyboard";
+static const uint8_t attDeviceName[GAP_DEVICE_NAME_LEN] = "HID Keyboard";
 
 // HID Dev configuration
 static hidDevCfg_t hidEmuCfg = {
@@ -211,7 +213,7 @@ void HidEmu_Init()
     }
 
     // Set the GAP Characteristics
-    GGS_SetParameter(GGS_DEVICE_NAME_ATT, GAP_DEVICE_NAME_LEN, (void *)attDeviceName);
+    GGS_SetParameter(GGS_DEVICE_NAME_ATT, sizeof(attDeviceName), (void *)attDeviceName);
 
     // Setup the GAP Bond Manager
     {
@@ -425,7 +427,7 @@ static void hidEmuStateCB(gapRole_States_t newState, gapRoleEvent_t *pEvent)
             {
                 uint8_t initial_advertising_enable = TRUE;
                 // Set the GAP Role Parameters
-                GAPRole_SetParameter(GAPROLE_ADVERT_ENABLED, sizeof(uint8), &initial_advertising_enable);
+                GAPRole_SetParameter(GAPROLE_ADVERT_ENABLED, sizeof(uint8_t), &initial_advertising_enable);
             }
             break;
 

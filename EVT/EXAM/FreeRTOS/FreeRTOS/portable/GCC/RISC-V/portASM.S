@@ -4,16 +4,13 @@
  * Version            : V1.0
  * Date               : 2022/05/10
  * Description        : WCH Qingke V4A FreeRTOSÒÆÖ²»ã±à½Ó¿Ú
- *********************************************************************************
  * Copyright (c) 2021 Nanjing Qinheng Microelectronics Co., Ltd.
- * Attention: This software (modified or not) and binary are used for 
- * microcontroller manufactured by Nanjing Qinheng Microelectronics.
+ * SPDX-License-Identifier: Apache-2.0
  *******************************************************************************/
 
-#define portCONTEXT_SIZE ( 29 * 4 )
+#define portCONTEXT_SIZE ( 32 * 4 )
 
 .global xPortStartFirstTask
-.global unified_interrupt_handler
 .global pxPortInitialiseStack
 .global SW_Handler
 .global SW_Handler_Switch
@@ -22,51 +19,7 @@
 .extern xISRStackTop
 .extern user_interrupt_handler
 
-.section	.highcode,"ax",@progbits
-.align 2
-.func
-unified_interrupt_handler:
-
-#if ENABLE_INTERRUPT_NEST
-	csrr t0, 0x804						/* justice whether it's in interrupt nesting. */
-	andi t1, t0, 0x02
-	bnez t1, interrupt_nesting			/* if it's not zero, it's in interrupt nesting. */
-#endif
-
-	csrw mscratch, sp
-	lw sp, xISRStackTop					/* Switch to ISR stack before function call. */
-	csrr a0, mcause
-
-#if ENABLE_INTERRUPT_NEST
-	csrs 0x804, 0x02					/* enable interrupt nests. */
-#endif
-
-	jal user_interrupt_handler
-
-#if ENABLE_INTERRUPT_NEST
-	csrc mstatus, 8						/* disable interrupt in machine mode. */
-	nop									/* wait for 3 grade pipeline. */
-	nop
-	nop
-	csrc 0x804, 0x02					/* disable interrupt nests. */
-	nop
-#endif
-
-	csrr sp, mscratch					/* resume sp from mscratch. */
-	mret
-
-#if ENABLE_INTERRUPT_NEST
-interrupt_nesting:
-
-	csrr a0, mcause						/* if it's in interrupt nesting, don't need to change sp. */
-	jal user_interrupt_handler			/* handle interrupt directly. */
-	mret
-#endif
-
-	.endfunc
-/*-----------------------------------------------------------*/
-
-.section	.highcode,"ax",@progbits
+.section	.highcode.SW_Handler_Switch,"ax",@progbits
 .align 2
 .func
 SW_Handler_Switch:
@@ -108,12 +61,15 @@ SW_Handler_Switch:
 	lw  x29, 26 * 4( sp )			/* t4 */
 	lw  x30, 27 * 4( sp )			/* t5 */
 	lw  x31, 28 * 4( sp )			/* t6 */
+
+	lw  x4, 29 * 4( sp )			/* tp - not sure it is useful */
+
 	addi sp, sp, portCONTEXT_SIZE
 	mret							/* must use mret, to make mie enabled and pc changed. */
 	.endfunc
 /*-----------------------------------------------------------*/
 
-.section	.highcode,"ax",@progbits
+.section	.highcode.SW_Handler,"ax",@progbits
 .align 2
 .func
 SW_Handler:
@@ -147,6 +103,8 @@ SW_Handler:
 	sw x29, 26 * 4( sp )
 	sw x30, 27 * 4( sp )
 	sw x31, 28 * 4( sp )
+
+	sw x4, 29 * 4( sp )				/* tp - not sure it is useful */
 
 	lw  t0, pxCurrentTCB			/* Load pxCurrentTCB. */
 	sw  sp, 0( t0 )					/* Write sp to first TCB member. */

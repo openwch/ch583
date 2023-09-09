@@ -50,7 +50,7 @@ void SwitchImageFlag(uint8_t new_flag)
 void jumpToIap(void)
 {
     uint32_t irq_status;
-    SwitchImageFlag(FLAG_USER_CALL_IAP);//如果IAP采用按键检测，将该句话注释掉
+//    SwitchImageFlag(FLAG_USER_CALL_IAP);//如果IAP采用按键检测，将该句话注释掉
     SYS_DisableAllIrq(&irq_status);
     SYS_ResetExecute();
 }

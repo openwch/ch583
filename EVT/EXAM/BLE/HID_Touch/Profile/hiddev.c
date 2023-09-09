@@ -137,7 +137,8 @@ static gapRolesCBs_t hidDev_PeripheralCBs = {
 // Bond Manager Callbacks
 static gapBondCBs_t hidDevBondCB = {
     hidDevPasscodeCB,
-    hidDevPairStateCB
+    hidDevPairStateCB,
+    NULL  // oob callback
 };
 
 /*********************************************************************

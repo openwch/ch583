@@ -12,6 +12,7 @@
 
 #ifndef PERIPHERAL_H
 #define PERIPHERAL_H
+#include "RingMem.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -31,6 +32,8 @@ extern "C" {
 #define SBP_READ_RSSI_EVT       0x0004
 #define SBP_PARAM_UPDATE_EVT    0x0008
 #define SBP_PHY_UPDATE_EVT      0x0010
+#define SBP_PROCESS_USBDATA_EVT 0x0020
+#define SBP_PROCESS_BLEDATA_EVT 0x0040
 
 /*********************************************************************
  * MACROS
@@ -43,6 +46,11 @@ typedef struct
     uint16_t connTimeout;
 } peripheralConnItem_t;
 
+extern RingMemParm_t RingMemUSB;
+extern uint8_t RingMemUSBBuf[2048];
+extern RingMemParm_t RingMemBLE;
+extern uint8_t RingMemBLEBuf[2048];
+extern uint8_t Peripheral_TaskID;
 /*********************************************************************
  * FUNCTIONS
  */
@@ -56,7 +64,7 @@ extern void Peripheral_Init(void);
  * Task Event Processor for the BLE Application
  */
 extern uint16_t Peripheral_ProcessEvent(uint8_t task_id, uint16_t events);
-void app_usb_notify(uint8_t *SendBuf, uint8_t l);
+uint8_t app_usb_notify(uint8_t *SendBuf, uint8_t l);
 
 /*********************************************************************
 *********************************************************************/

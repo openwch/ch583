@@ -95,20 +95,6 @@ static uint8_t hidEmuTaskId = INVALID_TASK_ID;
 
 // GAP Profile - Name attribute for SCAN RSP data
 static uint8_t scanRspData[] = {
-    0x0D,                           // length of this data
-    GAP_ADTYPE_LOCAL_NAME_COMPLETE, // AD Type = Complete local name
-    'H',
-    'I',
-    'D',
-    ' ',
-    'C',
-    'o',
-    'n',
-    's',
-    'u',
-    'm',
-    'e',
-    'r',
 
     // connection interval range
     0x05, // length of this data
@@ -143,7 +129,23 @@ static uint8_t advertData[] = {
     0x03, // length of this data
     GAP_ADTYPE_APPEARANCE,
     LO_UINT16(GAP_APPEARE_GENERIC_HID),
-    HI_UINT16(GAP_APPEARE_GENERIC_HID)
+    HI_UINT16(GAP_APPEARE_GENERIC_HID),
+
+    0x0D,                           // length of this data
+    GAP_ADTYPE_LOCAL_NAME_COMPLETE, // AD Type = Complete local name
+    'H',
+    'I',
+    'D',
+    ' ',
+    'C',
+    'o',
+    'n',
+    's',
+    'u',
+    'm',
+    'e',
+    'r',
+
 };
 
 // Device name attribute value
@@ -213,7 +215,7 @@ void HidEmu_Init()
     }
 
     // Set the GAP Characteristics
-    GGS_SetParameter(GGS_DEVICE_NAME_ATT, GAP_DEVICE_NAME_LEN, (void *)attDeviceName);
+    GGS_SetParameter(GGS_DEVICE_NAME_ATT, sizeof(attDeviceName), (void *)attDeviceName);
 
     // Setup the GAP Bond Manager
     {

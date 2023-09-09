@@ -159,6 +159,7 @@ void UserOptionByte_Active(void)
     FLASH_ROM_SW_RESET();
     sys_safe_access_enable();
     R16_INT32K_TUNE = 0xFFFF;
+    sys_safe_access_disable();
     sys_safe_access_enable();
     R8_RST_WDOG_CTRL |= RB_SOFTWARE_RESET;
     sys_safe_access_disable();

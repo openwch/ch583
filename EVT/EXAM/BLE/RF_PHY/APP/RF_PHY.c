@@ -159,7 +159,20 @@ uint16_t RF_ProcessEvent(uint8_t task_id, uint16_t events)
 /*********************************************************************
  * @fn      RF_Init
  *
- * @brief   RF 初始化
+ * @brief     频率(MHz)    通道
+ *              2402      37
+ *              2404      0
+ *                    .
+ *              f =2404+ n*2M
+ *                    .
+ *              2424      10
+ *              2426      38
+ *              2428      11
+ *                    .
+ *              f =2428+ (n-11)*2M
+ *                    .
+ *              2478      36
+ *              2480      39
  *
  * @return  none
  */
@@ -179,14 +192,14 @@ void RF_Init(void)
     rfConfig.RxMaxlen = 251;
     state = RF_Config(&rfConfig);
     PRINT("rf 2.4g init: %x\n", state);
-    { // RX mode
-        state = RF_Rx(TX_DATA, 10, 0xFF, 0xFF);
-        PRINT("RX mode.state = %x\n", state);
-    }
+//    { // RX mode
+//        state = RF_Rx(TX_DATA, 10, 0xFF, 0xFF);
+//        PRINT("RX mode.state = %x\n", state);
+//    }
 
-    //	{ // TX mode
-    //		tmos_set_event( taskID , SBP_RF_PERIODIC_EVT );
-    //	}
+    { // TX mode
+        tmos_set_event( taskID , SBP_RF_PERIODIC_EVT );
+    }
 }
 
 /******************************** endfile @ main ******************************/

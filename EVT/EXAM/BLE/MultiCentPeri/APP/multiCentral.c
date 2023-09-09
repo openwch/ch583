@@ -533,7 +533,7 @@ static void centralProcessGATTMsg(gattMsgEvent_t *pMsg)
 
     if(pMsg->method == ATT_MTU_UPDATED_EVENT)
     {
-        PRINT("MTU: %x\n", pMsg->msg.mtuEvt.MTU);
+        PRINT("MTU: %d\n", pMsg->msg.mtuEvt.MTU);
     }
 
     if((pMsg->method == ATT_READ_RSP) ||
@@ -789,6 +789,24 @@ static void centralEventCB(gapRoleEvent_t *pEvent)
         case GAP_LINK_PARAM_UPDATE_EVENT:
         {
             PRINT("Update %x - Int %x \n", pEvent->linkUpdate.connectionHandle, pEvent->linkUpdate.connInterval);
+        }
+        break;
+
+        case GAP_EXT_ADV_DEVICE_INFO_EVENT:
+        {
+            // Display device addr
+            PRINT("Recv ext adv \n");
+            // Add device to list
+            centralAddDeviceInfo(pEvent->deviceExtAdvInfo.addr, pEvent->deviceExtAdvInfo.addrType);
+        }
+        break;
+
+        case GAP_DIRECT_DEVICE_INFO_EVENT:
+        {
+            // Display device addr
+            PRINT("Recv direct adv \n");
+            // Add device to list
+            centralAddDeviceInfo(pEvent->deviceDirectInfo.addr, pEvent->deviceDirectInfo.addrType);
         }
         break;
 
