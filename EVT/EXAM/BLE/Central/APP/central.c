@@ -163,7 +163,7 @@ static uint8_t centralRssi = TRUE;
 static uint8_t centralParamUpdate = TRUE;
 
 // Phy update state
-static uint8 centralPhyUpdate = FALSE;
+static uint8_t centralPhyUpdate = FALSE;
 
 // Connection handle of current connection
 static uint16_t centralConnHandle = GAP_CONNHANDLE_INIT;
@@ -480,7 +480,7 @@ static void centralProcessGATTMsg(gattMsgEvent_t *pMsg)
 
     if(pMsg->method == ATT_MTU_UPDATED_EVENT)
     {
-        PRINT("MTU: %x\n", pMsg->msg.mtuEvt.MTU);
+        PRINT("MTU: %d\n", pMsg->msg.mtuEvt.MTU);
     }
 
     if((pMsg->method == ATT_READ_RSP) ||

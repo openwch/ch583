@@ -1,15 +1,14 @@
 /********************************** (C) COPYRIGHT *******************************
- * File Name          : startup_ch58x.s
+ * File Name          : startup_CH58x.S
  * Author             : WCH
- * Version            : V1.0.0
- * Date               : 2021/05/10
- * Description        : CH583 FreeRTOS启动文件
+ * Version            : V1.0.1
+ * Date               : 2023/08/16
+ * Description        :
  *********************************************************************************
  * Copyright (c) 2021 Nanjing Qinheng Microelectronics Co., Ltd.
- * Attention: This software (modified or not) and binary are used for 
+ * Attention: This software (modified or not) and binary are used for
  * microcontroller manufactured by Nanjing Qinheng Microelectronics.
  *******************************************************************************/
-.extern unified_interrupt_handler
 
 	.section	.init,"ax",@progbits
 	.global	_start
@@ -34,36 +33,64 @@ _vector_base:
     .word   Break_Point_Handler						/* 9 */
     .word   0
     .word   0
-    .word   unified_interrupt_handler         		/* SysTick Handler */
+    .word   SysTick_Handler         				/* SysTick Handler */
     .word   0
     .word   SW_Handler                 				/* SW Handler */
     .word   0
+
     /* External Interrupts */
-    .word   unified_interrupt_handler           	/* 0:  TMR0 */
-    .word   unified_interrupt_handler         		/* GPIOA */
-    .word   unified_interrupt_handler           	/* GPIOB */
-    .word   unified_interrupt_handler            	/* SPI0 */
-    .word   unified_interrupt_handler              	/* BLEB */
-    .word   unified_interrupt_handler             	/* BLEL */
-    .word   unified_interrupt_handler             	/* USB */
-    .word   unified_interrupt_handler				/* USB2 */
-    .word   unified_interrupt_handler          		/* TMR1 */
-    .word   unified_interrupt_handler            	/* TMR2 */
-    .word   unified_interrupt_handler           	/* UART0 */
-    .word   unified_interrupt_handler           	/* UART1 */
-    .word   unified_interrupt_handler             	/* RTC */
-    .word   unified_interrupt_handler             	/* ADC */
-    .word   unified_interrupt_handler 			 	/* I2C */
-    .word   unified_interrupt_handler            	/* PWMX */
-    .word   unified_interrupt_handler            	/* TMR3 */
-    .word   unified_interrupt_handler           	/* UART2 */
-    .word   unified_interrupt_handler           	/* UART3 */
-    .word   unified_interrupt_handler        		/* WDOG_BAT */
+    .word   unified_interrupt_entry           		/* TMR0 */
+    .word   unified_interrupt_entry         		/* GPIOA */
+    .word   unified_interrupt_entry           		/* GPIOB */
+    .word   unified_interrupt_entry            		/* SPI0 */
 
-    .option rvc;
+_user_vector_base:
+	.option norvc;
 
-	.section    .vector_handler, "ax", @progbits
-	.weak   NMI_Handler
+    .word   unified_interrupt_entry              	/* BLEB */
+    .word   unified_interrupt_entry             	/* BLEL */
+    .word   unified_interrupt_entry             	/* USB */
+    .word   unified_interrupt_entry					/* USB2 */
+    .word   unified_interrupt_entry          		/* TMR1 */
+    .word   unified_interrupt_entry            		/* TMR2 */
+    .word   unified_interrupt_entry           		/* UART0 */
+    .word   unified_interrupt_entry           		/* UART1 */
+    .word   unified_interrupt_entry             	/* RTC */
+    .word   unified_interrupt_entry             	/* ADC */
+    .word   unified_interrupt_entry 			 	/* I2C */
+    .word   unified_interrupt_entry            		/* PWMX */
+    .word   unified_interrupt_entry            		/* TMR3 */
+    .word   unified_interrupt_entry           		/* UART2 */
+    .word   unified_interrupt_entry           		/* UART3 */
+    .word   unified_interrupt_entry        			/* WDOG_BAT */
+
+_real_user_vector_base:
+	.option norvc;
+
+    /* External Interrupts */
+    .word   TMR0_IRQHandler            				/* TMR0 */
+    .word   GPIOA_IRQHandler           				/* GPIOA */
+    .word   GPIOB_IRQHandler           				/* GPIOB */
+    .word   SPI0_IRQHandler            				/* SPI0 */
+    .word   BB_IRQLibHandler      					/* BLEB BB_IRQHandler */
+    .word   LLE_IRQLibHandler       				/* BLEL LLE_IRQHandler */
+    .word   USB_IRQHandler             				/* USB */
+    .word   USB2_IRQHandler			   				/* USB2 */
+    .word   TMR1_IRQHandler            				/* TMR1 */
+    .word   TMR2_IRQHandler            				/* TMR2 */
+    .word   UART0_IRQHandler           				/* UART0 */
+    .word   UART1_IRQHandler           				/* UART1 */
+    .word   RTC_IRQHandler             				/* RTC */
+    .word   ADC_IRQHandler             				/* ADC */
+    .word   I2C_IRQHandler 			   				/* I2C */
+    .word   PWMX_IRQHandler            				/* PWMX */
+    .word   TMR3_IRQHandler            				/* TMR3 */
+    .word   UART2_IRQHandler           				/* UART2 */
+    .word   UART3_IRQHandler           				/* UART3 */
+    .word   WDOG_BAT_IRQHandler        				/* WDOG_BAT */
+
+    .section    .vector_handler, "ax", @progbits
+    .weak   NMI_Handler
     .weak   HardFault_Handler
     .weak   Ecall_M_Mode_Handler
     .weak   Ecall_U_Mode_Handler
@@ -76,6 +103,8 @@ _vector_base:
     .weak   SPI0_IRQHandler
     .weak   BB_IRQHandler
     .weak   LLE_IRQHandler
+  	.weak   BB_IRQLibHandler
+    .weak   LLE_IRQLibHandler
     .weak   USB_IRQHandler
     .weak   USB2_IRQHandler
     .weak   TMR1_IRQHandler
@@ -91,44 +120,48 @@ _vector_base:
     .weak   UART3_IRQHandler
     .weak   WDOG_BAT_IRQHandler
 
-NMI_Handler:         1:  j 1b
-HardFault_Handler:   1:  j 1b
-Ecall_M_Mode_Handler:   1:  j 1b
-Ecall_U_Mode_Handler:   1:  j 1b
-Break_Point_Handler:   1:  j 1b
-SysTick_Handler:     1:  j 1b
-SW_Handler:          1:  j 1b
-TMR0_IRQHandler:     1:  j 1b
-GPIOA_IRQHandler:    1:  j 1b
-GPIOB_IRQHandler:    1:  j 1b
-SPI0_IRQHandler:     1:  j 1b
-BB_IRQHandler:       1:  j 1b
-LLE_IRQHandler:      1:  j 1b
-USB_IRQHandler:      1:  j 1b
-USB2_IRQHandler:      1:  j 1b
-TMR1_IRQHandler:     1:  j 1b
-TMR2_IRQHandler:     1:  j 1b
-UART0_IRQHandler:    1:  j 1b
-UART1_IRQHandler:    1:  j 1b
-RTC_IRQHandler:      1:  j 1b
-ADC_IRQHandler:      1:  j 1b
-I2C_IRQHandler:		 1:  j 1b
-PWMX_IRQHandler:     1:  j 1b
-TMR3_IRQHandler:     1:  j 1b
-UART2_IRQHandler:    1:  j 1b
-UART3_IRQHandler:    1:  j 1b
-WDOG_BAT_IRQHandler: 1:  j 1b
+NMI_Handler:
+HardFault_Handler:
+Ecall_M_Mode_Handler:
+Ecall_U_Mode_Handler:
+Break_Point_Handler:
+SysTick_Handler:
+SW_Handler:
+TMR0_IRQHandler:
+GPIOA_IRQHandler:
+GPIOB_IRQHandler:
+SPI0_IRQHandler:
+BB_IRQHandler:
+LLE_IRQHandler:
+BB_IRQLibHandler:
+LLE_IRQLibHandler:
+USB_IRQHandler:
+USB2_IRQHandler:
+TMR1_IRQHandler:
+TMR2_IRQHandler:
+UART0_IRQHandler:
+UART1_IRQHandler:
+RTC_IRQHandler:
+ADC_IRQHandler:
+I2C_IRQHandler:
+PWMX_IRQHandler:
+TMR3_IRQHandler:
+UART2_IRQHandler:
+UART3_IRQHandler:
+WDOG_BAT_IRQHandler:
+1:
+	j 1b
 
 	.section	.handle_reset,"ax",@progbits
 	.weak	handle_reset
 	.align	1
 handle_reset:
-.option push 
-.option	norelax 
+.option push
+.option	norelax
 	la gp, __global_pointer$
-.option	pop 
+.option	pop
 1:
-	la sp, _eusrstack 
+	la sp, _eusrstack
 
 /* Load highcode code  section from flash to RAM */
 2:
@@ -169,21 +202,67 @@ handle_reset:
 	li t0, 0x1f
 	csrw 0xbc0, t0
 
-	/* 打开硬件压栈，关闭中断嵌套 */
+	/* 打开硬件压栈，关闭中断嵌套，在中断函数入口处再打开中断嵌套 */
 	li t0, 0x01
 	csrw 0x804, t0
-	
+
 	/* 使用机器模式，在freertos中打开中断 */
     li t0, 0x1800
     csrs mstatus, t0
 
+	/* 配置系统异常及中断向量表，用户真正使用的向量表在统一入口 unified_interrupt_entry 中处理 */
 	la t0, _vector_base
     ori t0, t0, 3
 	csrw mtvec, t0
 
 	la t0, main
 	csrw mepc, t0
-	
+
 	mret
 
+.extern xISRStackTop
 
+.section	.highcode.unified_interrupt_entry,"ax",@progbits
+.align 2
+.func
+unified_interrupt_entry:
+	csrr a1, mcause
+	slli a1, a1, 2
+	la a0, _user_vector_base
+	add a0, a0, a1
+	lw a0, 0(a0)						/* read isr functions addr from _vector_base. */
+
+#if ENABLE_INTERRUPT_NEST
+	csrr t0, 0x804						/* justice whether it's in interrupt nesting. */
+	andi t1, t0, 0x02
+	bnez t1, interrupt_nesting			/* if it's not zero, it's in interrupt nesting. */
+#endif
+
+	csrw mscratch, sp
+	lw sp, xISRStackTop					/* Switch to ISR stack before function call. */
+
+#if ENABLE_INTERRUPT_NEST
+	csrs 0x804, 0x02					/* enable interrupt nests. */
+#endif
+
+	jalr x1, 0(a0)
+
+#if ENABLE_INTERRUPT_NEST
+	csrc mstatus, 8						/* disable interrupt in machine mode. */
+	nop									/* wait for 3 grade pipeline. */
+	nop
+	nop
+	csrc 0x804, 0x02					/* disable interrupt nests. */
+	nop
+#endif
+
+	csrr sp, mscratch					/* resume sp from mscratch. */
+	mret
+
+#if ENABLE_INTERRUPT_NEST
+interrupt_nesting:
+	jalr x1, 0(a0)						/* if it's in interrupt nesting, don't need to change sp. */
+	mret
+#endif
+
+	.endfunc

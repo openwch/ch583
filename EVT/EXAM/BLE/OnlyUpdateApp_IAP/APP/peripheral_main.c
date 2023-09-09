@@ -112,7 +112,7 @@ int main(void)
         {
             PRINT("jump App \n");
             mDelaymS(5);
-            jumpApp();
+//            jumpApp();
         }
     }
     CH58X_BLEInit();

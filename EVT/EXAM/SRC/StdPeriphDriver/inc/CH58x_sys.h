@@ -167,6 +167,8 @@ void mDelayuS(uint16_t t);
  */
 void mDelaymS(uint16_t t);
 
+extern volatile uint32_t IRQ_STA;
+
 /**
  * @brief Enter safe access mode.
  * 
@@ -177,14 +179,23 @@ void mDelaymS(uint16_t t);
  */
  __attribute__((always_inline)) static inline void sys_safe_access_enable(void)
 {
-    R8_SAFE_ACCESS_SIG = SAFE_ACCESS_SIG1;
-    R8_SAFE_ACCESS_SIG = SAFE_ACCESS_SIG2;
-    SAFEOPERATE;
+   if(read_csr(0x800)&0x08)
+   {
+       IRQ_STA = read_csr(0x800);
+       write_csr(0x800, (IRQ_STA&(~0x08)));
+   }
+   SAFEOPERATE;
+   R8_SAFE_ACCESS_SIG = SAFE_ACCESS_SIG1;
+   R8_SAFE_ACCESS_SIG = SAFE_ACCESS_SIG2;
+   SAFEOPERATE;
 }
 
 __attribute__((always_inline)) static inline void sys_safe_access_disable(void)
 {
-    R8_SAFE_ACCESS_SIG = 0;
+   R8_SAFE_ACCESS_SIG = 0;
+   write_csr(0x800, read_csr(0x800)|(IRQ_STA&0x08));
+   IRQ_STA = 0;
+   SAFEOPERATE;
 }
 
 #ifdef __cplusplus

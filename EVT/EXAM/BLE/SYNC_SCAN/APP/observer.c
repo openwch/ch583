@@ -61,26 +61,26 @@
 /*********************************************************************
  * LOCAL VARIABLES
  */
-uint8 gStatus;
+uint8_t gStatus;
 
 // Task ID for internal task/event processing
-static uint8 ObserverTaskId;
+static uint8_t ObserverTaskId;
 
 // Number of scan results and scan result index
-static uint8 ObserverScanRes;
+static uint8_t ObserverScanRes;
 
 // Scan result list
 static gapDevRec_t ObserverDevList[DEFAULT_MAX_SCAN_RES];
 
 // Peer device address
-static uint8 PeerAddrDef[B_ADDR_LEN] = {0x02, 0x02, 0x03, 0xE4, 0xC2, 0x84};
+static uint8_t PeerAddrDef[B_ADDR_LEN] = {0x02, 0x02, 0x03, 0xE4, 0xC2, 0x84};
 
 /*********************************************************************
  * LOCAL FUNCTIONS
  */
 static void ObserverEventCB(gapRoleEvent_t *pEvent);
 static void Observer_ProcessTMOSMsg(tmos_event_hdr_t *pMsg);
-static void ObserverAddDeviceInfo(uint8 *pAddr, uint8 addrType);
+static void ObserverAddDeviceInfo(uint8_t *pAddr, uint8_t addrType);
 
 /*********************************************************************
  * PROFILE CALLBACKS
@@ -136,13 +136,13 @@ void Observer_Init()
  *
  * @return  events not processed
  */
-uint16 Observer_ProcessEvent(uint8 task_id, uint16 events)
+uint16_t Observer_ProcessEvent(uint8_t task_id, uint16_t events)
 {
     //  VOID task_id; // TMOS required parameter that isn't used in this function
 
     if(events & SYS_EVENT_MSG)
     {
-        uint8 *pMsg;
+        uint8_t *pMsg;
 
         if((pMsg = tmos_msg_receive(ObserverTaskId)) != NULL)
         {
@@ -239,9 +239,9 @@ static void ObserverEventCB(gapRoleEvent_t *pEvent)
                pEvent->deviceExtAdvInfo.periodicAdvInterval != 0)
             {
                 gapCreateSync_t sync = {0};
-                uint8           state;
-
-                tmos_memcpy(sync.addr, pEvent->deviceExtAdvInfo.addr, B_ADDR_LEN);
+                uint8_t         state;
+                
+                tmos_memcpy(sync.addr, PeerAddrDef, B_ADDR_LEN);
                 sync.addrType = pEvent->deviceExtAdvInfo.addrType;
                 sync.advertising_SID = pEvent->deviceExtAdvInfo.advertisingSID;
                 sync.options = DUPLICATE_FILTERING_INITIALLY_ENABLED;
@@ -304,9 +304,9 @@ static void ObserverEventCB(gapRoleEvent_t *pEvent)
  *
  * @return  none
  */
-static void ObserverAddDeviceInfo(uint8 *pAddr, uint8 addrType)
+static void ObserverAddDeviceInfo(uint8_t *pAddr, uint8_t addrType)
 {
-    uint8 i;
+    uint8_t i;
 
     // If result count not at max
     if(ObserverScanRes < DEFAULT_MAX_SCAN_RES)

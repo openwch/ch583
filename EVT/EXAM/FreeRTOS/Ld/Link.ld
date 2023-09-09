@@ -17,12 +17,7 @@ SECTIONS
 		. = ALIGN(4);
 		_einit = .;
 	} >FLASH AT>FLASH
-	
- /*   .vector :
-    {
-        *(.vector);
-    } >FLASH AT>FLASH */
-    
+
     .highcodelalign : 
     {       
         . = ALIGN(4);
@@ -35,8 +30,6 @@ SECTIONS
         PROVIDE(_highcode_vma_start = .);
         *(.vector);
 		KEEP(*(SORT_NONE(.vector_handler)))
-		. = ALIGN(4);
-		KEEP(*(wch_user_vectors))
 		. = ALIGN(4);
         *(.highcode);
         *(.highcode.*);
@@ -122,11 +115,12 @@ SECTIONS
 	  KEEP (*(.dtors))
 	} >FLASH AT>FLASH 
 
+	
 	.dalign    : 
 	{
 		. = ORIGIN(RAM) + MAX(0x800 , SIZEOF(.highcode));
-	} >RAM AT>FLASH	
-
+	} >RAM AT>FLASH
+	
 	.dlalign :
 	{
 		. = ALIGN(4); 

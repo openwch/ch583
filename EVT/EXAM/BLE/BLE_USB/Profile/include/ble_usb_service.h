@@ -57,9 +57,9 @@ typedef void (*ble_usb_ProfileChangeCB_t)(uint16_t connection_handle, ble_usb_ev
 
 extern bStatus_t ble_usb_add_service(ble_usb_ProfileChangeCB_t cb);
 
-extern uint8 ble_usb_notify_is_ready(uint16 connHandle);
+extern uint8_t ble_usb_notify_is_ready(uint16_t connHandle);
 
-extern bStatus_t ble_usb_notify(uint16 connHandle, attHandleValueNoti_t *pNoti, uint8 taskId);
+extern bStatus_t ble_usb_notify(uint16_t connHandle, attHandleValueNoti_t *pNoti, uint8_t taskId);
 /*********************************************************************
 *********************************************************************/
 

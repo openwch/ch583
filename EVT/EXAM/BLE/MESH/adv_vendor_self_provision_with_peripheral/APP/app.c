@@ -47,7 +47,6 @@ static uint8_t App_TaskID = 0; // Task ID for internal task/event processing
 static uint16_t App_ProcessEvent(uint8_t task_id, uint16_t events);
 
 static uint8_t dev_uuid[16] = {0}; // 此设备的UUID
-uint8_t        MACAddr[6];         // 此设备的mac
 
 static uint8_t self_prov_net_key[16] = {0};
 
@@ -530,7 +529,6 @@ static int vendor_model_srv_send(uint16_t addr, uint8_t *pData, uint16_t len)
         .tid = vendor_srv_tid_get(),      // tid，每个独立消息递增循环，srv使用128~191
         .send_ttl = BLE_MESH_TTL_DEFAULT, // ttl，无特定则使用默认值
     };
-//    return vendor_message_srv_indicate(&param, pData, len);  // 调用自定义模型服务的有应答指示函数发送数据，默认超时2s
     vendor_message_srv_trans_reset();
     return vendor_message_srv_send_trans(&param, pData, len); // 或者调用自定义模型服务的透传函数发送数据，只发送，无应答机制
 }
@@ -648,9 +646,18 @@ void blemesh_on_sync(void)
     lpn_init_register(bt_mesh_lpn_init, lpn_state);
 #endif /* LPN */
 
-    GetMACAddress(MACAddr);
-    tmos_memcpy(dev_uuid, MACAddr, 6);
-    err = bt_mesh_cfg_set(&app_mesh_cfg, &app_dev, MACAddr, &info);
+#if(defined(BLE_MAC)) && (BLE_MAC == TRUE)
+    tmos_memcpy(dev_uuid, MacAddr, 6);
+    err = bt_mesh_cfg_set(&app_mesh_cfg, &app_dev, MacAddr, &info);
+#else
+    {
+        uint8_t MacAddr[6];
+        GetMACAddress(MacAddr);
+        tmos_memcpy(dev_uuid, MacAddr, 6);
+        // 使用芯片mac地址
+        err = bt_mesh_cfg_set(&app_mesh_cfg, &app_dev, MacAddr, &info);
+    }
+#endif
     if(err)
     {
         APP_DBG("Unable set configuration (err:%d)", err);

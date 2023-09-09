@@ -139,7 +139,7 @@ static uint8_t attDeviceName[GAP_DEVICE_NAME_LEN] = "Simple Peripheral";
 // Connection item list
 static peripheralConnItem_t peripheralConnList;
 
-static uint8_t peripheralMTU = ATT_MTU_SIZE;
+static uint16_t peripheralMTU = ATT_MTU_SIZE;
 
 static uint8_t speed_test_enable = FALSE;
 
@@ -178,7 +178,8 @@ static gapRolesBroadcasterCBs_t Broadcaster_BroadcasterCBs = {
 // GAP Bond Manager Callbacks
 static gapBondCBs_t Peripheral_BondMgrCBs = {
     NULL, // Passcode callback (not used by application)
-    NULL  // Pairing / Bonding state Callback (not used by application)
+    NULL, // Pairing / Bonding state Callback (not used by application)
+    NULL  // oob callback
 };
 
 // Simple GATT Profile Callbacks
@@ -222,7 +223,7 @@ void Peripheral_Init()
     }
 
     // Set the GAP Characteristics
-    GGS_SetParameter(GGS_DEVICE_NAME_ATT, GAP_DEVICE_NAME_LEN, attDeviceName);
+    GGS_SetParameter(GGS_DEVICE_NAME_ATT, sizeof(attDeviceName), attDeviceName);
 
     // Set advertising interval
     {
@@ -347,7 +348,7 @@ uint16_t Peripheral_ProcessEvent(uint8_t task_id, uint16_t events)
         else
         {
             // start speed test
-            PRINT("start speed test..\n");
+            PRINT("start speed test.. len: %d\n",peripheralMTU - 3);
             speed_test_enable = TRUE;
         }
         tmos_start_task(Peripheral_TaskID, SBP_SPEED_TEST_EVT, 1600);

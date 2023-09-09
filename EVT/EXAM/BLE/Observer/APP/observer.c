@@ -3,7 +3,9 @@
  * Author             : WCH
  * Version            : V1.0
  * Date               : 2018/12/10
- * Description        : 观察应用程序，初始化扫描参数，然后定时扫描，如果扫描结果不为空，则打印扫描到的广播地址
+ * Description        : Observer application, initialize scan parameters,
+ *                      then scan regularly, if the scan result is not empty, 
+ *                      print the scanned broadcast address
  *********************************************************************************
  * Copyright (c) 2021 Nanjing Qinheng Microelectronics Co., Ltd.
  * Attention: This software (modified or not) and binary are used for 
@@ -75,7 +77,6 @@ static gapDevRec_t ObserverDevList[DEFAULT_MAX_SCAN_RES];
 static void ObserverEventCB(gapRoleEvent_t *pEvent);
 static void Observer_ProcessTMOSMsg(tmos_event_hdr_t *pMsg);
 static void ObserverAddDeviceInfo(uint8_t *pAddr, uint8_t addrType);
-char       *bdAddr2Str(uint8_t *pAddr);
 
 /*********************************************************************
  * PROFILE CALLBACKS
@@ -239,6 +240,24 @@ static void ObserverEventCB(gapRoleEvent_t *pEvent)
                                            DEFAULT_DISCOVERY_ACTIVE_SCAN,
                                            DEFAULT_DISCOVERY_WHITE_LIST);
             PRINT("Discovering...\n ");
+        }
+        break;
+
+        case GAP_EXT_ADV_DEVICE_INFO_EVENT:
+        {
+            // Display device addr
+            PRINT("Recv ext adv \n");
+            // Add device to list
+            ObserverAddDeviceInfo(pEvent->deviceExtAdvInfo.addr, pEvent->deviceExtAdvInfo.addrType);
+        }
+        break;
+
+        case GAP_DIRECT_DEVICE_INFO_EVENT:
+        {
+            // Display device addr
+            PRINT("Recv direct adv \n");
+            // Add device to list
+            ObserverAddDeviceInfo(pEvent->deviceDirectInfo.addr, pEvent->deviceDirectInfo.addrType);
         }
         break;
 

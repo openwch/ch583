@@ -65,9 +65,9 @@ int main()
     GPIOB_ModeCfg(GPIO_Pin_22, GPIO_ModeOut_PP_5mA);
 
     TMR3_PWMInit(High_Level, PWM_Times_1);
-    TMR3_PWMCycleCfg(6000); // 周期 100us
-    TMR3_Disable();
+    TMR3_PWMCycleCfg(60 * 100); // 周期 100us  最大67108864
     TMR3_PWMActDataWidth(3000); // 占空比 50%, 修改占空比必须暂时关闭定时器
+    TMR3_PWMEnable();
     TMR3_Enable();
 
 #endif
@@ -119,7 +119,7 @@ int main()
     GPIOPinRemap(ENABLE, RB_PIN_TMR2);
 
     PRINT("TMR2 DMA PWM\n");
-    TMR2_PWMCycleCfg(120000); // 周期 2000us
+    TMR2_PWMCycleCfg(60 * 2000); // 周期 2000us  主频是60Mhz 每秒震荡60M次 震荡60次为1微秒
     for(i=0; i<50; i++)
     {
       PwmBuf[i]=2400*i;
@@ -128,12 +128,15 @@ int main()
     {
       PwmBuf[i]=2400*(100-i);
     }
-    TMR2_DMACfg(ENABLE, (uint16_t)(uint32_t)&PwmBuf[0], (uint16_t)(uint32_t)&PwmBuf[100], Mode_LOOP);
+
     TMR2_PWMInit(Low_Level, PWM_Times_16);
-    /* 开启计数溢出中断，计满1000个周期进入中断 */
+    TMR2_DMACfg(ENABLE, (uint16_t)(uint32_t)&PwmBuf[0], (uint16_t)(uint32_t)&PwmBuf[100], Mode_LOOP);
+    TMR2_PWMEnable();
+    TMR2_Enable();
+    /* 开启计数溢出中断，计满100个周期进入中断 */
     TMR2_ClearITFlag(TMR1_2_IT_DMA_END);
-    PFIC_EnableIRQ(TMR2_IRQn);
     TMR2_ITCfg(ENABLE, TMR1_2_IT_DMA_END);
+    PFIC_EnableIRQ(TMR2_IRQn);
 
 #endif
 

@@ -351,7 +351,7 @@ bStatus_t SimpleProfile_RegisterAppCBs(simpleProfileCBs_t *appCallbacks)
  *
  * @return  bStatus_t
  */
-bStatus_t SimpleProfile_SetParameter(uint8_t param, uint8_t len, void *value)
+bStatus_t SimpleProfile_SetParameter(uint8_t param, uint16_t len, void *value)
 {
     bStatus_t ret = SUCCESS;
     switch(param)
@@ -510,7 +510,6 @@ static bStatus_t simpleProfile_ReadAttrCB(uint16_t connHandle, gattAttribute_t *
                                           uint8_t *pValue, uint16_t *pLen, uint16_t offset, uint16_t maxLen, uint8_t method)
 {
     bStatus_t status = SUCCESS;
-
 
     // Make sure it's not a blob operation (no attributes in the profile are long)
     if(offset > 0)

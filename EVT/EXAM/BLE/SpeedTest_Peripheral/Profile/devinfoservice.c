@@ -3,7 +3,7 @@
  * Author             : WCH
  * Version            : V1.0
  * Date               : 2018/12/10
- * Description        : 设备信息服务
+ * Description        : Device information service
  *********************************************************************************
  * Copyright (c) 2021 Nanjing Qinheng Microelectronics Co., Ltd.
  * Attention: This software (modified or not) and binary are used for 
@@ -330,7 +330,7 @@ bStatus_t DevInfo_AddService(void)
  *
  * @return  bStatus_t
  */
-bStatus_t DevInfo_SetParameter(uint8_t param, uint8_t len, void *value)
+bStatus_t DevInfo_SetParameter(uint8_t param, uint16_t len, void *value)
 {
     bStatus_t ret = SUCCESS;
 

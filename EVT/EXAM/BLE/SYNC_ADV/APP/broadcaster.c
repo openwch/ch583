@@ -3,7 +3,8 @@
  * Author             : WCH
  * Version            : V1.0
  * Date               : 2020/08/06
- * Description        : 广播应用程序，初始化广播连接参数，然后处于广播态一直广播
+ * Description        : Broadcast the application, initialize the broadcast
+ *                      connection parameters, and then keep broadcasting in the broadcast state
  *********************************************************************************
  * Copyright (c) 2021 Nanjing Qinheng Microelectronics Co., Ltd.
  * Attention: This software (modified or not) and binary are used for 
@@ -53,10 +54,10 @@
 /*********************************************************************
  * LOCAL VARIABLES
  */
-static uint8 Broadcaster_TaskID; // Task ID for internal task/event processing
+static uint8_t Broadcaster_TaskID; // Task ID for internal task/event processing
 
 // GAP - SCAN RSP data (max size = 31 bytes)
-static uint8 scanRspData[] = {
+static uint8_t scanRspData[] = {
     // complete name
     0x0c,                                 // length of this data
     GAP_ADTYPE_LOCAL_NAME_COMPLETE, 0x42, // 'B'
@@ -78,7 +79,7 @@ static uint8 scanRspData[] = {
 
 // GAP - Advertisement data (max size = 31 bytes, though this is
 // best kept short to conserve power while advertisting)
-static uint8 advertData[] = {
+static uint8_t advertData[] = {
     // Flags; this sets the device to use limited discoverable
     // mode (advertises for 30 seconds at a time) instead of general
     // discoverable mode (advertises indefinitely)
@@ -96,7 +97,7 @@ static uint8 advertData[] = {
 
 // GAP - Advertisement data (max size = 252 bytes, though this is
 // best kept short to conserve power while advertisting)
-static uint8 periodicAdvertData[] = {
+static uint8_t periodicAdvertData[] = {
     // Broadcast of the data
     44,                               // length of this data including the data type byte
     GAP_ADTYPE_MANUFACTURER_SPECIFIC, // manufacturer specific advertisement data type
@@ -148,20 +149,20 @@ void Broadcaster_Init()
     // Setup the GAP Broadcaster Role Profile
     {
         // Device starts advertising upon initialization
-        uint8 initial_advertising_enable = TRUE;
-        uint8 initial_periodic_advertising_enable = TRUE | (1<<1);
-        uint8 initial_adv_event_type = GAP_ADTYPE_EXT_NONCONN_NONSCAN_UNDIRECT;
+        uint8_t initial_advertising_enable = TRUE;
+        uint8_t initial_periodic_advertising_enable = TRUE | (1<<1);
+        uint8_t initial_adv_event_type = GAP_ADTYPE_EXT_NONCONN_NONSCAN_UNDIRECT;
         // Set the GAP Role Parameters
-        GAPRole_SetParameter(GAPROLE_ADVERT_ENABLED, sizeof(uint8), &initial_advertising_enable);
-        GAPRole_SetParameter(GAPROLE_ADV_EVENT_TYPE, sizeof(uint8), &initial_adv_event_type);
+        GAPRole_SetParameter(GAPROLE_ADVERT_ENABLED, sizeof(uint8_t), &initial_advertising_enable);
+        GAPRole_SetParameter(GAPROLE_ADV_EVENT_TYPE, sizeof(uint8_t), &initial_adv_event_type);
         GAPRole_SetParameter(GAPROLE_SCAN_RSP_DATA, sizeof(scanRspData), scanRspData);
         GAPRole_SetParameter(GAPROLE_ADVERT_DATA, sizeof(advertData), advertData);
         GAPRole_SetParameter(GAPROLE_PERIODIC_ADVERT_DATA, sizeof(periodicAdvertData), periodicAdvertData);
-        GAPRole_SetParameter(GAPROLE_PERIODIC_ADVERT_ENABLED, sizeof(uint8), &initial_periodic_advertising_enable);
+        GAPRole_SetParameter(GAPROLE_PERIODIC_ADVERT_ENABLED, sizeof(uint8_t), &initial_periodic_advertising_enable);
     }
 
     {
-        uint16 advInt = DEFAULT_ADVERTISING_INTERVAL;
+        uint16_t advInt = DEFAULT_ADVERTISING_INTERVAL;
 
         // Set advertising interval
         GAP_SetParamValue(TGAP_DISC_ADV_INT_MIN, advInt);
@@ -196,11 +197,11 @@ void Broadcaster_Init()
  *
  * @return  events not processed
  */
-uint16 Broadcaster_ProcessEvent(uint8 task_id, uint16 events)
+uint16_t Broadcaster_ProcessEvent(uint8_t task_id, uint16_t events)
 {
     if(events & SYS_EVENT_MSG)
     {
-        uint8 *pMsg;
+        uint8_t *pMsg;
 
         if((pMsg = tmos_msg_receive(Broadcaster_TaskID)) != NULL)
         {

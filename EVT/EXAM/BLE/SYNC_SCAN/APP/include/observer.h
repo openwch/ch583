@@ -45,7 +45,7 @@ extern void Observer_Init(void);
 /*
  * Task Event Processor for the BLE Application
  */
-extern uint16 Observer_ProcessEvent(uint8 task_id, uint16 events);
+extern uint16_t Observer_ProcessEvent(uint8_t task_id, uint16_t events);
 
 /*********************************************************************
 *********************************************************************/

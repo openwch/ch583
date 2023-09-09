@@ -44,7 +44,6 @@ static uint8_t App_TaskID = 0; // Task ID for internal task/event processing
 static uint16_t App_ProcessEvent(uint8_t task_id, uint16_t events);
 
 static uint8_t dev_uuid[16] = {0}; // 此设备的UUID
-uint8_t        MACAddr[6];         // 此设备的mac
 
 #if(!CONFIG_BLE_MESH_PB_GATT)
 NET_BUF_SIMPLE_DEFINE_STATIC(rx_buf, 65);
@@ -497,9 +496,18 @@ void blemesh_on_sync(void)
     lpn_init_register(bt_mesh_lpn_init, lpn_state);
 #endif /* LPN */
 
-    GetMACAddress(MACAddr);
-    tmos_memcpy(dev_uuid, MACAddr, 6);
-    err = bt_mesh_cfg_set(&app_mesh_cfg, &app_dev, MACAddr, &info);
+#if(defined(BLE_MAC)) && (BLE_MAC == TRUE)
+    tmos_memcpy(dev_uuid, MacAddr, 6);
+    err = bt_mesh_cfg_set(&app_mesh_cfg, &app_dev, MacAddr, &info);
+#else
+    {
+        uint8_t MacAddr[6];
+        GetMACAddress(MacAddr);
+        tmos_memcpy(dev_uuid, MacAddr, 6);
+        // 使用芯片mac地址
+        err = bt_mesh_cfg_set(&app_mesh_cfg, &app_dev, MacAddr, &info);
+    }
+#endif
     if(err)
     {
         APP_DBG("Unable set configuration (err:%d)", err);

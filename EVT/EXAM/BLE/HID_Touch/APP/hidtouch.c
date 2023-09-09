@@ -95,17 +95,6 @@ static uint8_t hidEmuTaskId = INVALID_TASK_ID;
 
 // GAP Profile - Name attribute for SCAN RSP data
 static uint8_t scanRspData[] = {
-    0x0A,                           // length of this data
-    GAP_ADTYPE_LOCAL_NAME_COMPLETE, // AD Type = Complete local name
-    'H',
-    'I',
-    'D',
-    ' ',
-    'T',
-    'o',
-    'u',
-    'c',
-    'h',
     // connection interval range
     0x05, // length of this data
     GAP_ADTYPE_SLAVE_CONN_INTERVAL_RANGE,
@@ -139,10 +128,22 @@ static uint8_t advertData[] = {
     0x03, // length of this data
     GAP_ADTYPE_APPEARANCE,
     LO_UINT16(GAP_APPEARE_HID_DIGITIZER_TYABLET),
-    HI_UINT16(GAP_APPEARE_HID_DIGITIZER_TYABLET)};
+    HI_UINT16(GAP_APPEARE_HID_DIGITIZER_TYABLET),
+    0x0A,                           // length of this data
+    GAP_ADTYPE_LOCAL_NAME_COMPLETE, // AD Type = Complete local name
+    'H',
+    'I',
+    'D',
+    ' ',
+    'T',
+    'o',
+    'u',
+    'c',
+    'h',
+};
 
 // Device name attribute value
-static CONST uint8_t attDeviceName[GAP_DEVICE_NAME_LEN] = "HID Touch";
+static const uint8_t attDeviceName[GAP_DEVICE_NAME_LEN] = "HID Touch";
 
 // HID Dev configuration
 static hidDevCfg_t hidEmuCfg = {
@@ -206,7 +207,7 @@ void HidEmu_Init()
     }
 
     // Set the GAP Characteristics
-    GGS_SetParameter(GGS_DEVICE_NAME_ATT, GAP_DEVICE_NAME_LEN, (void *)attDeviceName);
+    GGS_SetParameter(GGS_DEVICE_NAME_ATT, sizeof(attDeviceName), (void *)attDeviceName);
 
     // Setup the GAP Bond Manager
     {

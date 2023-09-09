@@ -333,7 +333,7 @@ void send_support_attr(void)
 {
     struct bt_mesh_indicate *ind;
     struct bt_mesh_indicate *ind2;
-    uint32_t                 color;
+    uint8_t                 color[6];
     APP_DBG("");
 
     if(!bt_mesh_is_provisioned())
@@ -371,11 +371,11 @@ void send_support_attr(void)
     // Ìí¼Óled_colorÊôÐÔ
     {
         /* Add led_color attrbute opcode */
-        net_buf_simple_add_le16(&(ind->buf->b), ALI_GEN_ATTR_TYPE_LIGHTCOLOR_ADJ);
+        net_buf_simple_add_le16(&(ind->buf->b), ALI_GEN_ATTR_TYPE_COLOR);
 
         /* Add led_color status  */
-        read_led_color(&color);
-        net_buf_simple_add_u8(&(ind->buf->b), color);
+        read_led_color(color);
+        net_buf_simple_add_mem(&(ind->buf->b), color, 6);
     }
     bt_mesh_indicate_send(ind);
 

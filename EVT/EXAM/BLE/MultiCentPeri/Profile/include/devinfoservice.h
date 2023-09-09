@@ -86,7 +86,7 @@ extern bStatus_t DevInfo_AddService(void);
  *
  * @return  bStatus_t
  */
-bStatus_t DevInfo_SetParameter(uint8_t param, uint8_t len, void *value);
+bStatus_t DevInfo_SetParameter(uint8_t param, uint16_t len, void *value);
 
 /*
  * DevInfo_GetParameter - Get a Device Information parameter.

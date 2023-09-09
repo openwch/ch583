@@ -92,7 +92,7 @@ static void tm_attr_get(struct bt_mesh_model   *model,
     {
         case ALI_GEN_ATTR_TYPE_RGBCOLOR:
         {
-            gen_led_color_get(model, ctx, buf);
+//            gen_led_color_get(model, ctx, buf);
             break;
         }
 
@@ -131,7 +131,7 @@ static void tm_attr_set(struct bt_mesh_model   *model,
 
     switch(attr_type)
     {
-        case ALI_GEN_ATTR_TYPE_LIGHTCOLOR_ADJ:
+        case ALI_GEN_ATTR_TYPE_COLOR:
         {
             gen_led_color_set(model, ctx, buf);
             break;
@@ -173,7 +173,7 @@ static void tm_attr_set_unack(struct bt_mesh_model   *model,
     {
         case ALI_GEN_ATTR_TYPE_RGBCOLOR:
         {
-            gen_led_color_set_unack(model, ctx, buf);
+//            gen_led_color_set_unack(model, ctx, buf);
             break;
         }
 
@@ -626,7 +626,7 @@ void send_led_indicate(struct indicate_param *param)
 void send_led_color_indicate(struct indicate_param *param)
 {
     struct bt_mesh_indicate *ind;
-    uint32_t                 color;
+    uint8_t                 color[6];
 
     ind = bt_mesh_ind_alloc(32);
     if(!ind)
@@ -643,11 +643,11 @@ void send_led_color_indicate(struct indicate_param *param)
     net_buf_simple_add_u8(&(ind->buf->b), param->tid);
 
     /* Add led_color attrbute opcode */
-    net_buf_simple_add_le16(&(ind->buf->b), ALI_GEN_ATTR_TYPE_LIGHTCOLOR_ADJ);
+    net_buf_simple_add_le16(&(ind->buf->b), ALI_GEN_ATTR_TYPE_COLOR);
 
     /* Add led_color status  */
-    read_led_color(&color);
-    net_buf_simple_add_le32(&(ind->buf->b), color);
+    read_led_color(color);
+    net_buf_simple_add_mem(&(ind->buf->b), color, 6);
 
     bt_mesh_indicate_send(ind);
 }

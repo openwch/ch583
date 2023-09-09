@@ -36,8 +36,6 @@ SECTIONS
         *(.vector);
 		KEEP(*(SORT_NONE(.vector_handler)))
 		. = ALIGN(4);
-		KEEP(*(wch_user_vectors))
-		. = ALIGN(4);
         *(.highcode);
         *(.highcode.*);
 		. = ALIGN(4); 

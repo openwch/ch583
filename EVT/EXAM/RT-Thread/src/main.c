@@ -152,6 +152,7 @@ void GPIOA_IRQHandler(void)
 {
     /* 本函数可以作为在本工程rt-thread nano中的中断函数写法示例 */
     uint16_t flag;
+
     flag = GPIOA_ReadITFlagPort();
     if((flag & GPIO_Pin_12) != 0)
     {
