@@ -59,7 +59,7 @@ void App_Printf(const char *fmt, ...)
                                   v_args);
     va_end(v_args);
 
-    /* 互斥量操作，不可在中断中使用 */
+    /* 互斥量操作，不可在中断中使用，也不可删除该互斥量操作 */
     xSemaphoreTake(printMutex, portMAX_DELAY);
     printf("%s", buf_str);
     xSemaphoreGive(printMutex);

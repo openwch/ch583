@@ -36,10 +36,10 @@
 #define DEFAULT_SCAN_DURATION               2400
 
 // Connection min interval in 1.25ms
-#define DEFAULT_MIN_CONNECTION_INTERVAL     7
+#define DEFAULT_MIN_CONNECTION_INTERVAL     10
 
 // Connection max interval in 1.25ms
-#define DEFAULT_MAX_CONNECTION_INTERVAL     7
+#define DEFAULT_MAX_CONNECTION_INTERVAL     10
 
 // Connection supervision timeout in 10ms
 #define DEFAULT_CONNECTION_TIMEOUT          100
@@ -63,10 +63,10 @@
 #define DEFAULT_RSSI_PERIOD                 2400
 
 // Minimum connection interval (units of 1.25ms)
-#define DEFAULT_UPDATE_MIN_CONN_INTERVAL    20
+#define DEFAULT_UPDATE_MIN_CONN_INTERVAL    10
 
 // Maximum connection interval (units of 1.25ms)
-#define DEFAULT_UPDATE_MAX_CONN_INTERVAL    20
+#define DEFAULT_UPDATE_MAX_CONN_INTERVAL    10
 
 // Slave latency to use parameter update
 #define DEFAULT_UPDATE_SLAVE_LATENCY        0
@@ -160,7 +160,7 @@ static uint8_t centralRssi = FALSE;
 static uint8_t centralParamUpdate = FALSE;
 
 // Phy update state
-static uint8 centralPhyUpdate = TRUE;
+static uint8_t centralPhyUpdate = TRUE;
 
 // Connection handle of current connection
 static uint16_t centralConnHandle = GAP_CONNHANDLE_INIT;

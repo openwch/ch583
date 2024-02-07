@@ -1,8 +1,8 @@
  /********************************** (C) COPYRIGHT  *******************************
  * File Name          : cpuport.c
  * Author             : WCH
- * Version            : V1.0.0
- * Date               : 2022/05/12
+ * Version            : V1.0.1
+ * Date               : 2023/08/16
  * Description        : WCH Qingke V4A cpu port for rt-thread
  *********************************************************************************
  * Copyright (c) 2021 Nanjing Qinheng Microelectronics Co., Ltd.
@@ -25,6 +25,7 @@ struct rt_hw_stack_frame
 {
     rt_ubase_t epc;        /* epc - epc    - program counter                     */
     rt_ubase_t ra;         /* x1  - ra     - return address for jumps            */
+    rt_ubase_t tp;         /* x4  - tp     - thread pointer                      */
     rt_ubase_t t0;         /* x5  - t0     - temporary register 0                */
     rt_ubase_t t1;         /* x6  - t1     - temporary register 1                */
     rt_ubase_t t2;         /* x7  - t2     - temporary register 2                */
@@ -52,6 +53,8 @@ struct rt_hw_stack_frame
     rt_ubase_t t4;         /* x29 - t4     - temporary register 4                */
     rt_ubase_t t5;         /* x30 - t5     - temporary register 5                */
     rt_ubase_t t6;         /* x31 - t6     - temporary register 6                */
+    rt_ubase_t mstatus;    /*              - machine status register, not used, just for keep sizeof rt_hw_stack_frame is 32.   */
+    rt_ubase_t gp;         /* x3  - gp     - global pointer, not used, just for keep sizeof rt_hw_stack_frame is 32.            */
 };
 
 /*
@@ -121,83 +124,5 @@ void rt_hw_cpu_shutdown(void)
     while (level)
     {
         RT_ASSERT(0);
-    }
-}
-
-
-extern void SysTick_Handler(void);
-extern void TMR0_IRQHandler(void);
-extern void GPIOA_IRQHandler(void);
-extern void GPIOB_IRQHandler(void);
-extern void SPI0_IRQHandler(void);
-extern void BB_IRQHandler(void);
-extern void LLE_IRQHandler(void);
-extern void USB_IRQHandler(void);
-extern void TMR1_IRQHandler(void);
-extern void TMR2_IRQHandler(void);
-extern void UART0_IRQHandler(void);
-extern void UART1_IRQHandler(void);
-extern void RTC_IRQHandler(void);
-extern void ADC_IRQHandler(void);
-extern void PWMX_IRQHandler(void);
-extern void TMR3_IRQHandler(void);
-extern void UART2_IRQHandler(void);
-extern void UART3_IRQHandler(void);
-extern void WDOG_BAT_IRQHandler(void);
-
-typedef void (*user_irq_handler_t)(void);
-
-__attribute__((section("wch_user_vectors")))
-user_irq_handler_t wch_user_irq_table[] =
-{
-   0,
-   0,
-   0,
-   0,
-   0,
-   0,
-   0,
-   0,
-   0,
-   0,
-   0,
-   0,
-   SysTick_Handler,             /* SysTick Handler */
-   0,
-   0,                           /* SW Handler */
-   0,
-  /* External Interrupts */
-   TMR0_IRQHandler   ,          /* 0:  TMR0 */
-   GPIOA_IRQHandler,            /* GPIOA */
-   GPIOB_IRQHandler ,           /* GPIOB */
-   SPI0_IRQHandler  ,           /* SPI0 */
-   BB_IRQHandler   ,            /* BLEB */
-   LLE_IRQHandler ,             /* BLEL */
-   USB_IRQHandler  ,            /* USB */
-   0,
-   TMR1_IRQHandler ,            /* TMR1 */
-   TMR2_IRQHandler,             /* TMR2 */
-   UART0_IRQHandler ,           /* UART0 */
-   UART1_IRQHandler,            /* UART1 */
-   RTC_IRQHandler,              /* RTC */
-   ADC_IRQHandler,              /* ADC */
-   0,
-   PWMX_IRQHandler,             /* PWMX */
-   TMR3_IRQHandler,             /* TMR3 */
-   UART2_IRQHandler,            /* UART2 */
-   UART3_IRQHandler,            /* UART3 */
-   WDOG_BAT_IRQHandler,         /* WDOG_BAT */
-};
-
-__attribute__((section(".highcode")))
-void user_interrupt_handler(uint32_t mcause)
-{
-    uint32_t irq_num;
-    irq_num = mcause & 0x7f;
-    if(wch_user_irq_table[irq_num] != NULL)
-    {
-        rt_interrupt_enter();
-        wch_user_irq_table[irq_num]();
-        rt_interrupt_leave();
     }
 }

@@ -1,8 +1,8 @@
  /********************************** (C) COPYRIGHT  *******************************
  * File Name          : context_gcc.S
  * Author             : WCH
- * Version            : V1.0.0
- * Date               : 2022/05/12
+ * Version            : V1.0.1
+ * Date               : 2023/08/16
  * Description        : WCH Qingke V4A context gcc for rt-thread
  *********************************************************************************
  * Copyright (c) 2021 Nanjing Qinheng Microelectronics Co., Ltd.
@@ -20,7 +20,7 @@
 /*
  * rt_base_t rt_hw_interrupt_disable(void);
  */
-.section	.highcode,"ax",@progbits
+.section	.highcode.rt_hw_interrupt_disable,"ax",@progbits
 .align 2
 .func
 rt_hw_interrupt_disable:
@@ -33,7 +33,7 @@ rt_hw_interrupt_disable:
 /*
  * void rt_hw_interrupt_enable(rt_base_t level);
  */
-.section	.highcode,"ax",@progbits
+.section	.highcode.rt_hw_interrupt_enable,"ax",@progbits
 .align 2
 .func
 rt_hw_interrupt_enable:
@@ -41,7 +41,7 @@ rt_hw_interrupt_enable:
     ret
     .endfunc
 
-.section	.highcode,"ax",@progbits
+.section	.highcode.rt_hw_context_switch_to,"ax",@progbits
 .align 2
 .func
 rt_hw_context_switch_to:
@@ -59,44 +59,45 @@ rt_hw_context_switch_to:
  * a0 --> from
  * a1 --> to
  */
-.section	.highcode,"ax",@progbits
+.section	.highcode.rt_hw_context_switch,"ax",@progbits
 .align 2
 .func
 rt_hw_context_switch:
 	/* switch in thread */
-	addi sp, sp, -29 * 4
+	addi sp, sp, -32 * 4
 	/* save from sp */
 	sw sp, 	(a0)
 	/* save ra to epc */
 	sw x1, 0 * 4(sp)
 	sw x1, 1 * 4( sp )
-	sw x5, 2 * 4( sp )
-	sw x6, 3 * 4( sp )
-	sw x7, 4 * 4( sp )
-	sw x8, 5 * 4( sp )
-	sw x9, 6 * 4( sp )
-	sw x10, 7 * 4( sp )
-	sw x11, 8 * 4( sp )
-	sw x12, 9 * 4( sp )
-	sw x13, 10 * 4( sp )
-	sw x14, 11 * 4( sp )
-	sw x15, 12 * 4( sp )
-	sw x16, 13 * 4( sp )
-	sw x17, 14 * 4( sp )
-	sw x18, 15 * 4( sp )
-	sw x19, 16 * 4( sp )
-	sw x20, 17 * 4( sp )
-	sw x21, 18 * 4( sp )
-	sw x22, 19 * 4( sp )
-	sw x23, 20 * 4( sp )
-	sw x24, 21 * 4( sp )
-	sw x25, 22 * 4( sp )
-	sw x26, 23 * 4( sp )
-	sw x27, 24 * 4( sp )
-	sw x28, 25 * 4( sp )
-	sw x29, 26 * 4( sp )
-	sw x30, 27 * 4( sp )
-	sw x31, 28 * 4( sp )
+	sw x4, 2 * 4( sp )
+	sw x5, 3 * 4( sp )
+	sw x6, 4 * 4( sp )
+	sw x7, 5 * 4( sp )
+	sw x8, 6 * 4( sp )
+	sw x9, 7 * 4( sp )
+	sw x10, 8 * 4( sp )
+	sw x11, 9 * 4( sp )
+	sw x12, 10 * 4( sp )
+	sw x13, 11 * 4( sp )
+	sw x14, 12 * 4( sp )
+	sw x15, 13 * 4( sp )
+	sw x16, 14 * 4( sp )
+	sw x17, 15 * 4( sp )
+	sw x18, 16 * 4( sp )
+	sw x19, 17 * 4( sp )
+	sw x20, 18 * 4( sp )
+	sw x21, 19 * 4( sp )
+	sw x22, 20 * 4( sp )
+	sw x23, 21 * 4( sp )
+	sw x24, 22 * 4( sp )
+	sw x25, 23 * 4( sp )
+	sw x26, 24 * 4( sp )
+	sw x27, 25 * 4( sp )
+	sw x28, 26 * 4( sp )
+	sw x29, 27 * 4( sp )
+	sw x30, 28 * 4( sp )
+	sw x31, 29 * 4( sp )
 
 	/* get "to" thread sp */
 	lw  sp,  0(a1)
@@ -104,7 +105,7 @@ rt_hw_context_switch:
 	.endfunc
 
 
-.section	.highcode,"ax",@progbits
+.section	.highcode.rt_hw_context_switch_exit,"ax",@progbits
 .align 2
 .func
 rt_hw_context_switch_exit:
@@ -114,34 +115,37 @@ rt_hw_context_switch_exit:
     csrw mepc, a0
 
 	lw x1, 1 * 4( sp )
-	lw x5, 2 * 4( sp )
-	lw x6, 3 * 4( sp )
-	lw x7, 4 * 4( sp )
-	lw x8, 5 * 4( sp )
-	lw x9, 6 * 4( sp )
-	lw x10, 7 * 4( sp )
-	lw x11, 8 * 4( sp )
-	lw x12, 9 * 4( sp )
-	lw x13, 10 * 4( sp )
-	lw x14, 11 * 4( sp )
-	lw x15, 12 * 4( sp )
-	lw x16, 13 * 4( sp )
-	lw x17, 14 * 4( sp )
-	lw x18, 15 * 4( sp )
-	lw x19, 16 * 4( sp )
-	lw x20, 17 * 4( sp )
-	lw x21, 18 * 4( sp )
-	lw x22, 19 * 4( sp )
-	lw x23, 20 * 4( sp )
-	lw x24, 21 * 4( sp )
-	lw x25, 22 * 4( sp )
-	lw x26, 23 * 4( sp )
-	lw x27, 24 * 4( sp )
-	lw x28, 25 * 4( sp )
-	lw x29, 26 * 4( sp )
-	lw x30, 27 * 4( sp )
-	lw x31, 28 * 4( sp )
+	lw x4, 2 * 4( sp )
+	lw x5, 3 * 4( sp )
+	lw x6, 4 * 4( sp )
+	lw x7, 5 * 4( sp )
+	lw x8, 6 * 4( sp )
+	lw x9, 7 * 4( sp )
+	lw x10, 8 * 4( sp )
+	lw x11, 9 * 4( sp )
+	lw x12, 10 * 4( sp )
+	lw x13, 11 * 4( sp )
+	lw x14, 12 * 4( sp )
+	lw x15, 13 * 4( sp )
+	lw x16, 14 * 4( sp )
+	lw x17, 15 * 4( sp )
+	lw x18, 16 * 4( sp )
+	lw x19, 17 * 4( sp )
+	lw x20, 18 * 4( sp )
+	lw x21, 19 * 4( sp )
+	lw x22, 20 * 4( sp )
+	lw x23, 21 * 4( sp )
+	lw x24, 22 * 4( sp )
+	lw x25, 23 * 4( sp )
+	lw x26, 24 * 4( sp )
+	lw x27, 25 * 4( sp )
+	lw x28, 26 * 4( sp )
+	lw x29, 27 * 4( sp )
+	lw x30, 28 * 4( sp )
+	lw x31, 29 * 4( sp )
 
-    addi sp,  sp, 29 * 4
+    addi sp,  sp, 32 * 4
 
     mret
+
+	.endfunc

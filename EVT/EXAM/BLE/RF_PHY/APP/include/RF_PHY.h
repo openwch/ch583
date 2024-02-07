@@ -10,8 +10,8 @@
  * microcontroller manufactured by Nanjing Qinheng Microelectronics.
  *******************************************************************************/
 
-#ifndef CENTRAL_H
-#define CENTRAL_H
+#ifndef RF_PHY_H
+#define RF_PHY_H
 
 #ifdef __cplusplus
 extern "C" {

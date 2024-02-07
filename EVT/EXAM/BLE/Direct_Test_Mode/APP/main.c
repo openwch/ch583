@@ -16,6 +16,8 @@
 #include "HAL.h"
 #include "test_dtm.h"
 #include "uart.h"
+#include "app_usb.h"
+
 
 /*********************************************************************
  * GLOBAL TYPEDEFS
@@ -61,17 +63,25 @@ int main(void)
     GPIOB_ModeCfg(GPIO_Pin_All, GPIO_ModeIN_PU);
 #endif
 #ifdef DEBUG
+#if  DEBUG == 0     // 0为默认UART0打印，UART1为测试(在工程配置中修改DEBUG)
+    GPIOB_SetBits(bTXD0);
+    GPIOB_ModeCfg(bTXD0, GPIO_ModeOut_PP_5mA);
+    UART0_DefInit();
+#elif DEBUG == 1
     GPIOA_SetBits(bTXD1);
     GPIOA_ModeCfg(bTXD1, GPIO_ModeOut_PP_5mA);
     UART1_DefInit();
 #endif
+#endif
     PRINT("%s\n", VER_LIB);
     CH58X_BLEInit();
     HAL_Init();
-    uart_task_init();
     test_dtm_init();
     GAPRole_CentralInit();
+    uart_task_init();
+#if USB_UartEnable == 1
+    app_usb_init();
+#endif
     Main_Circulation();
 }
-
 /******************************** endfile @ main ******************************/

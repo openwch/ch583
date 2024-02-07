@@ -221,9 +221,6 @@ void Peripheral_Init()
         GAPRole_SetParameter(GAPROLE_ADVERT_DATA, sizeof(advertData), advertData);
     }
 
-    // Set the GAP Characteristics
-    GGS_SetParameter(GGS_DEVICE_NAME_ATT, GAP_DEVICE_NAME_LEN, attDeviceName);
-
     // Set advertising interval
     {
         uint16_t advInt = DEFAULT_ADVERTISING_INTERVAL;
@@ -236,6 +233,9 @@ void Peripheral_Init()
     GGS_AddService(GATT_ALL_SERVICES);         // GAP
     GATTServApp_AddService(GATT_ALL_SERVICES); // GATT attributes
     OTAProfile_AddService(GATT_ALL_SERVICES);
+
+    // Set the GAP Characteristics
+    GGS_SetParameter(GGS_DEVICE_NAME_ATT, sizeof(attDeviceName), attDeviceName);
 
     //  Register callback with OTAGATTprofile
     OTAProfile_RegisterAppCBs(&Peripheral_OTA_IAPProfileCBs);

@@ -139,6 +139,7 @@ static uint8_t attDeviceName[GAP_DEVICE_NAME_LEN] = "Simple Peripheral";
 // Connection item list
 static peripheralConnItem_t peripheralConnList;
 
+static uint8_t peripheralMTU = ATT_MTU_SIZE;
 /*********************************************************************
  * LOCAL FUNCTIONS
  */
@@ -172,7 +173,8 @@ static gapRolesBroadcasterCBs_t Broadcaster_BroadcasterCBs = {
 // GAP Bond Manager Callbacks
 static gapBondCBs_t Peripheral_BondMgrCBs = {
     NULL, // Passcode callback (not used by application)
-    NULL  // Pairing / Bonding state Callback (not used by application)
+    NULL, // Pairing / Bonding state Callback (not used by application)
+    NULL  // oob callback
 };
 
 // Simple GATT Profile Callbacks
@@ -215,9 +217,6 @@ void Peripheral_Init()
         GAPRole_SetParameter(GAPROLE_MAX_CONN_INTERVAL, sizeof(uint16_t), &desired_max_interval);
     }
 
-    // Set the GAP Characteristics
-    GGS_SetParameter(GGS_DEVICE_NAME_ATT, GAP_DEVICE_NAME_LEN, attDeviceName);
-
     {
         uint16_t advInt = DEFAULT_ADVERTISING_INTERVAL;
 
@@ -248,6 +247,9 @@ void Peripheral_Init()
     GATTServApp_AddService(GATT_ALL_SERVICES);   // GATT attributes
     DevInfo_AddService();                        // Device Information Service
     SimpleProfile_AddService(GATT_ALL_SERVICES); // Simple GATT Profile
+
+    // Set the GAP Characteristics
+    GGS_SetParameter(GGS_DEVICE_NAME_ATT, sizeof(attDeviceName), attDeviceName);
 
     // Setup the SimpleProfile Characteristic Values
     {
@@ -419,6 +421,19 @@ static void Peripheral_ProcessTMOSMsg(tmos_event_hdr_t *pMsg)
             break;
         }
 
+        case GATT_MSG_EVENT:
+        {
+            gattMsgEvent_t *pMsgEvent;
+
+            pMsgEvent = (gattMsgEvent_t *)pMsg;
+            if(pMsgEvent->method == ATT_MTU_UPDATED_EVENT)
+            {
+                peripheralMTU = pMsgEvent->msg.exchangeMTUReq.clientRxMTU;
+                PRINT("mtu exchange: %d\n", pMsgEvent->msg.exchangeMTUReq.clientRxMTU);
+            }
+            break;
+        }
+
         default:
             break;
     }
@@ -563,20 +578,27 @@ static void peripheralStateNotificationCB(gapRole_States_t newState, gapRoleEven
             {
                 Peripheral_LinkTerminated(pEvent);
                 PRINT("Disconnected.. Reason:%x\n", pEvent->linkTerminate.reason);
+                PRINT("Advertising..\n");
             }
-            PRINT("Advertising..\n");
+            else if(pEvent->gap.opcode == GAP_MAKE_DISCOVERABLE_DONE_EVENT)
+            {
+                PRINT("Advertising..\n");
+            }
             break;
 
         case GAPROLE_CONNECTED:
             if(pEvent->gap.opcode == GAP_LINK_ESTABLISHED_EVENT)
             {
                 Peripheral_LinkEstablished(pEvent);
+                PRINT("Connected..\n");
             }
-            PRINT("Connected..\n");
             break;
 
         case GAPROLE_CONNECTED_ADV:
-            PRINT("Connected Advertising..\n");
+            if(pEvent->gap.opcode == GAP_MAKE_DISCOVERABLE_DONE_EVENT)
+            {
+                PRINT("Connected Advertising..\n");
+            }
             break;
 
         case GAPROLE_WAITING:
@@ -648,12 +670,20 @@ static void performPeriodicTask(void)
 static void peripheralChar4Notify(uint8_t *pValue, uint16_t len)
 {
     attHandleValueNoti_t noti;
+    if(len > (peripheralMTU - 3))
+    {
+        PRINT("Too large noti\n");
+        return;
+    }
     noti.len = len;
     noti.pValue = GATT_bm_alloc(peripheralConnList.connHandle, ATT_HANDLE_VALUE_NOTI, noti.len, NULL, 0);
-    tmos_memcpy(noti.pValue, pValue, noti.len);
-    if(simpleProfile_Notify(peripheralConnList.connHandle, &noti) != SUCCESS)
+    if(noti.pValue)
     {
-        GATT_bm_free((gattMsg_t *)&noti, ATT_HANDLE_VALUE_NOTI);
+        tmos_memcpy(noti.pValue, pValue, noti.len);
+        if(simpleProfile_Notify(peripheralConnList.connHandle, &noti) != SUCCESS)
+        {
+            GATT_bm_free((gattMsg_t *)&noti, ATT_HANDLE_VALUE_NOTI);
+        }
     }
 }
 void Jump_OTA(void);

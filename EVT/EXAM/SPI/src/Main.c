@@ -53,16 +53,23 @@ int main()
     i = SPI0_MasterRecvByte();
     GPIOA_SetBits(GPIO_Pin_12);
     DelayMs(2);
+    PRINT("receive %x\n",i);
 
     // FIFO 连续发送
     GPIOA_ResetBits(GPIO_Pin_12);
-    SPI0_MasterTrans(spiBuff, 12);
+    SPI0_MasterTrans(spiBuff, 8);
     GPIOA_SetBits(GPIO_Pin_12);
     DelayMs(2);
     GPIOA_ResetBits(GPIO_Pin_12);
-    SPI0_MasterRecv(spiBuffrev, 12);
+    SPI0_MasterRecv(spiBuffrev, 8);
     GPIOA_SetBits(GPIO_Pin_12);
     DelayMs(2);
+    PRINT("FIFO recv ");
+    for(i = 0; i < 8; i++)
+    {
+        PRINT(" %x", spiBuffrev[i]);
+    }
+    PRINT("\n");
 
     // DMA 连续发送
     GPIOA_ResetBits(GPIO_Pin_12);
@@ -72,7 +79,12 @@ int main()
     GPIOA_ResetBits(GPIO_Pin_12);
     SPI0_MasterDMARecv(spiBuffrev, 12);
     GPIOA_SetBits(GPIO_Pin_12);
-
+    PRINT("DMA recv ");
+    for(i = 0; i < 12; i++)
+    {
+        PRINT(" %x", spiBuffrev[i]);
+    }
+    PRINT("\n");
   #else
     /* SPI 1 仅CH583支持*/
     GPIOA_SetBits(GPIO_Pin_3);
@@ -120,11 +132,26 @@ int main()
     SPI0_SlaveInit();
     i = SPI0_SlaveRecvByte();
     SPI0_SlaveSendByte(~i);
+    PRINT("receive %x\n",i);
 
-    SPI0_SlaveRecv(spiBuffrev, 12);
-    SPI0_SlaveTrans(spiBuffrev, 12);
+    SPI0_SlaveRecv(spiBuffrev, 8);
+    SPI0_SlaveTrans(spiBuffrev, 8);
+    PRINT("FIFO recv ");
+    for(i = 0; i < 8; i++)
+    {
+        PRINT(" %x", spiBuffrev[i]);
+    }
+    PRINT("\n");
+
     SPI0_SlaveDMARecv(spiBuffrev, 12);
     SPI0_SlaveDMATrans(spiBuffrev, 12);
+    PRINT("DMA recv ");
+    for(i = 0; i < 12; i++)
+    {
+        PRINT(" %x", spiBuffrev[i]);
+    }
+    PRINT("\n");
+
     PRINT("END ...\n");
 
     while(1);

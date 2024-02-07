@@ -67,8 +67,8 @@
 								<option id="ilg.gnumcueclipse.managedbuild.cross.riscv.option.c.compiler.std.2020844713" name="Language standard" superClass="ilg.gnumcueclipse.managedbuild.cross.riscv.option.c.compiler.std" useByScannerDiscovery="true" value="ilg.gnumcueclipse.managedbuild.cross.riscv.option.c.compiler.std.gnu99" valueType="enumerated"/>
 								<option IS_BUILTIN_EMPTY="false" IS_VALUE_EMPTY="false" id="ilg.gnumcueclipse.managedbuild.cross.riscv.option.c.compiler.defs.177116515" name="Defined symbols (-D)" superClass="ilg.gnumcueclipse.managedbuild.cross.riscv.option.c.compiler.defs" useByScannerDiscovery="true" valueType="definedSymbols">
 									<listOptionValue builtIn="false" value="DEBUG=1"/>
-									<listOptionValue builtIn="false" value="BLE_TX_NUM_EVENT=5"/>
-									<listOptionValue builtIn="false" value="BLE_BUFF_NUM=10"/>
+									<listOptionValue builtIn="false" value="BLE_TX_NUM_EVENT=8"/>
+									<listOptionValue builtIn="false" value="BLE_BUFF_NUM=20"/>
 									<listOptionValue builtIn="false" value="CLK_OSC32K=0"/>
 									<listOptionValue builtIn="false" value="BLE_BUFF_MAX_LEN=251"/>
 								</option>
@@ -158,5 +158,4 @@
 	</storageModule>
 	<storageModule moduleId="org.eclipse.cdt.core.LanguageSettingsProviders"/>
 	<storageModule moduleId="org.eclipse.cdt.make.core.buildtargets"/>
-	
 </cproject>

@@ -19,7 +19,7 @@
 #define        APP_CODE_END_ADDR          0x00070000
 
 
-#define     USE_EEPROM_FLAG     1
+#define     USE_EEPROM_FLAG     0
 
 #define    jumpApp   ((  void  (*)  ( void ))  ((int*)APP_CODE_START_ADDR))
 

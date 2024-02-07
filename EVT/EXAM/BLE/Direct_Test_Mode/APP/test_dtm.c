@@ -26,20 +26,38 @@ tmosTaskID test_taskid = INVALID_TASK_ID;
  *
  * @return  none
  */
-static void test_dtm_process_msg(tmos_event_hdr_t *pMsg) {
-    switch (pMsg->event) {
-    case UART_PROCESS_EVT:{
-        struct simple_buf *evt = NULL;
-        struct uart_process_msg *msg = \
-            (struct uart_process_msg *)pMsg; 
+static void test_dtm_process_msg(tmos_event_hdr_t *pMsg)
+{
+    switch (pMsg->event)
+    {
+        case UART_PROCESS_EVT:
+        {
+            struct simple_buf *evt = NULL;
+            struct uart_process_msg *msg = \
+                (struct uart_process_msg *)pMsg;
 
-        evt = hci_cmd_handle((struct simple_buf*)msg->data);
+            evt = hci_cmd_handle((struct simple_buf*)msg->data);
 
-        if(evt)
+            if(evt)
             uart_send(evt);
 
-        uart_start_receiving();
-    }
+            uart_start_receiving();
+        }
+        break;
+
+        case USB_PROCESS_EVT:
+        {
+            struct simple_buf *evt = NULL;
+            struct usb_process_msg *msg = \
+                (struct usb_process_msg *)pMsg;
+
+            evt = hci_cmd_handle((struct simple_buf*)msg->data);
+
+            if(evt)
+            usb_send(evt);
+
+            usb_start_receiving();
+        }
         break;
 
     default:

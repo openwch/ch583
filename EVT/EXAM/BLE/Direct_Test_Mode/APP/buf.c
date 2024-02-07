@@ -18,6 +18,18 @@
 #else
 #define SIMPLE_BUF_DBG(...)
 #endif
+
+/*********************************************************************
+ * @fn      simple_buf_create
+ *
+ * @brief   Create a simple_buf structure object.
+ *
+ * @param   buf    -   defined simple_buf structural object.
+ *          buf_pool  - a pointer to the buffer where data is stored.
+ *          pool_size - the size of the buffer.
+ *
+ * @return  none
+ */
 struct simple_buf *simple_buf_create(struct simple_buf *buf, 
             uint8_t *buf_pool, uint16_t pool_size)
 {
@@ -29,13 +41,24 @@ struct simple_buf *simple_buf_create(struct simple_buf *buf,
     return buf;
 }
 
+/*********************************************************************
+ * @fn      simple_buf_add
+ *
+ * @brief   Add data to the buf object.
+ *
+ * @param   buf  -  defined simple_buf structural object.
+ *          len  -  length of the data to be added.
+ *
+ * @return  none
+ */
 void *simple_buf_add(struct simple_buf *buf, size_t len)
 {
 	uint8_t *tail = buf->data + buf->len;
 
     SIMPLE_BUF_DBG("buf %p add len %ld\n", buf, len);
 
-    if((buf->size - (buf->data - buf->__buf) - buf->len) < len) {
+    if((buf->size - (buf->data - buf->__buf) - buf->len) < len)
+    {
         SIMPLE_BUF_DBG("simple_buf_add: no memory\n");
         while(1);
     }
@@ -45,13 +68,24 @@ void *simple_buf_add(struct simple_buf *buf, size_t len)
     return tail;
 }
 
+/*********************************************************************
+ * @fn      simple_buf_pull
+ *
+ * @brief   pull data from the buf object.
+ *
+ * @param   buf  -  defined simple_buf structural object.
+ *          len  -  The length of data to be retrieved.
+ *
+ * @return  none
+ */
 void *simple_buf_pull(struct simple_buf *buf, size_t len)
 {
 	void *data = buf->data;
 
     SIMPLE_BUF_DBG("buf %p pull len %ld\n", buf, len);
 
-    if(buf->len < len) {
+    if(buf->len < len)
+    {
         SIMPLE_BUF_DBG("simple_buf_pull: no data\n");
         while(1);
     }
@@ -62,6 +96,17 @@ void *simple_buf_pull(struct simple_buf *buf, size_t len)
 	return data;
 }
 
+/*********************************************************************
+ * @fn      simple_buf_add_mem
+ *
+ * @brief   Add a segment of memory data to the buf object.
+ *
+ * @param   buf  -  defined simple_buf structural object.
+ *          mem  -  a pointer to the memory data to be added.
+ *          len  -  the length of the data to be added.
+ *
+ * @return  The function returns a pointer to the starting position of the added data.
+ */
 void *simple_buf_add_mem(struct simple_buf *buf, const void *mem,
 			     size_t len)
 {
@@ -70,6 +115,16 @@ void *simple_buf_add_mem(struct simple_buf *buf, const void *mem,
 	return memcpy(simple_buf_add(buf, len), mem, len);
 }
 
+/*********************************************************************
+ * @fn      simple_buf_add_u8
+ *
+ * @brief   Add an 8-bit unsigned integer to the buf object.
+ *
+ * @param   buf  -  defined simple_buf structural object.
+ *          val  -  the 8-bit unsigned integer to be added.
+ *
+ * @return  The function returns a pointer to the starting position of the added data.
+ */
 uint8_t *simple_buf_add_u8(struct simple_buf *buf, uint8_t val)
 {
 	uint8_t *u8;

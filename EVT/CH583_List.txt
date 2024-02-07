@@ -1,5 +1,5 @@
 
-南京沁恒微电子股份有限公司 2022.03
+南京沁恒微电子股份有限公司 2024.01
 最新资料请到我们的网站上查询
 http://wch.cn
 
@@ -7,7 +7,6 @@ http://wch.cn
 文件目录
   |
   |-- CH583: 低功耗蓝牙 - 32位RISC-V内核微控制器
-  |      |-- CH583安卓OTA升级工具V1.1: CH583 OTA相关例程配套APP升级工具及源码,OTA升级说明文档及合并工具
   |      |-- EVT: CH583相关例程
   |      |      |-- EXAM: 
   |      |      |      |-- SRC  
@@ -18,6 +17,7 @@ http://wch.cn
   |      |      |      |-- ADC：adc采样例程，包括温度检测、单通道检测、差分通道检测、TouchKey检测、中断方式采样
   |      |      |      |-- FLASH：片上flash例程：包括Code区，DataFlash区的擦/读/写
   |      |      |      |-- FreeRTOS：FreeRTOS移植例程
+  |      |      |      |-- HarmonyOS：HarmonyOS移植例程
   |      |      |      |-- I2C：I2C例程，Master/Slave 模式数据收发，详细说明参考根目录<I2C接口使用指南.PDF>文档
   |      |      |      |-- IAP
   |      |      |      |      |-- APP：和IAP配套使用的APP程序例程
@@ -72,15 +72,15 @@ http://wch.cn
   |      |      |      |      |      |-- adv_ali_light_multi_element：多元素天猫精灵风扇灯例程。同时包含风扇开关摇头和灯开关颜色控制。用于对照原天猫精灵灯例程，快速熟悉添加多个属性的方法。
   |      |      |      |      |      |-- adv_ali_light_with_peripheral：天猫精灵灯例程的基础上，添加亮度和色温控制，并支持手机BLE调试助手连接控制。
   |      |      |      |      |      |-- adv_proxy：代理节点例程，可通过PB_GATT层（BLE连接）进行配网。
-  |      |      |      |      |      |-- adv_vendor：厂商自定义模型例程，配合self_provisioner_vendor使用，支持有应答传输和无应答透传两种通信属性，自行拟定通信协议。
+  |      |      |      |      |      |-- adv_vendor：厂商自定义模型例程，配合provisioner_vendor使用，支持有应答传输和无应答透传两种通信属性，自行拟定通信协议。
   |      |      |      |      |      |-- adv_vendor_friend：厂商自定义模型例程的基础上，支持朋友节点功能
   |      |      |      |      |      |-- adv_vendor_low_power：厂商自定义模型例程的基础上，支持低功耗节点功能，需与朋友节点配合使用
   |      |      |      |      |      |-- adv_vendor_self_provision：厂商自定义模型例程的基础上，支持本地自配网，适配无配网者或简化配网流程等特殊应用场景
   |      |      |      |      |      |-- adv_vendor_self_provision_IAP：MESH备份无线升级IAP例程，检测当前代码标志，判断是否搬运备份区代码到用户区并运行用户区代码
   |      |      |      |      |      |-- adv_vendor_self_provision_JumpIAP：MESH备份无线升级跳转IAP例程，放在代码起始地址，负责跳转到IAP程序
   |      |      |      |      |      |-- adv_vendor_self_provision_with_peripheral：MESH备份无线升级用户例程，厂商自定义模型例程的基础上，支持手机BLE调试助手连接控制，通过BLE接收配网信息并将自身配网，适用于终端控制组网应用，可自行拟定通信协议实现手机控制mesh网络中所有设备。
-  |      |      |      |      |      |-- self_provisioner_vendor：厂商自定义模型自配网发起者例程，配合adv_vendor使用，自动配网周围未配网设备，并将其加入自身mesh网络，默认支持配网6个设备。默认配置设备绑定1个APPKEY,用于有应答传输和无应答透传，配置设备绑定1个订阅地址，用于群发无应答消息
-  |      |      |      |      |      |-- self_provisioner_vendor_with_peripheral：厂商自定义模型自配网发起者例程的基础上，支持手机BLE调试助手连接控制，中转手机与mesh网络的通信，可自行拟定通信协议实现手机控制mesh网络中所有设备。
+  |      |      |      |      |      |-- provisioner_vendor：厂商自定义模型自配网发起者例程，配合adv_vendor使用，自动配网周围未配网设备，并将其加入自身mesh网络，默认支持配网6个设备。默认配置设备绑定1个APPKEY,用于有应答传输和无应答透传，配置设备绑定1个订阅地址，用于群发无应答消息
+  |      |      |      |      |      |-- provisioner_vendor_with_peripheral：厂商自定义模型自配网发起者例程的基础上，支持手机BLE调试助手连接控制，中转手机与mesh网络的通信，可自行拟定通信协议实现手机控制mesh网络中所有设备。
   |      |      |      |      |      |-- MESH_LIB：MESH协议栈库文件及其头文件
   |      |      |      |      |      |-- 沁恒MESH APP管理配网应用手册.pdf
   |      |      |      |      |      |-- 沁恒低功耗蓝牙MESH软件开发参考手册.pdf

@@ -154,7 +154,7 @@ static void simpleProfileChangeCB(uint8_t paramID, uint8_t *pValue, uint16_t len
 static void peripheralParamUpdateCB(uint16_t connHandle, uint16_t connInterval,
                                     uint16_t connSlaveLatency, uint16_t connTimeout);
 static void peripheralInitConnItem(uint8_t task_id, peripheralConnItem_t *peripheralConnList);
-static void peripheralRssiCB(uint16_t connHandle, int8 rssi);
+static void peripheralRssiCB(uint16_t connHandle, int8_t rssi);
 static void peripheralChar4Notify(uint16_t connHandle, uint8_t *pValue, uint16_t len);
 
 static uint16_t connect0_ProcessEvent(uint8_t task_id, uint16_t events);
@@ -181,7 +181,8 @@ static gapRolesBroadcasterCBs_t Broadcaster_BroadcasterCBs = {
 // GAP Bond Manager Callbacks
 static gapBondCBs_t Peripheral_BondMgrCBs = {
     NULL, // Passcode callback (not used by application)
-    NULL  // Pairing / Bonding state Callback (not used by application)
+    NULL, // Pairing / Bonding state Callback (not used by application)
+    NULL  // oob callback
 };
 
 // Simple GATT Profile Callbacks
@@ -225,9 +226,6 @@ void Peripheral_Init()
         GAPRole_SetParameter(GAPROLE_MAX_CONN_INTERVAL, sizeof(uint16_t), &desired_max_interval);
     }
 
-    // Set the GAP Characteristics
-    GGS_SetParameter(GGS_DEVICE_NAME_ATT, GAP_DEVICE_NAME_LEN, attDeviceName);
-
     {
         uint16_t advInt = DEFAULT_ADVERTISING_INTERVAL;
 
@@ -258,6 +256,9 @@ void Peripheral_Init()
     GATTServApp_AddService(GATT_ALL_SERVICES);   // GATT attributes
     DevInfo_AddService();                        // Device Information Service
     SimpleProfile_AddService(GATT_ALL_SERVICES); // Simple GATT Profile
+
+    // Set the GAP Characteristics
+    GGS_SetParameter(GGS_DEVICE_NAME_ATT, sizeof(attDeviceName), attDeviceName);
 
     // Setup the SimpleProfile Characteristic Values
     {
@@ -724,7 +725,7 @@ static void Peripheral_LinkTerminated(gapRoleEvent_t *pEvent)
  *
  * @return  none
  */
-static void peripheralRssiCB(uint16_t connHandle, int8 rssi)
+static void peripheralRssiCB(uint16_t connHandle, int8_t rssi)
 {
     PRINT("RSSI -%d dB Conn  %x \n", -rssi, connHandle);
 }

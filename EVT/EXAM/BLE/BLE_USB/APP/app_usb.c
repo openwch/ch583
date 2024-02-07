@@ -20,6 +20,7 @@
 #include "ble_usb_service.h"
 #include "app_usb.h"
 #include "peripheral.h"
+#include "RingMem.h"
 
 /*********************************************************************
  * MACROS
@@ -49,7 +50,7 @@ const uint8_t MyLangDescr[] = { 0x04, 0x03, 0x09, 0x04 };
 // 厂家信息
 const uint8_t MyManuInfo[] = { 0x0E, 0x03, 'w', 0, 'c', 0, 'h', 0, '.', 0, 'c', 0, 'n', 0 };
 // 产品信息
-const uint8_t MyProdInfo[] = { 0x0C, 0x03, 'C', 0, 'H', 0, '5', 0, '7', 0, 'x', 0 };
+const uint8_t MyProdInfo[] = { 0x0C, 0x03, 'C', 0, 'H', 0, '5', 0, '8', 0, 'x', 0 };
 /*产品描述符*/
 const uint8_t StrDesc[28] =
 {
@@ -102,10 +103,24 @@ void app_usb_init()
  *
  * @return  none
  */
-void USBSendData( uint8_t *SendBuf, uint8_t l)
+uint8_t USBSendData(void)
 {
-   memcpy(pEP2_IN_DataBuf,SendBuf,l);
-   DevEP2_IN_Deal( l );
+    if((R8_UEP2_CTRL & MASK_UEP_T_RES) == UEP_T_RES_ACK)
+    {
+        return FAILURE;
+    }
+    if(RingMemBLE.CurrentLen > 32)
+    {
+        RingMemRead(&RingMemBLE, pEP2_IN_DataBuf, 32);
+        DevEP2_IN_Deal(32);
+    }
+    else
+    {
+        uint8_t len = RingMemBLE.CurrentLen;
+        RingMemRead(&RingMemBLE, pEP2_IN_DataBuf, len);
+        DevEP2_IN_Deal(len);
+    }
+    return SUCCESS;
 }
 
 /*********************************************************************
@@ -128,9 +143,12 @@ void DevEP1_OUT_Deal( uint8_t l )
  */
 void DevEP2_OUT_Deal( uint8_t l )
 { /* 用户可自定义 */
-  uint8_t i;
+    if(RingMemWrite(&RingMemUSB, pEP2_OUT_DataBuf, l) != SUCCESS)
+    {
+        PRINT("RingMemBLE ERR \n");
+    }
+    tmos_start_task(Peripheral_TaskID, SBP_PROCESS_USBDATA_EVT, 32);
 
-  app_usb_notify(pEP2_OUT_DataBuf, l);
 }
 
 /*********************************************************************

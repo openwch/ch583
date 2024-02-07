@@ -61,7 +61,7 @@
 #define DEFAULT_DESIRED_CONN_TIMEOUT         1000
 
 // Sensor sends a slave security request.
-#define DEFAULT_PAIRING_PARAMETER            GAPBOND_PAIRING_MODE_INITIATE
+#define DEFAULT_PAIRING_PARAMETER            GAPBOND_PAIRING_MODE_WAIT_FOR_REQ
 
 // Bonded devices' addresses are stored in white list.
 #define USING_WHITE_LIST                     FALSE
@@ -207,7 +207,8 @@ static gapRolesCBs_t runningPeripheralCB = {
 // Bond Manager Callbacks
 static gapBondCBs_t runningBondCB = {
     NULL, // Passcode callback
-    NULL  // Pairing state callback
+    NULL,  // Pairing state callback
+    NULL  // oob callback
 };
 
 /*********************************************************************
@@ -242,9 +243,6 @@ void RunningSensor_Init()
         GAPRole_SetParameter(GAPROLE_ADVERT_DATA, sizeof(advertData), advertData);
     }
 
-    // Set the GAP Characteristics
-    GGS_SetParameter(GGS_DEVICE_NAME_ATT, GAP_DEVICE_NAME_LEN, attDeviceName);
-
     // Setup the GAP Bond Manager
     {
         uint32_t passkey = 0; // passkey "000000"
@@ -267,6 +265,9 @@ void RunningSensor_Init()
     GATTServApp_AddService(GATT_ALL_SERVICES); // GATT attributes
     Running_AddService(GATT_ALL_SERVICES);
     DevInfo_AddService();
+
+    // Set the GAP Characteristics
+    GGS_SetParameter(GGS_DEVICE_NAME_ATT, sizeof(attDeviceName), attDeviceName);
 
     // Register for running service callback
     Running_Register(SensorCB);

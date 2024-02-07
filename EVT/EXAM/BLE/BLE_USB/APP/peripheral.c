@@ -82,7 +82,7 @@
 /*********************************************************************
  * LOCAL VARIABLES
  */
-static uint8_t Peripheral_TaskID = INVALID_TASK_ID; // Task ID for internal task/event processing
+uint8_t Peripheral_TaskID = INVALID_TASK_ID; // Task ID for internal task/event processing
 
 // GAP - SCAN RSP data (max size = 31 bytes)
 static uint8_t scanRspData[] = {
@@ -129,7 +129,12 @@ static uint8_t attDeviceName[GAP_DEVICE_NAME_LEN] = "ch583 ble usb";
 // Connection item list
 static peripheralConnItem_t peripheralConnList;
 
-static uint8_t peripheralMTU = ATT_MTU_SIZE;
+static uint16_t peripheralMTU = ATT_MTU_SIZE;
+
+RingMemParm_t RingMemUSB;
+uint8_t       RingMemUSBBuf[2048];
+RingMemParm_t RingMemBLE;
+uint8_t       RingMemBLEBuf[2048];
 /*********************************************************************
  * LOCAL FUNCTIONS
  */
@@ -142,7 +147,8 @@ static void peripheralParamUpdateCB(uint16_t connHandle, uint16_t connInterval,
 static void peripheralInitConnItem(peripheralConnItem_t *peripheralConnList);
 static void peripheralRssiCB(uint16_t connHandle, int8_t rssi);
 static void peripheralChar4Notify(uint8_t *pValue, uint16_t len);
-void ble_usb_ServiceEvt(uint16_t connection_handle, ble_usb_evt_t *p_evt);
+void        ble_usb_ServiceEvt(uint16_t connection_handle, ble_usb_evt_t *p_evt);
+int         RingMem_Protection(uint8_t enable);
 
 /*********************************************************************
  * PROFILE CALLBACKS
@@ -207,9 +213,6 @@ void Peripheral_Init()
         GAPRole_SetParameter(GAPROLE_MAX_CONN_INTERVAL, sizeof(uint16_t), &desired_max_interval);
     }
 
-    // Set the GAP Characteristics
-    GGS_SetParameter(GGS_DEVICE_NAME_ATT, GAP_DEVICE_NAME_LEN, attDeviceName);
-
     {
         uint16_t advInt = DEFAULT_ADVERTISING_INTERVAL;
 
@@ -242,6 +245,9 @@ void Peripheral_Init()
     SimpleProfile_AddService(GATT_ALL_SERVICES); // Simple GATT Profile
     ble_usb_add_service(ble_usb_ServiceEvt);
 
+    // Set the GAP Characteristics
+    GGS_SetParameter(GGS_DEVICE_NAME_ATT, sizeof(attDeviceName), attDeviceName);
+
     // Setup the SimpleProfile Characteristic Values
     {
         uint8_t charValue1[SIMPLEPROFILE_CHAR1_LEN] = {1};
@@ -268,6 +274,9 @@ void Peripheral_Init()
 
     // Setup a delayed profile startup
     tmos_set_event(Peripheral_TaskID, SBP_START_DEVICE_EVT);
+
+    RingMemInit(&RingMemUSB, RingMemUSBBuf, 2048, RingMem_Protection);
+    RingMemInit(&RingMemBLE, RingMemBLEBuf, 2048, RingMem_Protection);
 }
 
 /*********************************************************************
@@ -364,6 +373,45 @@ uint16_t Peripheral_ProcessEvent(uint8_t task_id, uint16_t events)
         GAPRole_ReadRssiCmd(peripheralConnList.connHandle);
         tmos_start_task(Peripheral_TaskID, SBP_READ_RSSI_EVT, SBP_READ_RSSI_EVT_PERIOD);
         return (events ^ SBP_READ_RSSI_EVT);
+    }
+
+    if(events & SBP_PROCESS_USBDATA_EVT)
+    {
+        while(RingMemUSB.CurrentLen)
+        {
+            uint8_t buf[peripheralMTU - 3];
+            if(RingMemUSB.CurrentLen > peripheralMTU - 3)
+            {
+                RingMemCopy(&RingMemUSB, buf, peripheralMTU - 3);
+                if(app_usb_notify(buf, peripheralMTU - 3))
+                {
+                    tmos_start_task(Peripheral_TaskID, SBP_PROCESS_USBDATA_EVT, 80);
+                    break;
+                }
+                RingMemDelete(&RingMemUSB, peripheralMTU - 3);
+            }
+            else
+            {
+                RingMemCopy(&RingMemUSB, buf, RingMemUSB.CurrentLen);
+                if(app_usb_notify(buf, RingMemUSB.CurrentLen))
+                {
+                    tmos_start_task(Peripheral_TaskID, SBP_PROCESS_USBDATA_EVT, 80);
+                    break;
+                }
+                RingMemDelete(&RingMemUSB, RingMemUSB.CurrentLen);
+            }
+        }
+        return (events ^ SBP_PROCESS_USBDATA_EVT);
+    }
+
+    if(events & SBP_PROCESS_BLEDATA_EVT)
+    {
+        if(RingMemBLE.CurrentLen)
+        {
+            USBSendData();
+            tmos_start_task(Peripheral_TaskID, SBP_PROCESS_BLEDATA_EVT, 5);
+        }
+        return (events ^ SBP_PROCESS_BLEDATA_EVT);
     }
 
     // Discard unknown events
@@ -745,8 +793,11 @@ void ble_usb_ServiceEvt(uint16_t connection_handle, ble_usb_evt_t *p_evt)
         case BLE_USB_EVT_BLE_DATA_RECIEVED:
             PRINT("BLE RX DATA len:%d\r\n", p_evt->data.length);
 
-            //ble to usb
-            USBSendData((uint8_t *)p_evt->data.p_data, p_evt->data.length);
+            if(RingMemWrite(&RingMemBLE, (uint8_t *)p_evt->data.p_data, p_evt->data.length) != SUCCESS)
+            {
+                PRINT("RingMemBLE ERR \n");
+            }
+            tmos_set_event(Peripheral_TaskID, SBP_PROCESS_BLEDATA_EVT);
 
             break;
         default:
@@ -759,16 +810,17 @@ void ble_usb_ServiceEvt(uint16_t connection_handle, ble_usb_evt_t *p_evt)
  *
  * @brief   app usb service callback handler
  *
- * @return  none
+ * @return  Success or Failure
  */
-void app_usb_notify(uint8_t *SendBuf, uint8_t l)
+uint8_t app_usb_notify(uint8_t *SendBuf, uint8_t l)
 {
-    uint8_t result;
+    uint8_t result = FAILURE;
+
     static attHandleValueNoti_t noti;
-    
+
     if (l > (peripheralMTU - 3)) {
         PRINT("usb notify too long, current MTU: %d\n", peripheralMTU);
-        return ;
+        return bleInvalidMtuSize;
     }
     noti.len = l;
     noti.pValue = GATT_bm_alloc(peripheralConnList.connHandle, ATT_HANDLE_VALUE_NOTI, noti.len, NULL, 0);
@@ -781,8 +833,28 @@ void app_usb_notify(uint8_t *SendBuf, uint8_t l)
             GATT_bm_free((gattMsg_t *)&noti, ATT_HANDLE_VALUE_NOTI);
         }
     }
+    return result;
 }
 
+/*********************************************************************
+ * @fn      RingMem_Protection
+ *
+ * @brief   Protect RingMem
+ *
+ * @return  Success or Failure
+ */
+int RingMem_Protection(uint8_t enable)
+{
+    if(enable)
+    {
+        PFIC_DisableAllIRQ();
+    }
+    else
+    {
+        PFIC_EnableAllIRQ();
+    }
+		return 0;
+}
 
 /*********************************************************************
 *********************************************************************/

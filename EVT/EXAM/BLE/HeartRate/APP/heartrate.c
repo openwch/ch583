@@ -97,6 +97,20 @@ static gapRole_States_t gapProfileState = GAPROLE_INIT;
 
 // GAP Profile - Name attribute for SCAN RSP data
 static uint8_t scanRspData[] = {
+};
+
+static uint8_t advertData[] = {
+    // flags
+    0x02,
+    GAP_ADTYPE_FLAGS,
+    GAP_ADTYPE_FLAGS_GENERAL | GAP_ADTYPE_FLAGS_BREDR_NOT_SUPPORTED,
+    // service UUIDs
+    0x05,
+    GAP_ADTYPE_16BIT_MORE,
+    LO_UINT16(HEARTRATE_SERV_UUID),
+    HI_UINT16(HEARTRATE_SERV_UUID),
+    LO_UINT16(BATT_SERV_UUID),
+    HI_UINT16(BATT_SERV_UUID),
     0x12, // length of this data
     GAP_ADTYPE_LOCAL_NAME_COMPLETE,
     'H',
@@ -116,19 +130,6 @@ static uint8_t scanRspData[] = {
     's',
     'o',
     'r'};
-
-static uint8_t advertData[] = {
-    // flags
-    0x02,
-    GAP_ADTYPE_FLAGS,
-    GAP_ADTYPE_FLAGS_GENERAL | GAP_ADTYPE_FLAGS_BREDR_NOT_SUPPORTED,
-    // service UUIDs
-    0x05,
-    GAP_ADTYPE_16BIT_MORE,
-    LO_UINT16(HEARTRATE_SERV_UUID),
-    HI_UINT16(HEARTRATE_SERV_UUID),
-    LO_UINT16(BATT_SERV_UUID),
-    HI_UINT16(BATT_SERV_UUID)};
 
 // Device name attribute value
 static uint8_t attDeviceName[GAP_DEVICE_NAME_LEN] = "Heart Rate Sensor";
@@ -184,7 +185,8 @@ static gapRolesCBs_t heartRatePeripheralCB = {
 // Bond Manager Callbacks
 static gapBondCBs_t heartRateBondCB = {
     NULL, // Passcode callback
-    NULL  // Pairing state callback
+    NULL,  // Pairing state callback
+    NULL  // oob callback
 };
 
 /*********************************************************************
@@ -218,8 +220,6 @@ void HeartRate_Init()
         GAPRole_SetParameter(GAPROLE_SCAN_RSP_DATA, sizeof(scanRspData), scanRspData);
         GAPRole_SetParameter(GAPROLE_ADVERT_DATA, sizeof(advertData), advertData);
     }
-    // Set the GAP Characteristics
-    GGS_SetParameter(GGS_DEVICE_NAME_ATT, GAP_DEVICE_NAME_LEN, attDeviceName);
 
     // Setup the GAP Bond Manager
     {
@@ -253,6 +253,9 @@ void HeartRate_Init()
     HeartRate_AddService(GATT_ALL_SERVICES);
     DevInfo_AddService();
     Batt_AddService();
+
+    // Set the GAP Characteristics
+    GGS_SetParameter(GGS_DEVICE_NAME_ATT, sizeof(attDeviceName), attDeviceName);
 
     // Register for Heart Rate service callback
     HeartRate_Register(heartRateCB);

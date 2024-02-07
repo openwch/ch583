@@ -85,7 +85,8 @@ void CH58X_BLEInit(void)
         PRINT("head file error...\n");
         while(1);
     }
-    SysTick_Config(SysTick_LOAD_RELOAD_Msk);
+
+    SysTick_Config(SysTick_LOAD_RELOAD_Msk); // 配置SysTick并打开中断
     PFIC_DisableIRQ(SysTick_IRQn);
 
     tmos_memset(&cfg, 0, sizeof(bleConfig_t));
@@ -96,12 +97,20 @@ void CH58X_BLEInit(void)
     cfg.TxNumEvent = (uint32_t)BLE_TX_NUM_EVENT;
     cfg.TxPower = (uint32_t)BLE_TX_POWER;
 #if(defined(BLE_SNV)) && (BLE_SNV == TRUE)
+    if((BLE_SNV_ADDR + BLE_SNV_BLOCK * BLE_SNV_NUM) > (0x78000 - FLASH_ROM_MAX_SIZE))
+    {
+        PRINT("SNV config error...\n");
+        while(1);
+    }
     cfg.SNVAddr = (uint32_t)BLE_SNV_ADDR;
+    cfg.SNVBlock = (uint32_t)BLE_SNV_BLOCK;
+    cfg.SNVNum = (uint32_t)BLE_SNV_NUM;
     cfg.readFlashCB = Lib_Read_Flash;
     cfg.writeFlashCB = Lib_Write_Flash;
 #endif
 #if(CLK_OSC32K)
     cfg.SelRTCClock = (uint32_t)CLK_OSC32K;
+    cfg.SelRTCClock |= 0x80;
 #endif
     cfg.ConnectNumber = (PERIPHERAL_MAX_CONNECTION & 3) | (CENTRAL_MAX_CONNECTION << 2);
     cfg.srandCB = SYS_GetSysTickCnt;

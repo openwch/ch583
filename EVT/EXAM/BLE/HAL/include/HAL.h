@@ -18,7 +18,7 @@
 extern "C" {
 #endif
 
-#include "config.h"
+#include "CONFIG.h"
 #include "RTC.h"
 #include "SLEEP.h"
 #include "LED.h"

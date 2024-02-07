@@ -137,7 +137,8 @@ static gapRolesCBs_t hidDev_PeripheralCBs = {
 // Bond Manager Callbacks
 static gapBondCBs_t hidDevBondCB = {
     hidDevPasscodeCB,
-    hidDevPairStateCB
+    hidDevPairStateCB,
+    NULL  // oob callback
 };
 
 /*********************************************************************
@@ -888,10 +889,12 @@ static void hidDevPasscodeCB(uint8_t *deviceAddr, uint16_t connectionHandle,
     else
     {
         uint32_t passkey;
-        GAPBondMgr_GetParameter(GAPBOND_PERI_DEFAULT_PASSCODE, &passkey);
+        printf("?\n");
+//        GAPBondMgr_GetParameter(GAPBOND_PERI_DEFAULT_PASSCODE, &passkey);
 
         // Send passcode response
-        GAPBondMgr_PasscodeRsp(connectionHandle, SUCCESS, passkey);
+
+        printf("? %x \n",GAPBondMgr_PasscodeRsp(connectionHandle, SUCCESS, passkey));;
     }
 }
 

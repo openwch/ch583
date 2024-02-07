@@ -57,7 +57,7 @@ int main()
 		if (GPIOB_ReadPortPin(GPIO_Pin_4) == 0)
 		{
 			s++;
-			//连续两次检测到按键按下，跳转到IAP
+			//长按按键，连续两次检测都是按下状态，跳转到IAP
 			if(s >= 2)
 			{
 				jumpToIap();

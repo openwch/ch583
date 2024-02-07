@@ -4,10 +4,8 @@
  * Version            : V1.0
  * Date               : 2022/05/10
  * Description        : WCH Qingke V4A FreeRTOS移植接口
- *********************************************************************************
  * Copyright (c) 2021 Nanjing Qinheng Microelectronics Co., Ltd.
- * Attention: This software (modified or not) and binary are used for 
- * microcontroller manufactured by Nanjing Qinheng Microelectronics.
+ * SPDX-License-Identifier: Apache-2.0
  *******************************************************************************/
 
 /*-----------------------------------------------------------
@@ -82,13 +80,19 @@ task stack, not the ISR stack). */
 
 /*-----------------------------------------------------------*/
 
+extern void SW_Handler(void);
+extern void SysTick_Handler( void );
 
 /* just for wch's systick, don't have mtime */
 void vPortSetupTimerInterrupt( void )
 {
+    PFIC_EnableFastINT0(SWI_IRQn, (uint32_t)SW_Handler);                /* 提升任务切换速度，不从统一入口执行，在处理期间不可中断嵌套 */
+    PFIC_EnableFastINT1(SysTick_IRQn, (uint32_t)SysTick_Handler);       /* 提升systick中断速度，不从统一入口执行，在处理期间不可中断嵌套 */
+
     /* set software is lowest priority */
     PFIC_SetPriority(SWI_IRQn, 0xf0);
     PFIC_EnableIRQ(SWI_IRQn);
+
     /* set systick is lowest priority */
     PFIC_SetPriority(SysTick_IRQn, 0xf0);
     SysTick_Config(configCPU_CLOCK_HZ / configTICK_RATE_HZ);
@@ -105,7 +109,7 @@ extern void xPortStartFirstTask( void );
 	{
 		volatile uint32_t mtvec = 0;
 
-		/* Check the least significant two bits of mtvec are 0b11 - indicating
+		/* Check the least significant two bits of mtvec are 0b10 - indicating
 		multiply vector mode. */
 		__asm volatile( "csrr %0, mtvec" : "=r"( mtvec ) );
 		configASSERT( ( mtvec & 0x03UL ) == 0x3 );
@@ -148,7 +152,7 @@ void vPortEndScheduler( void )
 }
 
 /*-----------------------------------------------------------*/
-
+__attribute__((interrupt("WCH-Interrupt-fast")))
 __attribute__((section(".highcode")))
 void SysTick_Handler( void )
 {
@@ -171,79 +175,4 @@ __HIGH_CODE
 void vPortExitCritical( void )
 {
     portENABLE_INTERRUPTS();
-}
-
-extern void SysTick_Handler(void);
-extern void TMR0_IRQHandler(void);
-extern void GPIOA_IRQHandler(void);
-extern void GPIOB_IRQHandler(void);
-extern void SPI0_IRQHandler(void);
-extern void BB_IRQHandler(void);
-extern void LLE_IRQHandler(void);
-extern void USB_IRQHandler(void);
-extern void TMR1_IRQHandler(void);
-extern void TMR2_IRQHandler(void);
-extern void UART0_IRQHandler(void);
-extern void UART1_IRQHandler(void);
-extern void RTC_IRQHandler(void);
-extern void ADC_IRQHandler(void);
-extern void PWMX_IRQHandler(void);
-extern void TMR3_IRQHandler(void);
-extern void UART2_IRQHandler(void);
-extern void UART3_IRQHandler(void);
-extern void WDOG_BAT_IRQHandler(void);
-
-typedef void (*user_irq_handler_t)(void);
-
-__attribute__((section("wch_user_vectors")))
-user_irq_handler_t wch_user_irq_table[] =
-{
-   0,
-   0,
-   0,
-   0,
-   0,
-   0,
-   0,
-   0,
-   0,
-   0,
-   0,
-   0,
-   SysTick_Handler,             /* SysTick Handler */
-   0,
-   0,                           /* SW Handler */
-   0,
-  /* External Interrupts */
-   TMR0_IRQHandler   ,          /* 0:  TMR0 */
-   GPIOA_IRQHandler,            /* GPIOA */
-   GPIOB_IRQHandler ,           /* GPIOB */
-   SPI0_IRQHandler  ,           /* SPI0 */
-   BB_IRQHandler   ,            /* BLEB */
-   LLE_IRQHandler ,             /* BLEL */
-   USB_IRQHandler  ,            /* USB */
-   0,
-   TMR1_IRQHandler ,            /* TMR1 */
-   TMR2_IRQHandler,             /* TMR2 */
-   UART0_IRQHandler ,           /* UART0 */
-   UART1_IRQHandler,            /* UART1 */
-   RTC_IRQHandler,              /* RTC */
-   ADC_IRQHandler,              /* ADC */
-   0,
-   PWMX_IRQHandler,             /* PWMX */
-   TMR3_IRQHandler,             /* TMR3 */
-   UART2_IRQHandler,            /* UART2 */
-   UART3_IRQHandler,            /* UART3 */
-   WDOG_BAT_IRQHandler,         /* WDOG_BAT */
-};
-
-__attribute__((section(".highcode")))
-void user_interrupt_handler(uint32_t mcause)
-{
-    uint32_t irq_num;
-    irq_num = mcause & 0x7f;
-    if(wch_user_irq_table[irq_num] != NULL)
-    {
-        wch_user_irq_table[irq_num]();
-    }
 }

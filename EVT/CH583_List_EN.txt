@@ -7,7 +7,6 @@ http://wch-ic.com
 Directory
   |
   |-- CH583: Bluetooth Low Energy - 32-bit RISC-V MCU
-  |      |-- CH583 Android OTA Update Tool V1.1: APP update tool and source of CH583 OTA related software routines
   |      |-- EVT: CH583 related software routines
   |      |      |-- EXAM: 
   |      |      |      |-- SRC  
@@ -18,6 +17,7 @@ Directory
   |      |      |      |-- ADC: ADC sampling routines, including temperature detection, single channel detection, differential channel detection, TouchKey detection and interrupt sampling
   |      |      |      |-- FLASH: on-chip flash routines: erase/read/write Code area and DataFlash area
   |      |      |      |-- FreeRTOS: FreeRTOS porting routine
+  |      |      |      |-- HarmonyOS: HarmonyOS porting routine
   |      |      |      |-- I2C: I2C routines, master/slave mode, data transceiver
   |      |      |      |-- IAP
   |      |      |      |      |-- APP: APP program routine used with IAP 

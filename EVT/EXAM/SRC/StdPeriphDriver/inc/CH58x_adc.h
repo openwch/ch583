@@ -248,6 +248,16 @@ int adc_to_temperature_celsius(uint16_t adc_val);
 #define ADC_StopDMA()            (R8_ADC_CTRL_DMA &= ~RB_ADC_AUTO_EN)
 
 /**
+ * @brief   开启连续转换 ADC
+ */
+#define ADC_StartContDMA()        (R8_ADC_CTRL_DMA |= RB_ADC_CONT_EN)
+
+/**
+ * @brief   停止连续转换 ADC
+ */
+#define ADC_StopContDMA()         (R8_ADC_CTRL_DMA &= ~RB_ADC_CONT_EN)
+
+/**
  * @brief   获取TouchKey中断状态
  */
 #define TouchKey_GetITStatus()    (R8_ADC_INT_FLAG & RB_ADC_IF_EOC)
@@ -257,6 +267,10 @@ int adc_to_temperature_celsius(uint16_t adc_val);
  */
 #define TouchKey_ClearITFlag()    (R8_TKEY_CTRL |= RB_TKEY_PWR_ON)
 
+/**
+ * @brief   关闭ADC电源
+ */
+#define ADC_DisablePower()        (R8_ADC_CFG &= ~RB_ADC_POWER_ON)
 
 #ifdef __cplusplus
 }

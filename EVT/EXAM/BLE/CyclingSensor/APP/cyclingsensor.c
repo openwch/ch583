@@ -55,7 +55,7 @@
 #define DEFAULT_DESIRED_CONN_TIMEOUT         1000
 
 // Sensor sends a slave security request.
-#define DEFAULT_PAIRING_PARAMETER            GAPBOND_PAIRING_MODE_INITIATE
+#define DEFAULT_PAIRING_PARAMETER            GAPBOND_PAIRING_MODE_WAIT_FOR_REQ
 
 // Bonded devices' addresses are stored in white list.
 #define USING_WHITE_LIST                     FALSE
@@ -113,18 +113,6 @@ static uint8_t sensorUsingWhiteList = FALSE;
 
 // GAP Profile - Name attribute for SCAN RSP data
 static uint8_t scanRspData[] = {
-    0x0B, // length of this data
-    GAP_ADTYPE_LOCAL_NAME_COMPLETE,
-    'C',
-    'S',
-    'C',
-    ' ',
-    'S',
-    'e',
-    'n',
-    's',
-    'o',
-    'r',
 
     // Tx power level
     0x02, // length of this data
@@ -142,6 +130,19 @@ static uint8_t advertData[] = {
     GAP_ADTYPE_16BIT_MORE,
     LO_UINT16(CSC_SERV_UUID),
     HI_UINT16(CSC_SERV_UUID),
+    0x0B, // length of this data
+    GAP_ADTYPE_LOCAL_NAME_COMPLETE,
+    'C',
+    'S',
+    'C',
+    ' ',
+    'S',
+    'e',
+    'n',
+    's',
+    'o',
+    'r',
+
 };
 
 // Device name attribute value
@@ -198,7 +199,8 @@ static gapRolesCBs_t cyclingPeripheralCB = {
 // Bond Manager Callbacks
 static gapBondCBs_t cyclingBondCB = {
     NULL, // Passcode callback
-    NULL  // Pairing state callback
+    NULL, // Pairing state callback
+    NULL  // oob callback
 };
 
 /*********************************************************************
@@ -233,9 +235,6 @@ void CyclingSensor_Init()
         GAPRole_SetParameter(GAPROLE_ADVERT_DATA, sizeof(advertData), advertData);
     }
 
-    // Set the GAP Characteristics
-    GGS_SetParameter(GGS_DEVICE_NAME_ATT, GAP_DEVICE_NAME_LEN, attDeviceName);
-
     // Setup the GAP Bond Manager
     {
         uint32_t passkey = 0; // passkey "000000"
@@ -258,6 +257,9 @@ void CyclingSensor_Init()
     GATTServApp_AddService(GATT_ALL_SERVICES); // GATT attributes
     Cycling_AddService(GATT_ALL_SERVICES);
     DevInfo_AddService();
+
+    // Set the GAP Characteristics
+    GGS_SetParameter(GGS_DEVICE_NAME_ATT, sizeof(attDeviceName), attDeviceName);
 
     // Register for cycling service callback
     Cycling_Register(SensorCB);
