@@ -1,0 +1,110 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.XIB" version="3.0" toolsVersion="19455" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" useSafeAreas="YES" colorMatched="YES">
+    <device id="retina6_1" orientation="portrait" appearance="light"/>
+    <dependencies>
+        <deployment identifier="iOS"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="19454"/>
+        <capability name="Safe area layout guides" minToolsVersion="9.0"/>
+        <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
+    </dependencies>
+    <objects>
+        <placeholder placeholderIdentifier="IBFilesOwner" id="-1" userLabel="File's Owner"/>
+        <placeholder placeholderIdentifier="IBFirstResponder" id="-2" customClass="UIResponder"/>
+        <tableViewCell contentMode="scaleToFill" selectionStyle="default" indentationWidth="10" reuseIdentifier="CH_CharacteristicsTableViewCell" rowHeight="75" id="KGk-i7-Jjw" customClass="CH_CharacteristicsTableViewCell" customModule="WCHBLEOTA" customModuleProvider="target">
+            <rect key="frame" x="0.0" y="0.0" width="320" height="86"/>
+            <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
+            <tableViewCellContentView key="contentView" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" tableViewCell="KGk-i7-Jjw" id="H2p-sc-9uM">
+                <rect key="frame" x="0.0" y="0.0" width="320" height="86"/>
+                <autoresizingMask key="autoresizingMask"/>
+                <subviews>
+                    <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="UUID：--" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="p2z-DD-ljY">
+                        <rect key="frame" x="30" y="37" width="180" height="14.5"/>
+                        <fontDescription key="fontDescription" type="system" pointSize="12"/>
+                        <nil key="textColor"/>
+                        <nil key="highlightedColor"/>
+                    </label>
+                    <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="--" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="CNv-5A-gA1">
+                        <rect key="frame" x="30" y="56.5" width="11.5" height="14.5"/>
+                        <fontDescription key="fontDescription" type="system" pointSize="12"/>
+                        <nil key="textColor"/>
+                        <nil key="highlightedColor"/>
+                    </label>
+                    <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Unknown Characteristic" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="y7w-69-9Pk">
+                        <rect key="frame" x="30" y="15" width="166.5" height="17"/>
+                        <fontDescription key="fontDescription" type="boldSystem" pointSize="14"/>
+                        <nil key="textColor"/>
+                        <nil key="highlightedColor"/>
+                    </label>
+                    <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="H9w-dR-3xp">
+                        <rect key="frame" x="265" y="24.5" width="40" height="40"/>
+                        <constraints>
+                            <constraint firstAttribute="height" constant="40" id="5rx-p2-C1r"/>
+                            <constraint firstAttribute="width" constant="40" id="oft-Pk-f8x"/>
+                        </constraints>
+                        <connections>
+                            <action selector="showReadView:" destination="KGk-i7-Jjw" eventType="touchUpInside" id="6ex-iT-2JI"/>
+                        </connections>
+                    </button>
+                    <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="BgX-pg-Ohe">
+                        <rect key="frame" x="225" y="24.5" width="40" height="40"/>
+                        <constraints>
+                            <constraint firstAttribute="height" constant="40" id="brB-3L-ICM"/>
+                            <constraint firstAttribute="width" constant="40" id="f4L-QC-hCZ"/>
+                        </constraints>
+                        <connections>
+                            <action selector="showSendView:" destination="KGk-i7-Jjw" eventType="touchUpInside" id="EeG-wh-Avq"/>
+                        </connections>
+                    </button>
+                    <imageView clipsSubviews="YES" userInteractionEnabled="NO" contentMode="scaleAspectFit" horizontalHuggingPriority="251" verticalHuggingPriority="251" image="send" translatesAutoresizingMaskIntoConstraints="NO" id="4TC-cj-fLC">
+                        <rect key="frame" x="232" y="34.5" width="26" height="20"/>
+                        <constraints>
+                            <constraint firstAttribute="height" constant="20" id="cVE-VK-pcJ"/>
+                            <constraint firstAttribute="width" constant="26" id="p32-bj-2CO"/>
+                        </constraints>
+                    </imageView>
+                    <imageView clipsSubviews="YES" userInteractionEnabled="NO" contentMode="scaleAspectFit" horizontalHuggingPriority="251" verticalHuggingPriority="251" image="receive" translatesAutoresizingMaskIntoConstraints="NO" id="iCe-Fe-P3B">
+                        <rect key="frame" x="272" y="34.5" width="26" height="20"/>
+                        <constraints>
+                            <constraint firstAttribute="width" constant="26" id="SYM-5j-KPL"/>
+                            <constraint firstAttribute="height" constant="20" id="Yj8-4z-cUE"/>
+                            <constraint firstAttribute="height" relation="greaterThanOrEqual" constant="20" id="Z1J-8b-5h8"/>
+                            <constraint firstAttribute="width" relation="greaterThanOrEqual" constant="26" id="wKk-dl-nrK"/>
+                        </constraints>
+                    </imageView>
+                </subviews>
+                <constraints>
+                    <constraint firstItem="iCe-Fe-P3B" firstAttribute="centerX" secondItem="H9w-dR-3xp" secondAttribute="centerX" id="7TI-G1-I3e"/>
+                    <constraint firstItem="4TC-cj-fLC" firstAttribute="centerY" secondItem="BgX-pg-Ohe" secondAttribute="centerY" id="9eF-9e-TP3"/>
+                    <constraint firstItem="CNv-5A-gA1" firstAttribute="top" secondItem="p2z-DD-ljY" secondAttribute="bottom" constant="5" id="A0S-7R-Re6"/>
+                    <constraint firstItem="BgX-pg-Ohe" firstAttribute="leading" secondItem="p2z-DD-ljY" secondAttribute="trailing" constant="15" id="LZ5-Mo-jER"/>
+                    <constraint firstItem="H9w-dR-3xp" firstAttribute="centerY" secondItem="p2z-DD-ljY" secondAttribute="centerY" id="Pmi-3g-4Jl"/>
+                    <constraint firstItem="p2z-DD-ljY" firstAttribute="top" secondItem="y7w-69-9Pk" secondAttribute="bottom" constant="5" id="QLg-wP-yyX"/>
+                    <constraint firstItem="p2z-DD-ljY" firstAttribute="leading" secondItem="y7w-69-9Pk" secondAttribute="leading" id="Qhq-2p-ZvX"/>
+                    <constraint firstItem="iCe-Fe-P3B" firstAttribute="centerY" secondItem="H9w-dR-3xp" secondAttribute="centerY" id="T6f-FL-QnH"/>
+                    <constraint firstItem="y7w-69-9Pk" firstAttribute="top" secondItem="H2p-sc-9uM" secondAttribute="top" constant="15" id="UzI-k7-Q1T"/>
+                    <constraint firstItem="y7w-69-9Pk" firstAttribute="leading" secondItem="H2p-sc-9uM" secondAttribute="leading" constant="30" id="coP-2c-3GH"/>
+                    <constraint firstItem="H9w-dR-3xp" firstAttribute="leading" secondItem="BgX-pg-Ohe" secondAttribute="trailing" id="eFO-QF-QGF"/>
+                    <constraint firstItem="4TC-cj-fLC" firstAttribute="centerX" secondItem="BgX-pg-Ohe" secondAttribute="centerX" id="fbI-fk-y9j"/>
+                    <constraint firstItem="BgX-pg-Ohe" firstAttribute="centerY" secondItem="p2z-DD-ljY" secondAttribute="centerY" id="jPh-0G-deE"/>
+                    <constraint firstAttribute="trailing" secondItem="H9w-dR-3xp" secondAttribute="trailing" constant="15" id="xG9-c5-KH5"/>
+                    <constraint firstItem="CNv-5A-gA1" firstAttribute="leading" secondItem="y7w-69-9Pk" secondAttribute="leading" id="y3h-rL-uPY"/>
+                </constraints>
+            </tableViewCellContentView>
+            <viewLayoutGuide key="safeArea" id="njF-e1-oar"/>
+            <connections>
+                <outlet property="nameLabel" destination="y7w-69-9Pk" id="OGU-2j-sos"/>
+                <outlet property="propertiesLabel" destination="CNv-5A-gA1" id="key-xS-fLi"/>
+                <outlet property="receiveButton" destination="H9w-dR-3xp" id="3a1-TD-QpH"/>
+                <outlet property="receiveImageView" destination="iCe-Fe-P3B" id="cvZ-d3-ctZ"/>
+                <outlet property="sendButton" destination="BgX-pg-Ohe" id="yom-F3-Yf6"/>
+                <outlet property="sendImageView" destination="4TC-cj-fLC" id="fqX-R7-Qfd"/>
+                <outlet property="uuidLabel" destination="p2z-DD-ljY" id="noJ-u9-3pO"/>
+            </connections>
+            <point key="canvasLocation" x="140.57971014492756" y="83.035714285714278"/>
+        </tableViewCell>
+    </objects>
+    <resources>
+        <image name="receive" width="200" height="200"/>
+        <image name="send" width="200" height="200"/>
+    </resources>
+</document>

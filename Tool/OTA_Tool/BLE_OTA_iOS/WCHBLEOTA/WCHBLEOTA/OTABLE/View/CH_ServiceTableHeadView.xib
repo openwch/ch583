@@ -1,0 +1,79 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.XIB" version="3.0" toolsVersion="19455" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" colorMatched="YES">
+    <device id="retina6_1" orientation="portrait" appearance="light"/>
+    <dependencies>
+        <deployment identifier="iOS"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="19454"/>
+        <capability name="System colors in document resources" minToolsVersion="11.0"/>
+        <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
+    </dependencies>
+    <objects>
+        <placeholder placeholderIdentifier="IBFilesOwner" id="-1" userLabel="File's Owner"/>
+        <placeholder placeholderIdentifier="IBFirstResponder" id="-2" customClass="UIResponder"/>
+        <view contentMode="scaleToFill" id="iN0-l3-epB" customClass="CH_ServiceTableHeadView" customModule="WCHBLEOTA" customModuleProvider="target">
+            <rect key="frame" x="0.0" y="0.0" width="414" height="72"/>
+            <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+            <subviews>
+                <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="fZn-00-KxK">
+                    <rect key="frame" x="0.0" y="0.0" width="414" height="0.5"/>
+                    <color key="backgroundColor" red="0.86274509803921573" green="0.86274509803921573" blue="0.86274509803921573" alpha="1" colorSpace="calibratedRGB"/>
+                    <constraints>
+                        <constraint firstAttribute="height" constant="0.29999999999999999" id="Kkb-vk-PiP"/>
+                    </constraints>
+                </view>
+                <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="UnKnown Service" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="f0v-V3-zOn">
+                    <rect key="frame" x="15" y="10" width="121.5" height="17"/>
+                    <fontDescription key="fontDescription" type="boldSystem" pointSize="14"/>
+                    <nil key="textColor"/>
+                    <nil key="highlightedColor"/>
+                </label>
+                <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="UUID：--" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="OiA-YK-k6q">
+                    <rect key="frame" x="15" y="32" width="53.5" height="14.5"/>
+                    <fontDescription key="fontDescription" type="system" pointSize="12"/>
+                    <nil key="textColor"/>
+                    <nil key="highlightedColor"/>
+                </label>
+                <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="--" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="Cal-XQ-kMj">
+                    <rect key="frame" x="15" y="51.5" width="11.5" height="14.5"/>
+                    <fontDescription key="fontDescription" type="system" pointSize="12"/>
+                    <nil key="textColor"/>
+                    <nil key="highlightedColor"/>
+                </label>
+                <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="0Cf-BR-7Na">
+                    <rect key="frame" x="0.0" y="71.5" width="414" height="0.5"/>
+                    <color key="backgroundColor" red="0.86274509803921573" green="0.86274509803921573" blue="0.86274509803921573" alpha="1" colorSpace="calibratedRGB"/>
+                    <constraints>
+                        <constraint firstAttribute="height" constant="0.29999999999999999" id="dmt-RY-3M1"/>
+                    </constraints>
+                </view>
+            </subviews>
+            <color key="backgroundColor" systemColor="systemBackgroundColor"/>
+            <constraints>
+                <constraint firstAttribute="bottom" secondItem="0Cf-BR-7Na" secondAttribute="bottom" id="0LZ-MH-Aw3"/>
+                <constraint firstItem="0Cf-BR-7Na" firstAttribute="leading" secondItem="iN0-l3-epB" secondAttribute="leading" id="CFb-NX-wjN"/>
+                <constraint firstItem="OiA-YK-k6q" firstAttribute="top" secondItem="f0v-V3-zOn" secondAttribute="bottom" constant="5" id="CXt-l9-7cR"/>
+                <constraint firstItem="OiA-YK-k6q" firstAttribute="leading" secondItem="f0v-V3-zOn" secondAttribute="leading" id="HJP-Kf-NNB"/>
+                <constraint firstAttribute="trailing" secondItem="0Cf-BR-7Na" secondAttribute="trailing" id="Yzi-Yj-ojO"/>
+                <constraint firstAttribute="trailing" secondItem="fZn-00-KxK" secondAttribute="trailing" id="ZXW-hI-c24"/>
+                <constraint firstItem="f0v-V3-zOn" firstAttribute="top" secondItem="iN0-l3-epB" secondAttribute="top" constant="10" id="enK-Fu-Ypg"/>
+                <constraint firstItem="Cal-XQ-kMj" firstAttribute="top" secondItem="OiA-YK-k6q" secondAttribute="bottom" constant="5" id="nWc-Uu-tYc"/>
+                <constraint firstItem="Cal-XQ-kMj" firstAttribute="leading" secondItem="f0v-V3-zOn" secondAttribute="leading" id="ndI-8W-xOi"/>
+                <constraint firstItem="f0v-V3-zOn" firstAttribute="leading" secondItem="iN0-l3-epB" secondAttribute="leading" constant="15" id="rJh-mK-7ky"/>
+                <constraint firstItem="fZn-00-KxK" firstAttribute="leading" secondItem="iN0-l3-epB" secondAttribute="leading" id="taT-bE-4xj"/>
+                <constraint firstItem="fZn-00-KxK" firstAttribute="top" secondItem="iN0-l3-epB" secondAttribute="top" id="u8L-p3-vhp"/>
+            </constraints>
+            <freeformSimulatedSizeMetrics key="simulatedDestinationMetrics"/>
+            <connections>
+                <outlet property="nameLabel" destination="f0v-V3-zOn" id="wI6-QI-dIB"/>
+                <outlet property="privateLabel" destination="Cal-XQ-kMj" id="sVg-82-gqJ"/>
+                <outlet property="uuidLabel" destination="OiA-YK-k6q" id="dmn-Ku-fkf"/>
+            </connections>
+            <point key="canvasLocation" x="349" y="-102"/>
+        </view>
+    </objects>
+    <resources>
+        <systemColor name="systemBackgroundColor">
+            <color white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+        </systemColor>
+    </resources>
+</document>

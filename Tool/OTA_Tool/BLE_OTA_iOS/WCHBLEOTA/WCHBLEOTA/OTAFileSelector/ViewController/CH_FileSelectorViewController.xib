@@ -1,0 +1,90 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.XIB" version="3.0" toolsVersion="19455" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" useSafeAreas="YES" colorMatched="YES">
+    <device id="retina6_1" orientation="portrait" appearance="light"/>
+    <dependencies>
+        <deployment identifier="iOS"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="19454"/>
+        <capability name="Safe area layout guides" minToolsVersion="9.0"/>
+        <capability name="System colors in document resources" minToolsVersion="11.0"/>
+        <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
+    </dependencies>
+    <customFonts key="customFonts">
+        <array key="GT-Eesti-Display-Regular.ttf">
+            <string>GTEestiDisplay-Regular</string>
+        </array>
+    </customFonts>
+    <objects>
+        <placeholder placeholderIdentifier="IBFilesOwner" id="-1" userLabel="File's Owner" customClass="CH_FileSelectorViewController" customModule="WCHBLEOTA" customModuleProvider="target">
+            <connections>
+                <outlet property="docImage" destination="MDl-Cg-roI" id="Sqc-Hc-RTd"/>
+                <outlet property="emptyView" destination="Ebq-2m-npH" id="v2P-RD-SXq"/>
+                <outlet property="selectButton" destination="3EO-ij-cER" id="kNb-Dl-cIQ"/>
+                <outlet property="tableView" destination="Bfz-ek-Rq1" id="pVf-pm-etk"/>
+                <outlet property="view" destination="Ebq-2m-npH" id="Iy6-Q5-hGr"/>
+            </connections>
+        </placeholder>
+        <placeholder placeholderIdentifier="IBFirstResponder" id="-2" customClass="UIResponder"/>
+        <view clearsContextBeforeDrawing="NO" contentMode="scaleToFill" id="Ebq-2m-npH">
+            <rect key="frame" x="0.0" y="0.0" width="414" height="896"/>
+            <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+            <subviews>
+                <stackView opaque="NO" contentMode="scaleToFill" axis="vertical" alignment="center" spacing="18" translatesAutoresizingMaskIntoConstraints="NO" id="4Es-JI-5KE">
+                    <rect key="frame" x="78" y="310" width="258.5" height="276"/>
+                    <subviews>
+                        <imageView clipsSubviews="YES" userInteractionEnabled="NO" contentMode="scaleAspectFit" horizontalHuggingPriority="251" verticalHuggingPriority="251" image="ic_document" translatesAutoresizingMaskIntoConstraints="NO" id="MDl-Cg-roI">
+                            <rect key="frame" x="39" y="0.0" width="180" height="180"/>
+                            <color key="tintColor" red="0.0" green="0.66274509800000003" blue="0.80784313730000001" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+                            <constraints>
+                                <constraint firstAttribute="width" constant="180" id="Dda-BR-AcZ"/>
+                                <constraint firstAttribute="width" secondItem="MDl-Cg-roI" secondAttribute="height" multiplier="1:1" id="J9G-5a-OEK"/>
+                            </constraints>
+                        </imageView>
+                        <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Choose OTA Distribution Package" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="isW-6P-w60">
+                            <rect key="frame" x="0.0" y="198" width="258.5" height="20"/>
+                            <fontDescription key="fontDescription" name="GTEestiDisplay-Regular" family="GT Eesti Display" pointSize="17"/>
+                            <color key="textColor" systemColor="secondaryLabelColor"/>
+                            <nil key="highlightedColor"/>
+                        </label>
+                        <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="3EO-ij-cER">
+                            <rect key="frame" x="49" y="236" width="160" height="40"/>
+                            <constraints>
+                                <constraint firstAttribute="width" constant="160" id="1It-nQ-9Eg"/>
+                                <constraint firstAttribute="height" constant="40" id="dzD-5f-vOI"/>
+                            </constraints>
+                            <state key="normal" title="Browse"/>
+                            <connections>
+                                <action selector="openDocumentPicker" destination="-1" eventType="touchUpInside" id="LCv-UD-qXr"/>
+                            </connections>
+                        </button>
+                    </subviews>
+                </stackView>
+            </subviews>
+            <viewLayoutGuide key="safeArea" id="ErA-Kc-6c4"/>
+            <color key="backgroundColor" systemColor="systemBackgroundColor"/>
+            <constraints>
+                <constraint firstItem="4Es-JI-5KE" firstAttribute="centerX" secondItem="Ebq-2m-npH" secondAttribute="centerX" id="4hJ-xf-wzj"/>
+                <constraint firstItem="4Es-JI-5KE" firstAttribute="centerY" secondItem="Ebq-2m-npH" secondAttribute="centerY" id="lHW-4K-Qjv"/>
+            </constraints>
+            <point key="canvasLocation" x="139" y="154"/>
+        </view>
+        <tableView clipsSubviews="YES" contentMode="scaleToFill" alwaysBounceVertical="YES" style="plain" separatorStyle="default" rowHeight="-1" estimatedRowHeight="-1" sectionHeaderHeight="-1" estimatedSectionHeaderHeight="-1" sectionFooterHeight="-1" estimatedSectionFooterHeight="-1" id="Bfz-ek-Rq1">
+            <rect key="frame" x="0.0" y="0.0" width="414" height="896"/>
+            <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
+            <color key="backgroundColor" systemColor="systemBackgroundColor"/>
+            <connections>
+                <outlet property="dataSource" destination="-1" id="plD-uH-Mpg"/>
+                <outlet property="delegate" destination="-1" id="RJx-Xg-w8A"/>
+            </connections>
+            <point key="canvasLocation" x="1559" y="149"/>
+        </tableView>
+    </objects>
+    <resources>
+        <image name="ic_document" width="163.5" height="200"/>
+        <systemColor name="secondaryLabelColor">
+            <color red="0.23529411764705882" green="0.23529411764705882" blue="0.2627450980392157" alpha="0.59999999999999998" colorSpace="custom" customColorSpace="sRGB"/>
+        </systemColor>
+        <systemColor name="systemBackgroundColor">
+            <color white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+        </systemColor>
+    </resources>
+</document>

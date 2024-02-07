@@ -1,0 +1,36 @@
+PODS:
+  - MBProgressHUD (1.2.0)
+  - MJRefresh (3.7.5)
+  - ObjcExceptionBridging (1.0.1):
+    - ObjcExceptionBridging/ObjcExceptionBridging (= 1.0.1)
+  - ObjcExceptionBridging/ObjcExceptionBridging (1.0.1)
+  - SnapKit (5.0.1)
+  - XCGLogger (7.0.1):
+    - XCGLogger/Core (= 7.0.1)
+  - XCGLogger/Core (7.0.1):
+    - ObjcExceptionBridging
+
+DEPENDENCIES:
+  - MBProgressHUD
+  - MJRefresh
+  - SnapKit
+  - XCGLogger
+
+SPEC REPOS:
+  trunk:
+    - MBProgressHUD
+    - MJRefresh
+    - ObjcExceptionBridging
+    - SnapKit
+    - XCGLogger
+
+SPEC CHECKSUMS:
+  MBProgressHUD: 3ee5efcc380f6a79a7cc9b363dd669c5e1ae7406
+  MJRefresh: fdf5e979eb406a0341468932d1dfc8b7f9fce961
+  ObjcExceptionBridging: c30e00eb3700467e695faeea30e26e18bd445001
+  SnapKit: 97b92857e3df3a0c71833cce143274bf6ef8e5eb
+  XCGLogger: 1943831ef907df55108b0b18657953f868de973b
+
+PODFILE CHECKSUM: 76caff9f808ce208c01dda28cd7af894c0ed1ca9
+
+COCOAPODS: 1.11.2
