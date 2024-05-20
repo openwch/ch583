@@ -28,6 +28,14 @@ Directory
   |      |      |      |-- PWMX: PWM4-11 output routine
   |      |      |      |-- SPI0: SPI0 routine, master/slave mode, data transceiver
   |      |      |      |-- TMR: Timer routine  
+  |      |      |      |-- TOUCH
+  |      |      |      |      |-- TKYLIB£ºTouch library files and their header files
+  |      |      |      |      |-- Touch_Keys£ºTouch button routine, implementing 12 buttons
+  |      |      |      |      |-- Touch_Keys_with_ble£ºBluetooth touch button routine, combined with Bluetooth peripheral routine on the basis of touch button routine, realizes touch button key value reporting
+  |      |      |      |      |-- Touch_Proximity£ºSpace separated touch routine, implemented using a touch channel
+  |      |      |      |      |-- Touch_WheelSlider£ºTouch pulley routine, resolution of 360 points, implemented using 8 touch channels
+  |      |      |      |      |-- WCH Touch Library User Manual.PDF
+  |      |      |      |      |-- WCH Touch Application Guide.PDF
   |      |      |      |-- UART1: UART1 receive/transmit routine
   |      |      |      |-- USB
   |      |      |      |      |-- Device

@@ -1,8 +1,8 @@
 /********************************** (C) COPYRIGHT ******************************
  * File Name         : CH58xBLE_ROM.H
  * Author            : WCH
- * Version           : V2.00
- * Date              : 2024/01/02
+ * Version           : V2.10
+ * Date              : 2024/03/18
  * Description       : head file
  *                    Address Space
  *                       CODE:   00010000H - 0003FFFFH   192K
@@ -201,7 +201,7 @@ typedef struct
 /*********************************************************************
  * GLOBAL MACROS
  */
-#define VER_FILE  "CH58x_BLE_LIB_V2.0"
+#define VER_FILE  "CH58x_BLE_LIB_V2.1"
 extern const uint8_t VER_LIB[];  // LIB version
 #define SYSTEM_TIME_MICROSEN            625   // unit of process event timer is 625us
 #define MS1_TO_SYSTEM_TIME(x)  ((x)*1000/SYSTEM_TIME_MICROSEN)   // transform unit in ms to unit in 625us ( attentional bias )
@@ -4011,9 +4011,6 @@ typedef struct tag_rf_config
 
 /**
  * @brief   Get a GAP Parameter value.
- *
- * @note    This function is the same as GAP_PasskeyUpdate(), except that
- *          the passkey is passed in as a non-string format.
  *
  * @param   paramID - parameter ID: @ref GAP_PARAMETER_ID_DEFINES
  *

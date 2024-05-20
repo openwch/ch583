@@ -292,24 +292,18 @@ __HIGH_CODE
 void LowPower_Sleep(uint8_t rm)
 {
     __attribute__((aligned(4))) uint8_t MacAddr[6] = {0};
-    uint8_t x32Kpw, x32Mpw;
+    uint8_t x32Mpw;
     uint16_t power_plan;
 
     GetMACAddress(MacAddr);
 
-    x32Kpw = R8_XT32K_TUNE;
     x32Mpw = R8_XT32M_TUNE;
     x32Mpw = (x32Mpw & 0xfc) | 0x03; // 150%额定电流
-    if(R16_RTC_CNT_32K > 0x3fff)
-    {                                    // 超过500ms
-        x32Kpw = (x32Kpw & 0xfc) | 0x01; // LSE驱动电流降低到额定电流
-    }
 
     sys_safe_access_enable();
     R8_BAT_DET_CTRL = 0; // 关闭电压监控
     sys_safe_access_disable();
     sys_safe_access_enable();
-    R8_XT32K_TUNE = x32Kpw;
     R8_XT32M_TUNE = x32Mpw;
     sys_safe_access_disable();
 
@@ -338,6 +332,10 @@ void LowPower_Sleep(uint8_t rm)
                 break;
         }
     }while(1);
+
+    sys_safe_access_enable();
+    R16_POWER_PLAN &= ~RB_PWR_PLAN_EN;
+    sys_safe_access_disable();
 
     sys_safe_access_enable();
     R8_PLL_CONFIG &= ~(1 << 5);

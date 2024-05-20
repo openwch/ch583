@@ -455,6 +455,7 @@ void RTC_SetCycle32k(uint32_t cyc)
  *
  * @return  当前周期数，MAX_CYC = 0xA8BFFFFF = 2831155199
  */
+__HIGH_CODE
 uint32_t RTC_GetCycle32k(void)
 {
     volatile uint32_t i;

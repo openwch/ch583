@@ -18,6 +18,9 @@
 /*********************************************************************
  * GLOBAL TYPEDEFS
  */
+
+#define RF_AUTO_MODE_EXAM       0
+
 uint8_t taskID;
 uint8_t TX_DATA[10] = {1, 2, 3, 4, 5, 6, 7, 8, 9, 0};
 
@@ -92,7 +95,9 @@ void RF_2G4StatusCallBack(uint8_t sta, uint8_t crc, uint8_t *rxBuf)
                     PRINT("match type error\n");
                 }
             }
+#if  (!RF_AUTO_MODE_EXAM)
             tmos_set_event(taskID, SBP_RF_RF_RX_EVT);
+#endif
             break;
         }
         case RX_MODE_TX_FINISH:
@@ -187,7 +192,11 @@ void RF_Init(void)
     rfConfig.CRCInit = 0x555555;
     rfConfig.Channel = 8;
     rfConfig.Frequency = 2480000;
+#if  RF_AUTO_MODE_EXAM
+    rfConfig.LLEMode = LLE_MODE_AUTO;
+#else
     rfConfig.LLEMode = LLE_MODE_BASIC | LLE_MODE_EX_CHANNEL; // 使能 LLE_MODE_EX_CHANNEL 表示 选择 rfConfig.Frequency 作为通信频点
+#endif
     rfConfig.rfStatusCB = RF_2G4StatusCallBack;
     rfConfig.RxMaxlen = 251;
     state = RF_Config(&rfConfig);

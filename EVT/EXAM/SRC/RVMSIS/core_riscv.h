@@ -636,6 +636,20 @@ RV_STATIC_INLINE uint32_t SysTick_Config(uint64_t ticks)
     return (0);                       /* Function successful */
 }
 
+RV_STATIC_INLINE uint32_t __SysTick_Config(uint64_t ticks)
+{
+    if((ticks - 1) > SysTick_LOAD_RELOAD_Msk)
+        return (1); /* Reload value impossible */
+
+    SysTick->CMP = ticks - 1; /* set reload register */
+    SysTick->CTLR = SysTick_CTLR_INIT |
+                    SysTick_CTLR_STRE |
+                    SysTick_CTLR_STCLK |
+                    SysTick_CTLR_STIE |
+                    SysTick_CTLR_STE; /* Enable SysTick IRQ and SysTick Timer */
+    return (0);                       /* Function successful */
+}
+
 #ifdef __cplusplus
 }
 #endif

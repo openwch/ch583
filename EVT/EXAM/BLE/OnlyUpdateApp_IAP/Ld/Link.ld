@@ -124,11 +124,6 @@ SECTIONS
 	  KEEP (*(.dtors))
 	} >FLASH AT>FLASH 
 
-	.dalign    : 
-	{
-		. = ORIGIN(RAM) + SIZEOF(.highcode);
-	} >RAM AT>FLASH	
-
 	.dlalign :
 	{
 		. = ALIGN(4); 

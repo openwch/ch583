@@ -99,7 +99,8 @@ typedef enum
  */
 typedef enum
 {
-    LSECap_2p = 0,
+    LSECap_2p = 0,  //实际上为12p
+    LSECap_12p = 0,
     LSECap_13p,
     LSECap_14p,
     LSECap_15p,
