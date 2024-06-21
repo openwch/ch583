@@ -1,4 +1,4 @@
-# RISC-V Core BLE5.3 MCU, CH583
+# RISC-V Core BLE5.3 MCU - CH583
 
 ### Overview
 
@@ -6,7 +6,7 @@ The CH583 is a 32-bit RISC MCU integrated with BLE wireless communication. The C
 
 ### System Block Diagram
 
-<img src="image\CH583.jpg" alt="CH583" style="zoom:50%;" />
+![CH583](./image/CH583.jpg "CH583")
 
 ### Features
 
@@ -42,4 +42,8 @@ The CH583 is a 32-bit RISC MCU integrated with BLE wireless communication. The C
 
 - Built-in AES-128 encryption/decryption unit, unique ID.
 
-- Package: QFN48
+- Package: QFN48, QFN28
+
+### Product Selection Guide
+
+![SelectionGuide](./image/SelectionGuide.jpg "SelectionGuide")
