@@ -105,7 +105,7 @@ int i2c_write_to(uint8_t addr_7bit, const uint8_t *data, uint8_t length,
 
         do {
             I2C_SendData(i2c_slave_addr_rw);
-        } while(R16_I2C_CTRL1 & RB_I2C_BTF);
+        } while(R16_I2C_STAR1 & RB_I2C_BTF);
 
         /* Disabled in IRS */
         I2C_ITConfig(I2C_IT_BUF, ENABLE);
@@ -163,7 +163,7 @@ int i2c_read_from(uint8_t addr_7bit, uint8_t *data, uint8_t length,
 
         do {
             I2C_SendData(i2c_slave_addr_rw);
-        } while(R16_I2C_CTRL1 & RB_I2C_BTF);
+        } while(R16_I2C_STAR1 & RB_I2C_BTF);
 
         /* Disabled in IRS */
         I2C_ITConfig(I2C_IT_BUF, ENABLE);

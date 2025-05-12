@@ -32,6 +32,8 @@ extern "C" {
 #define SBP_PARAM_UPDATE_EVT    0x0008
 #define UART_TO_BLE_SEND_EVT    0x0010
 
+// Simple Profile Service UUID
+#define SIMPLEPROFILE_SERV_UUID     0xFFE0
 /*********************************************************************
  * MACROS
  */

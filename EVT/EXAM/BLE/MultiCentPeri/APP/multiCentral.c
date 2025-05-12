@@ -302,7 +302,7 @@ uint16_t Central_ProcessEvent(uint8_t task_id, uint16_t events)
     {
         uint8_t *pMsg;
 
-        if((pMsg = tmos_msg_receive(centralTaskId)) != NULL)
+        if((pMsg = tmos_msg_receive(task_id)) != NULL)
         {
             central_ProcessTMOSMsg((tmos_event_hdr_t *)pMsg);
             // Release the TMOS message

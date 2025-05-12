@@ -144,7 +144,7 @@ static uint8_t attDeviceName[GAP_DEVICE_NAME_LEN] = "Simple Peripheral";
 // Connection item list
 static peripheralConnItem_t peripheralConnList;
 
-static uint8_t peripheralMTU = ATT_MTU_SIZE;
+static uint16_t peripheralMTU = ATT_MTU_SIZE;
 /*********************************************************************
  * LOCAL FUNCTIONS
  */

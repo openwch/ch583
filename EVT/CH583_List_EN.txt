@@ -72,6 +72,7 @@ Directory
   |      |      |      |      |-- Direct_Test_Mode£ºDTM test routine, combined with RF test tools
   |      |      |      |      |-- RF_PHY: non-standard wireless transceiver routines
   |      |      |      |      |-- RF_PHY_Hop: non-standard wireless frequency hopping transceiver routine
+  |      |      |      |      |-- IoCHub-Net: BLE+IoChub Simple Light Control Switch Routine, including IoCHubNetApp_Sndroid Application Routine Compressed Package
   |      |      |      |      |-- MESH
   |      |      |      |      |      |-- adv_ali_light: Tmall Genie light routine, devices can be found and provisioned network via Tmall Genie, to control the switch state. By default, only switch attribute can be controlled. If other attributes (brightness, power, temperature, etc.) are needed, add the corresponding processing function and status report function according to the attribute description of the Alibaba Cloud product configuration.
   |      |      |      |      |      |-- adv_ali_light_add_lightness: MESH general attribute adding routine. On the basis of the Tmall Genie light routine, the brightness attribute is added, which is used to compare the original Tmall Genie light routine to quickly become familiar with the method of adding other MESH general attributes.

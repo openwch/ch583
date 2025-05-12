@@ -123,7 +123,7 @@ int main()
     {
         TestBuf[i] = 0x70 + i;
     }
-    s = FLASH_ROM_WRITE(20 * 1024, TestBuf, 128);
+    s = FLASH_ROM_WRITE(20 * 1024, TestBuf, 128); //Codeflash写入必须是4字节的整数倍
     PRINT("FlashWrite=%02x\n", s);
     s = FLASH_ROM_VERIFY(20 * 1024, TestBuf, 128);
     PRINT("FlashVerify=%02x\n", s);

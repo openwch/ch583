@@ -15,7 +15,6 @@
  */
 #include "CONFIG.h"
 #include "devinfoservice.h"
-#include "gattprofile.h"
 #include "peripheral.h"
 #include "app_uart.h"
 

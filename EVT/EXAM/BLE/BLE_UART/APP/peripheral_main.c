@@ -14,7 +14,6 @@
 /* 头文件包含 */
 #include "CONFIG.h"
 #include "HAL.h"
-#include "gattprofile.h"
 #include "peripheral.h"
 #include "app_uart.h"
 

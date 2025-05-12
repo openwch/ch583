@@ -139,7 +139,7 @@ static uint8_t attDeviceName[ GAP_DEVICE_NAME_LEN ] = "Ble_Touch";
 // Connection item list
 peripheralConnItem_t peripheralConnList;
 
-static uint8_t peripheralMTU = ATT_MTU_SIZE;
+static uint16_t peripheralMTU = ATT_MTU_SIZE;
 
 uint16_t peripheral_Mtu = 23;
 /*********************************************************************

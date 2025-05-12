@@ -265,7 +265,7 @@ uint8_t EnableRootU2HubPort(void);             // 使能ROOT-HUB端口,相应的bUH_POR
 void    SelectU2HubPort(uint8_t HubPortIndex); // HubPortIndex=0选择操作指定的ROOT-HUB端口,否则选择操作指定的ROOT-HUB端口的外部HUB的指定端口
 uint8_t WaitUSB2_Interrupt(void);              // 等待USB中断
 // 传输事务,输入目的端点地址/PID令牌,同步标志,以20uS为单位的NAK重试总时间(0则不重试,0xFFFF无限重试),返回0成功,超时/出错重试
-uint8_t USB2HostTransact(uint8_t endp_pid, uint8_t tog, UINT32 timeout); // endp_pid: 高4位是token_pid令牌, 低4位是端点地址
+uint8_t USB2HostTransact(uint8_t endp_pid, uint8_t tog, uint32_t timeout); // endp_pid: 高4位是token_pid令牌, 低4位是端点地址
 uint8_t U2HostCtrlTransfer(uint8_t *DataBuf, uint8_t *RetLen);           // 执行控制传输,8字节请求码在pSetupReq中,DataBuf为可选的收发缓冲区
 // 如果需要接收和发送数据,那么DataBuf需指向有效缓冲区用于存放后续数据,实际成功收发的总长度返回保存在ReqLen指向的字节变量中
 

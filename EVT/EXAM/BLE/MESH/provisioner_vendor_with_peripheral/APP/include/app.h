@@ -111,7 +111,7 @@ typedef union
     } delete_node_ack;              /* 删除节点命令应答 */
     struct
     {
-        uint8_t buf[20]; /* 接收数据包*/
+        uint8_t buf[MAX(CONFIG_MESH_UNSEG_LENGTH_DEF, CONFIG_MESH_TX_SEG_DEF *BLE_MESH_APP_SEG_SDU_MAX - 8)]; /* 接收数据包*/
     } data;
 }app_mesh_manage_t;
 

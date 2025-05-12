@@ -179,6 +179,21 @@ handle_reset:
     ori t0, t0, 3
 	csrw mtvec, t0
 
+    lui a4,0x40001
+    li  a5,87
+    sb  a5,64(a4)
+    li  a5,-88
+    sb  a5,64(a4)
+    fence.i
+    lw  a5,72(a4)
+    lui a3,0xfa000
+    addi  a3,a3,-8
+    and a5,a5,a3
+    lui a3,0x6000
+    addi a3,a3,5
+    or  a5,a5,a3
+    sw  a5,72(a4)
+
 	la t0, main
 	csrw mepc, t0
 

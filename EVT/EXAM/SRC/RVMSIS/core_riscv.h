@@ -96,8 +96,8 @@ typedef struct
     else                                                            \
       __asm__ volatile ("csrw  " #reg ", %0" :: "r"(val)); })
 
-#define PFIC_EnableAllIRQ()     {write_csr(0x800, 0x88);__nop();__nop();}
-#define PFIC_DisableAllIRQ()    {write_csr(0x800, 0x80);__nop();__nop();}
+#define PFIC_EnableAllIRQ()     {write_csr(0x800, 0x88);}
+#define PFIC_DisableAllIRQ()    {write_csr(0x800, 0x80);asm volatile("fence.i");}
 /* ##########################   PFIC functions  #################################### */
 
 /*******************************************************************************
@@ -122,8 +122,7 @@ RV_STATIC_INLINE void PFIC_EnableIRQ(IRQn_Type IRQn)
 RV_STATIC_INLINE void PFIC_DisableIRQ(IRQn_Type IRQn)
 {
     PFIC->IRER[((uint32_t)(IRQn) >> 5)] = (1 << ((uint32_t)(IRQn)&0x1F));
-    __nop();
-    __nop();
+    asm volatile("fence.i");
 }
 
 /*******************************************************************************

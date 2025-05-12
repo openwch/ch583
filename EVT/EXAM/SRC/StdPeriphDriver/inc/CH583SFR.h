@@ -464,7 +464,7 @@ extern "C" {
 #define  RB_ADC_DATA        0x0FFF                    // RO, ADC conversion data
 #define R8_ADC_INT_FLAG     (*((PUINT8V)0x4000105E))  // RO, ADC interrupt flag register
 #define  RB_ADC_IF_EOC      0x80                      // RO, ADC conversion interrupt flag: 0=free or converting, 1=end of conversion, interrupt action, auto ADC or write R8_ADC_CONVERT or write R8_TKEY_CONVERT to clear flag
-#define R32_TKEY_CTRL       (*((PUINT8V)0x40001054))  // RW, Touchkey control
+#define R32_TKEY_CTRL       (*((PUINT32V)0x40001054)) // RW, Touchkey control
 #define R8_TKEY_COUNT       (*((PUINT8V)0x40001054))  // RW, Touchkey charge and discharge count
 #define  RB_TKEY_CHARG_CNT  0x1F                      // RW, Touchkey charge count
 #define  RB_TKEY_DISCH_CNT  0xE0                      // RW, Touchkey discharge count

@@ -15,7 +15,6 @@
  */
 
 #include "CONFIG.h"
-#include "gattprofile.h"
 #include "stdint.h"
 #include "ble_uart_service.h"
 

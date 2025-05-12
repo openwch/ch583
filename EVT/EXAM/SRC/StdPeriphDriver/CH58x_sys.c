@@ -182,6 +182,7 @@ void SYS_DisableAllIrq(uint32_t *pirqv)
     *pirqv = (PFIC->ISR[0] >> 8) | (PFIC->ISR[1] << 24);
     PFIC->IRER[0] = 0xffffffff;
     PFIC->IRER[1] = 0xffffffff;
+    asm volatile("fence.i");
 }
 
 /*********************************************************************

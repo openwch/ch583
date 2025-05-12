@@ -15,7 +15,6 @@
  */
 #include "CONFIG.h"
 #include "devinfoservice.h"
-#include "gattprofile.h"
 #include "peripheral.h"
 #include "ble_uart_service.h"
 #include "app_drv_fifo.h"

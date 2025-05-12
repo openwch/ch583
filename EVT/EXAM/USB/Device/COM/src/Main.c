@@ -156,7 +156,7 @@ UINT8 SetupReqCode, SetupLen;
 __aligned(4) UINT8  Ep0Buffer[MAX_PACKET_SIZE];     //端点0 收发共用  端点4 OUT & IN
 
 //端点4的上传地址
-__aligned(4) UINT8  Ep1Buffer[MAX_PACKET_SIZE];     //IN
+__aligned(4) UINT8  Ep1Buffer[2*MAX_PACKET_SIZE];   //OUT & IN
 __aligned(4) UINT8  Ep2Buffer[2*MAX_PACKET_SIZE];   //OUT & IN
 __aligned(4) UINT8  Ep3Buffer[2*MAX_PACKET_SIZE];   //OUT & IN
 

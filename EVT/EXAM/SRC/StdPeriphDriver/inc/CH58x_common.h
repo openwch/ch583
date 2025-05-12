@@ -53,7 +53,7 @@
 #endif
 
 #ifndef  SAFEOPERATE
-#define  SAFEOPERATE   __nop();__nop()
+#define  SAFEOPERATE   asm volatile("fence.i")
 #endif
 
 /**
