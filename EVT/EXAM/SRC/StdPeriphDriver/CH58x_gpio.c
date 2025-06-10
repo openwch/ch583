@@ -15,10 +15,10 @@
 /*********************************************************************
  * @fn      GPIOA_ModeCfg
  *
- * @brief   GPIOA¶Ë¿ÚÒý½ÅÄ£Ê½ÅäÖÃ
+ * @brief   GPIOAç«¯å£å¼•è„šæ¨¡å¼é…ç½®
  *
  * @param   pin     - PA0-PA15
- * @param   mode    - ÊäÈëÊä³öÀàÐÍ
+ * @param   mode    - è¾“å…¥è¾“å‡ºç±»åž‹
  *
  * @return  none
  */
@@ -62,10 +62,10 @@ void GPIOA_ModeCfg(uint32_t pin, GPIOModeTypeDef mode)
 /*********************************************************************
  * @fn      GPIOB_ModeCfg
  *
- * @brief   GPIOB¶Ë¿ÚÒý½ÅÄ£Ê½ÅäÖÃ
+ * @brief   GPIOBç«¯å£å¼•è„šæ¨¡å¼é…ç½®
  *
  * @param   pin     - PB0-PB23
- * @param   mode    - ÊäÈëÊä³öÀàÐÍ
+ * @param   mode    - è¾“å…¥è¾“å‡ºç±»åž‹
  *
  * @return  none
  */
@@ -109,10 +109,10 @@ void GPIOB_ModeCfg(uint32_t pin, GPIOModeTypeDef mode)
 /*********************************************************************
  * @fn      GPIOA_ITModeCfg
  *
- * @brief   GPIOAÒý½ÅÖÐ¶ÏÄ£Ê½ÅäÖÃ
+ * @brief   GPIOAå¼•è„šä¸­æ–­æ¨¡å¼é…ç½®
  *
  * @param   pin     - PA0-PA15
- * @param   mode    - ´¥·¢ÀàÐÍ
+ * @param   mode    - è§¦å‘ç±»åž‹
  *
  * @return  none
  */
@@ -120,22 +120,22 @@ void GPIOA_ITModeCfg(uint32_t pin, GPIOITModeTpDef mode)
 {
     switch(mode)
     {
-        case GPIO_ITMode_LowLevel: // µÍµçÆ½´¥·¢
+        case GPIO_ITMode_LowLevel: // ä½Žç”µå¹³è§¦å‘
             R16_PA_INT_MODE &= ~pin;
             R32_PA_CLR |= pin;
             break;
 
-        case GPIO_ITMode_HighLevel: // ¸ßµçÆ½´¥·¢
+        case GPIO_ITMode_HighLevel: // é«˜ç”µå¹³è§¦å‘
             R16_PA_INT_MODE &= ~pin;
             R32_PA_OUT |= pin;
             break;
 
-        case GPIO_ITMode_FallEdge: // ÏÂ½µÑØ´¥·¢
+        case GPIO_ITMode_FallEdge: // ä¸‹é™æ²¿è§¦å‘
             R16_PA_INT_MODE |= pin;
             R32_PA_CLR |= pin;
             break;
 
-        case GPIO_ITMode_RiseEdge: // ÉÏÉýÑØ´¥·¢
+        case GPIO_ITMode_RiseEdge: // ä¸Šå‡æ²¿è§¦å‘
             R16_PA_INT_MODE |= pin;
             R32_PA_OUT |= pin;
             break;
@@ -150,10 +150,10 @@ void GPIOA_ITModeCfg(uint32_t pin, GPIOITModeTpDef mode)
 /*********************************************************************
  * @fn      GPIOB_ITModeCfg
  *
- * @brief   GPIOBÒý½ÅÖÐ¶ÏÄ£Ê½ÅäÖÃ
+ * @brief   GPIOBå¼•è„šä¸­æ–­æ¨¡å¼é…ç½®
  *
  * @param   pin     - PB0-PB23
- * @param   mode    - ´¥·¢ÀàÐÍ
+ * @param   mode    - è§¦å‘ç±»åž‹
  *
  * @return  none
  */
@@ -162,22 +162,22 @@ void GPIOB_ITModeCfg(uint32_t pin, GPIOITModeTpDef mode)
     uint32_t Pin = pin | ((pin & (GPIO_Pin_22 | GPIO_Pin_23)) >> 14);
     switch(mode)
     {
-        case GPIO_ITMode_LowLevel: // µÍµçÆ½´¥·¢
+        case GPIO_ITMode_LowLevel: // ä½Žç”µå¹³è§¦å‘
             R16_PB_INT_MODE &= ~Pin;
             R32_PB_CLR |= pin;
             break;
 
-        case GPIO_ITMode_HighLevel: // ¸ßµçÆ½´¥·¢
+        case GPIO_ITMode_HighLevel: // é«˜ç”µå¹³è§¦å‘
             R16_PB_INT_MODE &= ~Pin;
             R32_PB_OUT |= pin;
             break;
 
-        case GPIO_ITMode_FallEdge: // ÏÂ½µÑØ´¥·¢
+        case GPIO_ITMode_FallEdge: // ä¸‹é™æ²¿è§¦å‘
             R16_PB_INT_MODE |= Pin;
             R32_PB_CLR |= pin;
             break;
 
-        case GPIO_ITMode_RiseEdge: // ÉÏÉýÑØ´¥·¢
+        case GPIO_ITMode_RiseEdge: // ä¸Šå‡æ²¿è§¦å‘
             R16_PB_INT_MODE |= Pin;
             R32_PB_OUT |= pin;
             break;
@@ -192,9 +192,9 @@ void GPIOB_ITModeCfg(uint32_t pin, GPIOITModeTpDef mode)
 /*********************************************************************
  * @fn      GPIOPinRemap
  *
- * @brief   ÍâÉè¹¦ÄÜÒý½ÅÓ³Éä
+ * @brief   å¤–è®¾åŠŸèƒ½å¼•è„šæ˜ å°„
  *
- * @param   s       - ÊÇ·ñÊ¹ÄÜÓ³Éä
+ * @param   s       - æ˜¯å¦ä½¿èƒ½æ˜ å°„
  * @param   perph   - RB_RF_ANT_SW_EN -  RF antenna switch control output on PB16/PB17/PB18/PB19/PB20/PB21
  *                    RB_PIN_U0_INV -  RXD0/RXD0_/TXD0/TXD0_ invert input/output
  *                    RB_PIN_INTX   -  INTX: INT24/INT25 PB8/PB9 -> INT24_/INT25_ PB22/PB23
@@ -206,7 +206,7 @@ void GPIOB_ITModeCfg(uint32_t pin, GPIOITModeTpDef mode)
  *                    RB_PIN_UART2  -  UART2: PA6/PA7 ->  PB22/PB23
  *                    RB_PIN_UART1  -  UART1: PA8/PA9 ->  PB12/PB13
  *                    RB_PIN_UART0  -  UART0: PB4/PB7 ->  PA15/PA14
- *                    RB_PIN_TMR3   -  TMR2:  PA9 ->  PB23
+ *                    RB_PIN_TMR3   -  TMR2:  PB22 ->  PA2
  *                    RB_PIN_TMR2   -  TMR2:  PA11 ->  PB11
  *                    RB_PIN_TMR1   -  TMR1:  PA10 ->  PB10
  *                    RB_PIN_TMR0   -  TMR0:  PA9 ->  PB23
@@ -228,25 +228,25 @@ void GPIOPinRemap(FunctionalState s, uint16_t perph)
 /*********************************************************************
  * @fn      GPIOAGPPCfg
  *
- * @brief   Ä£ÄâÍâÉèGPIOÒý½Å¹¦ÄÜ¿ØÖÆ
+ * @brief   æ¨¡æ‹Ÿå¤–è®¾GPIOå¼•è„šåŠŸèƒ½æŽ§åˆ¶
  *
- * @param   s       -   ENABLE  - ´ò¿ªÄ£ÄâÍâÉè¹¦ÄÜ£¬¹Ø±ÕÊý×Ö¹¦ÄÜ
- *                      DISABLE - ÆôÓÃÊý×Ö¹¦ÄÜ£¬¹Ø±ÕÄ£ÄâÍâÉè¹¦ÄÜ
- * @param   perph   -   RB_PIN_ADC8_9_IE  - ADC/TKEY 9/8Í¨µÀ
- *                      RB_PIN_ADC6_7_IE  - ADC/TKEY 7/6Í¨µÀ
- *                      RB_PIN_ADC10_IE   - ADC/TKEY 10Í¨µÀ
- *                      RB_PIN_ADC11_IE   - ADC/TKEY 11 Í¨µÀ
- *                      RB_PIN_USB2_DP_PU - USB2 U2D+Òý½ÅÄÚ²¿ÉÏÀ­µç×è
- *                      RB_PIN_USB2_IE    - USB2Òý½Å
- *                      RB_PIN_USB_DP_PU  - USB UD+Òý½ÅÄÚ²¿ÉÏÀ­µç×è
- *                      RB_PIN_USB_IE     - USB Òý½Å
- *                      RB_PIN_ADC0_IE    - ADC/TKEY 0 Í¨µÀ
- *                      RB_PIN_ADC1_IE    - ADC/TKEY 1 Í¨µÀ
- *                      RB_PIN_ADC12_IE   - ADC/TKEY 12 Í¨µÀ
- *                      RB_PIN_ADC13_IE   - ADC/TKEY 13 Í¨µÀ
- *                      RB_PIN_XT32K_IE   - 32KHz¾§ÕñLSEÒý½Å
- *                      RB_PIN_ADC2_3_IE  - ADC/TKEY 2/3 Í¨µÀ
- *                      RB_PIN_ADC4_5_IE  - ADC/TKEY 4/5 Í¨µÀ
+ * @param   s       -   ENABLE  - æ‰“å¼€æ¨¡æ‹Ÿå¤–è®¾åŠŸèƒ½ï¼Œå…³é—­æ•°å­—åŠŸèƒ½
+ *                      DISABLE - å¯ç”¨æ•°å­—åŠŸèƒ½ï¼Œå…³é—­æ¨¡æ‹Ÿå¤–è®¾åŠŸèƒ½
+ * @param   perph   -   RB_PIN_ADC8_9_IE  - ADC/TKEY 9/8é€šé“
+ *                      RB_PIN_ADC6_7_IE  - ADC/TKEY 7/6é€šé“
+ *                      RB_PIN_ADC10_IE   - ADC/TKEY 10é€šé“
+ *                      RB_PIN_ADC11_IE   - ADC/TKEY 11 é€šé“
+ *                      RB_PIN_USB2_DP_PU - USB2 U2D+å¼•è„šå†…éƒ¨ä¸Šæ‹‰ç”µé˜»
+ *                      RB_PIN_USB2_IE    - USB2å¼•è„š
+ *                      RB_PIN_USB_DP_PU  - USB UD+å¼•è„šå†…éƒ¨ä¸Šæ‹‰ç”µé˜»
+ *                      RB_PIN_USB_IE     - USB å¼•è„š
+ *                      RB_PIN_ADC0_IE    - ADC/TKEY 0 é€šé“
+ *                      RB_PIN_ADC1_IE    - ADC/TKEY 1 é€šé“
+ *                      RB_PIN_ADC12_IE   - ADC/TKEY 12 é€šé“
+ *                      RB_PIN_ADC13_IE   - ADC/TKEY 13 é€šé“
+ *                      RB_PIN_XT32K_IE   - 32KHzæ™¶æŒ¯LSEå¼•è„š
+ *                      RB_PIN_ADC2_3_IE  - ADC/TKEY 2/3 é€šé“
+ *                      RB_PIN_ADC4_5_IE  - ADC/TKEY 4/5 é€šé“
  *
  * @return  none
  */
