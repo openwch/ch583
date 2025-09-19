@@ -25,6 +25,28 @@
  * MACROS
  */
 
+/**
+ * SET_BIT - 设置指定的位为 1 (置位)
+ * @param REG: 要操作的寄存器或变量的地址 (指针)
+ * @param BIT: 要设置的位的位置 (0-based index)
+ *
+ * 原理: 使用按位或 (|) 操作。将目标位置1，其他位保持不变。
+ * 例如: REG = REG | (1 << BIT)
+ */
+#define SET_BIT(REG, BIT) ((REG) |= (1U << (BIT)))
+
+#define SELET_CURRENT_EVENT(_EVENTS, _CURRENT_EVENT)          \
+    do {                                                      \
+        const uint16_t _DBG_MaxCnt = 16;                      \
+        uint16_t _DBG_ret = 0x0, _DBG_loop = 0;               \
+        for (; _DBG_loop < _DBG_MaxCnt; _DBG_loop++) {        \
+            if (CHECK_BIT (_EVENTS, _DBG_MaxCnt - _DBG_loop)) \
+                break;                                        \
+        }                                                     \
+        SET_BIT (_DBG_ret, _DBG_MaxCnt - _DBG_loop);          \
+        _CURRENT_EVENT = _DBG_ret;                            \
+    } while (0)
+
 /*********************************************************************
  * CONSTANTS
  */
@@ -317,71 +339,55 @@ static void peripheralInitConnItem(peripheralConnItem_t *peripheralConnList)
 uint16_t Peripheral_ProcessEvent(uint8_t task_id, uint16_t events)
 {
     //  VOID task_id; // TMOS required parameter that isn't used in this function
+    uint16_t currentEvent = 0x0;
+    SELET_CURRENT_EVENT (events, currentEvent);
+    switch (currentEvent) {
+    case SYS_EVENT_MSG: {
+        uint8_t *pMsg = tmos_msg_receive (Peripheral_TaskID);
 
-    if(events & SYS_EVENT_MSG)
-    {
-        uint8_t *pMsg;
-
-        if((pMsg = tmos_msg_receive(Peripheral_TaskID)) != NULL)
-        {
-            Peripheral_ProcessTMOSMsg((tmos_event_hdr_t *)pMsg);
+        if (pMsg != NULL) {
+            Peripheral_ProcessTMOSMsg ((tmos_event_hdr_t *)pMsg);
             // Release the TMOS message
-            tmos_msg_deallocate(pMsg);
+            tmos_msg_deallocate (pMsg);
         }
-        // return unprocessed events
-        return (events ^ SYS_EVENT_MSG);
+        break;
     }
-
-    if(events & SBP_START_DEVICE_EVT)
-    {
+    case SBP_START_DEVICE_EVT: {
         // Start the Device
-        GAPRole_PeripheralStartDevice(Peripheral_TaskID, &Peripheral_BondMgrCBs, &Peripheral_PeripheralCBs);
-        return (events ^ SBP_START_DEVICE_EVT);
+        GAPRole_PeripheralStartDevice (Peripheral_TaskID, &Peripheral_BondMgrCBs, &Peripheral_PeripheralCBs);
+        break;
     }
-
-    if(events & SBP_PERIODIC_EVT)
-    {
+    case SBP_PERIODIC_EVT: {
         // Restart timer
-        if(SBP_PERIODIC_EVT_PERIOD)
-        {
-            tmos_start_task(Peripheral_TaskID, SBP_PERIODIC_EVT, SBP_PERIODIC_EVT_PERIOD);
+        if (SBP_PERIODIC_EVT_PERIOD) {
+            tmos_start_task (Peripheral_TaskID, SBP_PERIODIC_EVT, SBP_PERIODIC_EVT_PERIOD);
         }
         // Perform periodic application task
         performPeriodicTask();
-        return (events ^ SBP_PERIODIC_EVT);
+        break;
     }
-
-    if(events & SBP_PARAM_UPDATE_EVT)
-    {
+    case SBP_PARAM_UPDATE_EVT: {
         // Send connect param update request
-        GAPRole_PeripheralConnParamUpdateReq(peripheralConnList.connHandle,
-                                             DEFAULT_DESIRED_MIN_CONN_INTERVAL,
-                                             DEFAULT_DESIRED_MAX_CONN_INTERVAL,
-                                             DEFAULT_DESIRED_SLAVE_LATENCY,
-                                             DEFAULT_DESIRED_CONN_TIMEOUT,
-                                             Peripheral_TaskID);
-
-        return (events ^ SBP_PARAM_UPDATE_EVT);
+        GAPRole_PeripheralConnParamUpdateReq (peripheralConnList.connHandle,
+                                              DEFAULT_DESIRED_MIN_CONN_INTERVAL,
+                                              DEFAULT_DESIRED_MAX_CONN_INTERVAL,
+                                              DEFAULT_DESIRED_SLAVE_LATENCY,
+                                              DEFAULT_DESIRED_CONN_TIMEOUT,
+                                              Peripheral_TaskID);
+        break;
     }
-
-    if(events & SBP_PHY_UPDATE_EVT)
-    {
-        // start phy update
-        PRINT("PHY Update %x...\n", GAPRole_UpdatePHY(peripheralConnList.connHandle, 0, 
-                    GAP_PHY_BIT_LE_2M, GAP_PHY_BIT_LE_2M, GAP_PHY_OPTIONS_NOPRE));
-
-        return (events ^ SBP_PHY_UPDATE_EVT);
+    case SBP_READ_RSSI_EVT: {
+        GAPRole_ReadRssiCmd (peripheralConnList.connHandle);
+        tmos_start_task (Peripheral_TaskID, SBP_READ_RSSI_EVT, SBP_READ_RSSI_EVT_PERIOD);
+        break;
     }
-
-    if(events & SBP_READ_RSSI_EVT)
-    {
-        GAPRole_ReadRssiCmd(peripheralConnList.connHandle);
-        tmos_start_task(Peripheral_TaskID, SBP_READ_RSSI_EVT, SBP_READ_RSSI_EVT_PERIOD);
-        return (events ^ SBP_READ_RSSI_EVT);
+    default:
+        PRINT ("unknown event[%x]...\n", currentEvent);
+        // Discard unknown events
+        return 0;
     }
-
-    // Discard unknown events
-    return 0;
+    // return unprocessed events
+    return events ^ currentEvent;
 }
 
 /*********************************************************************
